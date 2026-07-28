@@ -2343,9 +2343,9 @@
   
   # Problema
 
-  Ao instalar, atualizar ou tentar resolver com upgrade, independente do OS, seja windows ou linux, o erro abaixo aparece exatamente igual, obviamente, resguardado o contexto de paths e análogos de seus respectivos sistema.
+  Ao instalar, atualizar ou tentar resolver com upgrade, independente do OS, seja windows ou linux, os warns/errors abaixo aparecem exatamente igual, obviamente, resguardado o contexto de paths e análogos de seus respectivos sistema.
 
-  O erro ocorre no MX LInux, Linux Mint, e Windows 11.
+  O erro ocorre no MX LInux, Linux Mint, e Windows 11. Especialmente no  Linux os erros impedem a execução do software. No windows 11, como o ambiente já estava previamente configurado, a exução segue funcional.
 
   Confira o mensagem no windows 11:
 
@@ -2391,3 +2391,29 @@ npm error       at async downloadBrowsers (file:///C:/LOCAL/whatsapp/node_module
 npm error }
 npm error A complete log of this run can be found in: C:\Users\admin\AppData\Local\npm-cache\_logs\2026-07-28T16_18_25_681Z-debug-0.log
 ```  
+
+```shell
+PS C:\LOCAL\whatsapp> npm install
+
+> whatsapp@0.3.0 prepare
+> npm run agent:setup
+
+
+> whatsapp@0.3.0 agent:setup
+> node .ia.rules/core/runtime/scripts/repo-tools.js agent:setup
+
+{"v":1,"command":"agent:setup","status":"ok","exit":0,"totalLines":1,"totalBytes":33,"shown":1,"truncated":false,"artifact":"","sha256":"d73a61be744fa600c6f47fc09ff17fa29c90d95c6da72340b6148f7b234f5287"}
+{"code":"TO_IA_INFO","level":"info","message":"{\"code\":\"SETUP_OK\",\"missing\":[]}"}
+
+removed 1 package, and audited 135 packages in 3s
+
+17 packages are looking for funding
+  run `npm fund` for details
+
+8 high severity vulnerabilities
+
+To address all issues, run:
+  npm audit fix
+
+Run `npm audit` for details.
+```
