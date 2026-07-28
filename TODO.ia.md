@@ -2338,3 +2338,56 @@
     * arquivos e normas alterados;
     * testes executados e resultados;
     * falsos positivos, limitações ou pendências conhecidas.
+
+- [ ] Corrigir erro no `npm install` e `npm update` abaixo.
+  
+  # Problema
+
+  Ao instalar, atualizar ou tentar resolver com upgrade, independente do OS, seja windows ou linux, o erro abaixo aparece exatamente igual, obviamente, resguardado o contexto de paths e análogos de seus respectivos sistema.
+
+  O erro ocorre no MX LInux, Linux Mint, e Windows 11.
+
+  Confira o mensagem no windows 11:
+
+  ```shell
+  npm warn using --force Recommended protections disabled.
+npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+npm warn cleanup Failed to remove some directories [
+npm warn cleanup   [
+npm warn cleanup     '\\\\?\\C:\\LOCAL\\whatsapp\\node_modules\\puppeteer\\node_modules\\puppeteer-core',
+npm warn cleanup     [Error: EPERM: operation not permitted, rmdir 'C:\LOCAL\whatsapp\node_modules\puppeteer\node_modules\puppeteer-core\src\bidi'] {
+npm warn cleanup       errno: -4048,
+npm warn cleanup       code: 'EPERM',
+npm warn cleanup       syscall: 'rmdir',
+npm warn cleanup       path: 'C:\\LOCAL\\whatsapp\\node_modules\\puppeteer\\node_modules\\puppeteer-core\\src\\bidi'
+npm warn cleanup     }
+npm warn cleanup   ],
+npm warn cleanup   [
+npm warn cleanup     '\\\\?\\C:\\LOCAL\\whatsapp\\node_modules\\lazystream',
+npm warn cleanup     [Error: EPERM: operation not permitted, rmdir 'C:\LOCAL\whatsapp\node_modules\lazystream\node_modules\readable-stream'] {
+npm warn cleanup       errno: -4048,
+npm warn cleanup       code: 'EPERM',
+npm warn cleanup       syscall: 'rmdir',
+npm warn cleanup       path: 'C:\\LOCAL\\whatsapp\\node_modules\\lazystream\\node_modules\\readable-stream'
+npm warn cleanup     }
+npm warn cleanup   ]
+npm warn cleanup ]
+npm error code 1
+npm error path C:\LOCAL\whatsapp\node_modules\puppeteer
+npm error command failed
+npm error command C:\WINDOWS\system32\cmd.exe /d /s /c node install.mjs
+npm error **INFO** Skipping Firefox download as instructed.
+npm error Error: ERROR: Failed to set up chrome v146.0.7680.31! Set "PUPPETEER_SKIP_DOWNLOAD" env variable to skip download.
+npm error     at downloadBrowser (file:///C:/LOCAL/whatsapp/node_modules/puppeteer/lib/esm/puppeteer/node/install.js:26:15)
+npm error     at async Promise.all (index 0)
+npm error     at async downloadBrowsers (file:///C:/LOCAL/whatsapp/node_modules/puppeteer/lib/esm/puppeteer/node/install.js:84:9) {
+npm error   [cause]: Error: All providers failed for chrome 146.0.7680.31:
+npm error     - DefaultProvider: The browser folder (C:\Users\admin\.cache\puppeteer\chrome\win64-146.0.7680.31) exists but the executable (C:\Users\admin\.cache\puppeteer\chrome\win64-146.0.7680.31\chrome-win64\chrome.exe) is missing
+npm error       at installWithProviders (file:///C:/LOCAL/whatsapp/node_modules/puppeteer/node_modules/@puppeteer/browsers/lib/esm/install.js:108:11)
+npm error       at async install (file:///C:/LOCAL/whatsapp/node_modules/puppeteer/node_modules/@puppeteer/browsers/lib/esm/install.js:118:12)
+npm error       at async downloadBrowser (file:///C:/LOCAL/whatsapp/node_modules/puppeteer/lib/esm/puppeteer/node/install.js:14:24)
+npm error       at async Promise.all (index 0)
+npm error       at async downloadBrowsers (file:///C:/LOCAL/whatsapp/node_modules/puppeteer/lib/esm/puppeteer/node/install.js:84:9)
+npm error }
+npm error A complete log of this run can be found in: C:\Users\admin\AppData\Local\npm-cache\_logs\2026-07-28T16_18_25_681Z-debug-0.log
+```  
