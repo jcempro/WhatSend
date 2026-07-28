@@ -234,7 +234,7 @@
     * [ ] O aviso é acessível, responsivo e semanticamente equivalente em todos os idiomas suportados.
     * [ ] A regra foi incorporada ao RCF.
 
-- [ ] Issue — Tornar `telefone` e `fone` aliases equivalentes e `case-insensitive`
+- [ ] Issue — Tornar `telefone` e `fone` aliases equivalentes, `case-insensitive` e mutuamente exclusivos
 
     ## Problema
 
@@ -246,7 +246,7 @@
     nome + telefone
     ```
 
-    DEVE passar a aceitar, de forma equivalente:
+    DEVE passar a aceitar, alternativamente:
 
     ```text
     nome + telefone
@@ -258,7 +258,7 @@
     nome + fone
     ```
 
-    As nomenclaturas `telefone` e `fone` DEVEM referir-se ao mesmo campo lógico e ser reconhecidas sem distinção entre maiúsculas e minúsculas.
+    As nomenclaturas `telefone` e `fone` DEVEM referir-se ao mesmo campo lógico, ser reconhecidas sem distinção entre maiúsculas e minúsculas e NÃO PODEM coexistir na mesma estrutura de entrada.
 
     ## Objetivo
 
@@ -268,16 +268,19 @@
     * o campo telefônico permanece obrigatório;
     * o campo telefônico PODE ser identificado por `telefone` ou `fone`;
     * `telefone` e `fone` são aliases equivalentes;
+    * os aliases são mutuamente exclusivos;
     * `nome`, `telefone` e `fone` são identificados de forma `case-insensitive`;
     * a aceitação do alias NÃO altera as regras de validação, normalização, processamento ou saída do campo telefônico.
 
     ## Regra normativa
 
-    A estrutura mínima válida DEVE conter:
+    A estrutura mínima válida DEVE conter exatamente:
 
     ```text
-    nome + (telefone | fone)
+    nome + (telefone XOR fone)
     ```
+
+    Onde `XOR` significa que somente um dos aliases telefônicos PODE existir.
 
     Exemplos válidos:
 
@@ -295,6 +298,8 @@
     nome
     telefone
     fone
+    nome;telefone;fone
+    nome;Telefone;FONE
     nome;celular
     nome;phone
     ```
@@ -338,35 +343,73 @@
 
     A comparação DEVE ocorrer após normalização segura, sem alterar o conteúdo dos valores.
 
-    ## 3. Presença obrigatória
+    ## 3. Presença obrigatória e exclusividade
 
     A validação estrutural DEVE exigir:
 
     1. uma coluna correspondente a `nome`;
-    2. uma coluna correspondente ao campo telefônico, identificada por `telefone` ou `fone`.
+    2. exatamente uma coluna correspondente ao campo telefônico;
+    3. a coluna telefônica DEVE ser identificada por `telefone` ou `fone`;
+    4. `telefone` e `fone` NÃO PODEM coexistir, independentemente da caixa utilizada.
 
     A ausência de ambos os aliases telefônicos DEVE produzir erro impeditivo.
 
     Mensagem equivalente:
 
     ```text
-    É obrigatória a coluna `telefone` ou `fone`.
+    É obrigatória uma coluna denominada `telefone` ou `fone`.
     ```
 
-    ## 4. Presença simultânea
+    A presença simultânea de ambos DEVE produzir erro impeditivo.
 
-    Quando `telefone` e `fone` estiverem presentes simultaneamente, a implementação NÃO DEVE escolher silenciosamente uma delas.
+    Mensagem equivalente:
 
-    DEVE aplicar regra determinística:
+    ```text
+    As colunas `telefone` e `fone` são alternativas e não podem coexistir.
+    ```
 
-    1. se uma estiver vazia e a outra preenchida em todas as linhas aplicáveis, PODE consolidar conforme norma explícita;
-    2. se ambas contiverem valores idênticos após normalização válida, PODE tratá-las como duplicação equivalente;
-    3. se houver valores conflitantes, DEVE interromper o processamento e exigir correção;
-    4. a decisão DEVE ser registrada e testável.
+    ## 4. Coexistência proibida
 
-    Na ausência de regra canônica já existente para consolidação, a presença simultânea DEVE ser tratada como ambiguidade impeditiva.
+    A presença simultânea de `telefone` e `fone` é sempre inválida, ainda que:
 
-    ## 5. Regras de negócio preservadas
+    * uma das colunas esteja vazia;
+    * ambas contenham os mesmos valores;
+    * uma delas tenha sido gerada automaticamente;
+    * os cabeçalhos utilizem caixas diferentes;
+    * a duplicação resulte de importação, transformação ou mesclagem.
+
+    É PROIBIDO:
+
+    * consolidar automaticamente as colunas;
+    * escolher silenciosamente uma delas;
+    * comparar valores para decidir qual preservar;
+    * remover uma coluna sem ação explícita do usuário;
+    * tratar a coexistência como aviso não impeditivo.
+
+    O processamento DEVE ser interrompido até que a estrutura contenha somente um dos aliases.
+
+    ## 5. Duplicidade após normalização
+
+    A validação DEVE ocorrer após normalização `case-insensitive`.
+
+    Portanto, também são inválidos:
+
+    ```text
+    telefone;Telefone
+    fone;FONE
+    Telefone;Fone
+    TELEFONE;fone
+    ```
+
+    A estrutura NÃO PODE conter:
+
+    * duas ocorrências de `telefone`;
+    * duas ocorrências de `fone`;
+    * uma ocorrência de cada alias.
+
+    Todo conflito dessa natureza DEVE ser identificado antes do processamento dos registros.
+
+    ## 6. Regras de negócio preservadas
 
     Todas as regras já aplicáveis a `telefone` DEVEM passar a aplicar-se igualmente a `fone`, incluindo:
 
@@ -391,7 +434,7 @@
 
     É PROIBIDO criar comportamento distinto entre os aliases.
 
-    ## 6. Atualização do RCF
+    ## 7. Atualização do RCF
 
     Alterar o RCF canônico e os RCFs especializados aplicáveis para substituir exigências exclusivas de:
 
@@ -402,26 +445,21 @@
     por contrato equivalente a:
 
     ```text
-    telefone | fone
-    ```
-
-    ou:
-
-    ```text
-    campo telefônico: aliases aceitos `telefone` e `fone`
+    campo telefônico obrigatório: `telefone` ou `fone`, mutuamente exclusivos
     ```
 
     A normatização DEVE:
 
     * centralizar o conceito de alias;
+    * estabelecer exclusividade obrigatória;
     * evitar repetição em múltiplas seções;
     * preservar exemplos delimitadores;
-    * definir tratamento da presença simultânea;
     * manter `nome` como campo obrigatório independente;
     * distinguir nomenclatura externa de identificador interno;
-    * impedir interpretações que aceitem aliases não previstos.
+    * impedir interpretações que aceitem aliases não previstos;
+    * impedir qualquer regra de consolidação automática entre `telefone` e `fone`.
 
-    ## 7. Escopo de implementação
+    ## 8. Escopo de implementação
 
     Revisar e atualizar, quando existentes:
 
@@ -453,13 +491,15 @@
 
     É PROIBIDO alterar apenas uma camada e manter comportamento divergente nas demais.
 
-    ## 8. Compatibilidade
+    ## 9. Compatibilidade
 
     A alteração DEVE ser retrocompatível.
 
-    Entradas que utilizam `telefone` DEVEM continuar funcionando sem alteração.
+    Entradas que utilizam somente `telefone` DEVEM continuar funcionando sem alteração.
 
-    Entradas que utilizam `fone` DEVEM passar a funcionar com comportamento equivalente.
+    Entradas que utilizam somente `fone` DEVEM passar a funcionar com comportamento equivalente.
+
+    Entradas que contenham ambos DEVEM ser rejeitadas, ainda que anteriormente fossem toleradas por alguma implementação.
 
     A implementação NÃO DEVE:
 
@@ -467,28 +507,44 @@
     * alterar dados já persistidos sem necessidade;
     * modificar layouts ou fluxos não relacionados;
     * ampliar a aceitação para aliases não solicitados;
-    * alterar a semântica do campo telefônico.
+    * alterar a semântica do campo telefônico;
+    * corrigir automaticamente estruturas inválidas sem ação explícita.
 
-    ## 9. Importação e exportação
+    ## 10. Importação e exportação
 
     Na importação:
 
     * aceitar `telefone` ou `fone`;
     * reconhecer variações de caixa;
-    * normalizar internamente;
+    * exigir exclusividade;
+    * rejeitar duplicidade após normalização;
     * preservar o cabeçalho original quando aplicável;
-    * detectar conflito entre aliases simultâneos.
+    * interromper a importação válida se ambos coexistirem.
 
     Na exportação:
 
-    * utilizar a nomenclatura canônica já definida pelo RCF; ou
+    * utilizar a nomenclatura canônica definida pelo RCF; ou
     * preservar a nomenclatura original, quando esta for a regra vigente.
 
     A escolha DEVE ser única, explícita e consistente em todas as saídas.
 
-    ## 10. Mensagens de validação
+    A exportação NÃO DEVE gerar simultaneamente `telefone` e `fone`.
 
-    Mensagens ao usuário DEVEM refletir os dois aliases.
+    ## 11. Interface e correção pelo usuário
+
+    Quando a coexistência for detectada, a interface DEVE:
+
+    * identificar nominalmente os cabeçalhos conflitantes;
+    * explicar que representam o mesmo campo lógico;
+    * informar que somente um pode permanecer;
+    * impedir processamento, envio ou exportação válida;
+    * permitir que o usuário renomeie ou remova explicitamente uma das colunas.
+
+    A aplicação NÃO DEVE decidir pelo usuário qual coluna excluir.
+
+    ## 12. Mensagens de validação
+
+    Mensagens ao usuário DEVEM refletir os dois aliases e sua exclusividade.
 
     Substituir mensagens exclusivas como:
 
@@ -502,6 +558,12 @@
     É obrigatória uma coluna denominada `telefone` ou `fone`.
     ```
 
+    Para coexistência:
+
+    ```text
+    As colunas `telefone` e `fone` representam o mesmo campo e não podem coexistir.
+    ```
+
     Mensagens de erro DEVEM permanecer:
 
     * claras;
@@ -510,7 +572,7 @@
     * acionáveis;
     * coerentes entre interface, logs e testes.
 
-    ## 11. Testes obrigatórios
+    ## 13. Testes obrigatórios
 
     Criar ou atualizar testes para, no mínimo:
 
@@ -523,45 +585,54 @@
     * ausência de `telefone` e `fone` é rejeitada;
     * aliases não previstos são rejeitados;
     * `telefone` e `fone` recebem as mesmas validações;
-    * valores equivalentes produzem o mesmo resultado;
-    * presença simultânea idêntica segue a regra definida;
-    * presença simultânea conflitante é rejeitada;
-    * mensagens de erro mencionam ambos os aliases;
-    * importação funciona com ambos;
-    * exportação segue a convenção definida;
-    * comportamento legado com `telefone` permanece inalterado;
+    * valores equivalentes produzem o mesmo resultado quando utilizados separadamente;
+    * `telefone + fone` é sempre rejeitado;
+    * `Telefone + FONE` é rejeitado;
+    * `telefone + Telefone` é rejeitado;
+    * `fone + FONE` é rejeitado;
+    * coexistência com uma coluna vazia é rejeitada;
+    * coexistência com valores idênticos é rejeitada;
+    * nenhuma consolidação automática ocorre;
+    * mensagens de erro mencionam ambos os aliases e a exclusividade;
+    * importação funciona com cada alias isoladamente;
+    * exportação nunca produz os dois aliases;
+    * comportamento legado com somente `telefone` permanece inalterado;
     * não há regressão em fluxos existentes.
 
-    ## 12. Ordem de execução
+    ## 14. Ordem de execução
 
     1. Ler o RCF e as implementações aplicáveis.
     2. Localizar todas as exigências exclusivas de `telefone`.
-    3. Definir o microconceito normativo do campo telefônico.
-    4. Atualizar o RCF canônico.
-    5. Atualizar RCFs especializados.
-    6. Atualizar schemas, tipos e contratos.
-    7. Atualizar parsers, normalizadores e validadores.
-    8. Atualizar importação, exportação e persistência.
-    9. Atualizar interface e mensagens.
-    10. Atualizar documentação e exemplos.
-    11. Criar ou atualizar testes.
-    12. Validar retrocompatibilidade.
-    13. Emitir relatório final.
+    3. Localizar qualquer tolerância atual à coexistência.
+    4. Definir o microconceito normativo do campo telefônico exclusivo.
+    5. Atualizar o RCF canônico.
+    6. Atualizar RCFs especializados.
+    7. Atualizar schemas, tipos e contratos.
+    8. Atualizar parsers, normalizadores e validadores.
+    9. Atualizar importação, exportação e persistência.
+    10. Atualizar interface e mensagens.
+    11. Atualizar documentação e exemplos.
+    12. Criar ou atualizar testes.
+    13. Validar retrocompatibilidade.
+    14. Validar rejeição uniforme da coexistência.
+    15. Emitir relatório final.
 
     ## Critérios de aceite
 
     * [ ] `nome` permanece obrigatório.
     * [ ] O campo telefônico permanece obrigatório.
-    * [ ] `telefone` é aceito.
-    * [ ] `fone` é aceito.
+    * [ ] `telefone` é aceito isoladamente.
+    * [ ] `fone` é aceito isoladamente.
     * [ ] Ambos são tratados como aliases equivalentes.
     * [ ] A identificação é `case-insensitive`.
+    * [ ] `telefone` e `fone` não podem coexistir.
+    * [ ] Duplicidades do mesmo alias após normalização são rejeitadas.
+    * [ ] A coexistência é erro impeditivo em todas as camadas.
+    * [ ] Nenhuma consolidação automática é executada.
     * [ ] As mesmas regras de negócio são aplicadas aos dois aliases.
-    * [ ] A presença simultânea é tratada deterministicamente.
-    * [ ] Conflitos não são resolvidos silenciosamente.
-    * [ ] Entradas legadas com `telefone` permanecem funcionais.
-    * [ ] Entradas com `fone` passam a funcionar.
-    * [ ] Mensagens e documentação refletem ambos os aliases.
+    * [ ] Entradas legadas com somente `telefone` permanecem funcionais.
+    * [ ] Entradas com somente `fone` passam a funcionar.
+    * [ ] Mensagens e documentação refletem ambos os aliases e sua exclusividade.
     * [ ] O RCF foi integralmente atualizado.
     * [ ] Todas as implementações aplicáveis foram atualizadas.
     * [ ] Todos os testes passam sem regressão.
@@ -573,13 +644,14 @@
     * normas alteradas;
     * microconceito adotado;
     * arquivos e componentes atualizados;
-    * regra aplicada à presença simultânea;
+    * pontos que anteriormente permitiam coexistência;
+    * mecanismo de rejeição implementado;
     * comportamento de importação e exportação;
     * mensagens ajustadas;
     * testes executados;
     * retrocompatibilidade validada;
+    * rejeição da coexistência validada;
     * pendências ou ambiguidades remanescentes.
-
 
 - [ ] Issue — Novo bundle autônomo e integralmente offline do painel `Modelo de mensagem`
 
