@@ -2036,3 +2036,305 @@
     * arquivos e normas alterados;
     * testes executados e resultados;
     * limitações ou pendências remanescentes.
+
+* [ ] **Detectar saudações literais e nomes próprios no modelo de mensagem:** tanto a página principal quanto o bundle offline DEVEM analisar continuamente o conteúdo do modelo de mensagem e sinalizar, de forma visível e chamativa, usos potencialmente incorretos de saudações literais dependentes do horário e de nomes próprios inseridos diretamente no texto.
+
+  * [ ] **Escopo comum:** a detecção DEVE existir em ambas as implementações:
+
+    * página principal;
+    * bundle 100% offline.
+
+    Ambas DEVEM aplicar o mesmo contrato semântico, os mesmos critérios de detecção e a mesma classificação de severidade, ainda que utilizem mecanismos técnicos distintos.
+
+  * [ ] **Insensibilidade a caixa:** a análise DEVE ser `case-insensitive`.
+
+    Exemplos equivalentes:
+
+    ```text
+    bom dia
+    Bom dia
+    BOM DIA
+
+    boa tarde
+    Boa Tarde
+    BOA TARDE
+
+    boa noite
+    Boa noite
+    BOA NOITE
+    ```
+
+  * [ ] **Saudações dependentes do horário:** identificar obrigatoriamente as expressões literais:
+
+    * `bom dia`;
+    * `boa tarde`;
+    * `boa noite`.
+
+    Quando utilizadas diretamente no modelo, essas expressões DEVEM ser classificadas como uso incorreto, pois a saudação dependente do horário DEVE utilizar exclusivamente:
+
+    ```text
+    $diatarde$
+    ```
+
+  * [ ] **Regra obrigatória para saudação:** é PROIBIDO utilizar literalmente `bom dia`, `boa tarde` ou `boa noite` no modelo final quando a intenção for saudação dinâmica.
+
+    A aplicação DEVE:
+
+    * destacar a ocorrência;
+    * informar que deve ser substituída por `$diatarde$`;
+    * permitir localizar cada ocorrência;
+    * impedir que o alerta seja confundido com erro genérico;
+    * aplicar severidade superior à detecção de nome próprio;
+    * não substituir silenciosamente o conteúdo sem ação explícita do usuário, salvo se já houver recurso normatizado de correção automática assistida.
+
+  * [ ] **Nomes próprios:** identificar, tanto quanto tecnicamente possível, nomes próprios inseridos literalmente no texto.
+
+    O uso de nome próprio DEVE ser classificado como potencialmente incorreto, pois, na maioria dos casos, a personalização DEVE utilizar:
+
+    ```text
+    ${nome}
+    ```
+
+  * [ ] **Regra não absoluta para nomes:** a presença de nome próprio NÃO constitui erro obrigatório em todos os casos.
+
+    A aplicação DEVE:
+
+    * emitir alerta de recomendação;
+    * indicar que `${nome}` normalmente é mais adequado;
+    * permitir que o usuário mantenha o nome literal;
+    * NÃO impedir salvamento, exportação ou processamento apenas por essa ocorrência;
+    * NÃO substituir automaticamente o nome literal;
+    * distinguir claramente essa recomendação da violação obrigatória de saudação literal.
+
+  * [ ] **Detecção contextual de nomes:** a detecção de nomes próprios DEVE minimizar falsos positivos.
+
+    Considerar, conforme aplicabilidade:
+
+    * capitalização;
+    * posição na frase;
+    * vocativos;
+    * termos precedidos ou sucedidos por pontuação;
+    * listas de nomes;
+    * entidades, marcas, locais e títulos;
+    * palavras iniciadas por maiúscula apenas por estarem no início da frase;
+    * conteúdo dentro de placeholders, comandos ou sintaxe proprietária;
+    * idioma ativo;
+    * dicionários ou mecanismos locais disponíveis.
+
+    É PROIBIDO classificar toda palavra capitalizada como nome próprio.
+
+  * [ ] **Proteção da sintaxe proprietária:** a análise NÃO DEVE interpretar como nome próprio ou saudação literal:
+
+    * `${nome}`;
+    * `$diatarde$`;
+    * outros placeholders válidos;
+    * comandos;
+    * escapes;
+    * metadados;
+    * tokens pertencentes à sintaxe proprietária do modelo.
+
+    O parser DEVE respeitar os limites léxicos e semânticos já normatizados.
+
+  * [ ] **Destaque visual:** ocorrências detectadas DEVEM ser sinalizadas no próprio campo ou editor do modelo, tanto quanto tecnicamente possível, mediante:
+
+    * fundo vermelho, alaranjado ou tonalidade de alerta equivalente;
+    * sublinhado, contorno, marcador lateral ou realce complementar;
+    * ícone ou indicador acessível;
+    * mensagem explicativa associada.
+
+    A sinalização DEVE ser evidente sem impedir a leitura do conteúdo.
+
+  * [ ] **Sem dependência exclusiva de cor:** a indicação NÃO DEVE depender somente da cor.
+
+    Deve haver também, conforme a interface:
+
+    * texto de alerta;
+    * ícone;
+    * legenda;
+    * tooltip acessível;
+    * lista de ocorrências;
+    * atributo ou estado anunciado por leitor de tela.
+
+  * [ ] **Severidades distintas:** utilizar níveis distintos:
+
+    1. **Erro normativo ou alerta crítico:** uso literal de `bom dia`, `boa tarde` ou `boa noite`, pois DEVE ser utilizado `$diatarde$`;
+    2. **Aviso preventivo:** possível nome próprio literal, recomendando `${nome}` sem obrigatoriedade absoluta.
+
+    As duas categorias NÃO DEVEM compartilhar mensagem ambígua ou aparência indistinguível.
+
+  * [ ] **Background do editor:** quando houver ao menos uma ocorrência ativa, o background do campo ou área de edição PODE receber indicação global em vermelho, alaranjado ou cor de alerta equivalente.
+
+    A indicação global DEVE:
+
+    * permanecer subordinada ao destaque pontual das ocorrências;
+    * não tornar o texto ilegível;
+    * não ocultar seleção, cursor ou foco;
+    * desaparecer imediatamente quando nenhuma ocorrência permanecer;
+    * usar intensidade compatível com a severidade mais alta detectada.
+
+  * [ ] **Atualização imediata:** a análise DEVE ocorrer:
+
+    * ao carregar o modelo;
+    * ao importar `.md`;
+    * ao importar o formato unificado;
+    * durante a edição, com debounce proporcional;
+    * ao colar conteúdo;
+    * ao substituir texto;
+    * antes de salvar;
+    * antes de exportar;
+    * antes do processamento na página principal.
+
+    O recurso NÃO DEVE congelar o editor nem executar análise excessiva a cada tecla sem controle.
+
+  * [ ] **Lista de ocorrências:** quando houver múltiplas ocorrências, a interface DEVE permitir:
+
+    * visualizar a quantidade;
+    * distinguir saudações de nomes;
+    * navegar para cada ocorrência;
+    * identificar o trecho;
+    * compreender a correção recomendada;
+    * revalidar após alteração.
+
+  * [ ] **Mensagens recomendadas:** utilizar textos semanticamente equivalentes a:
+
+    Para saudações:
+
+    ```text
+    Saudação dependente do horário detectada. Substitua por `$diatarde$`.
+    ```
+
+    Para nomes próprios:
+
+    ```text
+    Possível nome próprio literal. Considere usar `${nome}` para personalização.
+    ```
+
+  * [ ] **Comportamento no salvamento:** o uso de saudação literal DEVE permanecer explicitamente sinalizado no salvamento ou exportação.
+
+    Conforme a política de validação vigente, a aplicação DEVE:
+
+    * impedir conclusão silenciosa sem aviso;
+    * exigir confirmação explícita ou correção, caso o RCF determine bloqueio;
+    * registrar a ocorrência no relatório de validação.
+
+    Nomes próprios literais NÃO DEVEM bloquear o salvamento por si só.
+
+  * [ ] **Comportamento no processamento:** antes do processamento final na página principal:
+
+    * revalidar o modelo;
+    * sinalizar saudações literais;
+    * não tratar nome próprio literal como erro obrigatório;
+    * preservar decisão explícita do usuário quando o nome literal for intencional;
+    * impedir que alertas previamente resolvidos permaneçam obsoletos.
+
+  * [ ] **Funcionamento offline:** no bundle, toda detecção DEVE funcionar integralmente offline, sem API, CDN, serviço remoto ou LLM remoto.
+
+    Bibliotecas utilizadas DEVEM:
+
+    * ser client-side;
+    * estar integralmente embedded;
+    * possuir licença compatível;
+    * ser mantidas;
+    * não exigir servidor.
+
+  * [ ] **Paridade:** o bundle e a página principal DEVEM produzir resultados semanticamente equivalentes para o mesmo conteúdo.
+
+    Criar vetores de teste compartilhados contendo:
+
+    * saudações em diferentes caixas;
+    * nomes próprios evidentes;
+    * palavras capitalizadas que não são nomes;
+    * placeholders;
+    * frases no início de parágrafo;
+    * nomes intencionais;
+    * múltiplas ocorrências;
+    * conteúdo em idiomas suportados.
+
+  * [ ] **Não regressão:** a implementação NÃO DEVE:
+
+    * alterar automaticamente o texto sem autorização;
+    * converter `${nome}` em texto literal;
+    * substituir `$diatarde$`;
+    * danificar a sintaxe proprietária;
+    * impedir o uso intencional de nomes;
+    * bloquear edição;
+    * introduzir dependência remota no bundle;
+    * alterar recursos externos ao editor e à validação do modelo.
+
+  * [ ] **Normatização no RCF:** incorporar integralmente:
+
+    * expressões literais proibidas para saudação dinâmica;
+    * uso obrigatório de `$diatarde$`;
+    * recomendação de `${nome}` para nomes próprios;
+    * caráter não absoluto do alerta de nome;
+    * detecção `case-insensitive`;
+    * análise contextual;
+    * severidades;
+    * destaque visual;
+    * acessibilidade;
+    * momentos de validação;
+    * funcionamento offline;
+    * paridade entre página e bundle;
+    * critérios de bloqueio ou confirmação no salvamento e processamento.
+
+  * [ ] **Testes obrigatórios:** validar, no mínimo:
+
+    * `bom dia` é detectado;
+    * `boa tarde` é detectado;
+    * `boa noite` é detectado;
+    * variações com erro de digitação ouamistozidade excessiva como `boa  noite` é detectado;
+      - `boa  noiti`
+      - `boi dia`
+      - `boa  tarde`
+      - `tardee`
+      - `diaaa`
+      - `noiteee`
+    * variações de caixa são detectadas;
+    * `$diatarde$` não é sinalizado;
+    * `${nome}` não é sinalizado;
+    * nome próprio evidente gera aviso;
+    * palavra capitalizada no início de frase não é automaticamente tratada como nome;
+    * nome literal pode ser mantido;
+    * saudação recebe severidade superior;
+    * ocorrências são destacadas;
+    * background global é atualizado;
+    * alertas não dependem somente de cor;
+    * navegação entre ocorrências funciona;
+    * edição remove alertas resolvidos;
+    * importação e formato unificado são revalidados;
+    * a página e o bundle produzem o mesmo resultado;
+    * o bundle funciona integralmente offline;
+    * nenhuma alteração automática indevida ocorre;
+    * o desempenho permanece adequado em modelos extensos.
+
+  * [ ] **Critérios de aceite:**
+
+    * [ ] Página principal e bundle detectam as mesmas ocorrências.
+    * [ ] A análise é `case-insensitive`.
+    * [ ] `bom dia`, `boa tarde` e `boa noite` literais são sinalizados como incorretos.
+    * [ ] A interface orienta o uso obrigatório de `$diatarde$`.
+    * [ ] Possíveis nomes próprios são sinalizados.
+    * [ ] A interface recomenda `${nome}` sem tratá-lo como obrigação absoluta.
+    * [ ] Saudações e nomes possuem severidades distintas.
+    * [ ] O destaque é visível, chamativo e acessível.
+    * [ ] O alerta não depende exclusivamente de cor.
+    * [ ] Placeholders e sintaxe proprietária permanecem íntegros.
+    * [ ] Nomes intencionais podem ser mantidos.
+    * [ ] A validação ocorre no carregamento, edição, salvamento e processamento aplicáveis.
+    * [ ] O bundle executa a análise 100% offline.
+    * [ ] A regra foi integralmente incorporada ao RCF.
+    * [ ] Todos os testes passam sem regressão.
+
+  * [ ] **Relatório final:** registrar objetivamente:
+
+    * regras normatizadas;
+    * mecanismo de detecção adotado;
+    * critérios para nomes próprios;
+    * severidades;
+    * tratamento visual e acessível;
+    * comportamento no salvamento e processamento;
+    * paridade entre página e bundle;
+    * bibliotecas utilizadas, quando houver;
+    * arquivos e normas alterados;
+    * testes executados e resultados;
+    * falsos positivos, limitações ou pendências conhecidas.
