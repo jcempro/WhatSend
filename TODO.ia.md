@@ -1610,3 +1610,429 @@
     * arquivos e normas alterados;
     * testes executados e resultados;
     * limitações ou incompatibilidades remanescentes.
+
+* [ ] **Criar formato unificado, reversível e interoperável para modelo `.md` e dados `.csv`:** manter integralmente os arquivos separados atualmente utilizados — `.md` para o modelo de mensagem e `.csv` para os dados — e acrescentar formato unificado capaz de encapsular ambos sem perda, alteração semântica ou dependência entre seus conteúdos.
+
+  * [ ] **Preservar os formatos separados:** a criação do formato unificado é estritamente aditiva. A página principal e o futuro bundle 100% offline DEVEM continuar capazes de criar, carregar, editar, salvar e utilizar os formatos separados conforme suas competências atuais ou já normatizadas.
+
+    Regras vigentes:
+
+    * o arquivo `.md` permanece formato autônomo do modelo de mensagem;
+    * o arquivo `.csv` permanece formato autônomo dos dados;
+    * o bundle PODE criar, importar, editar, validar e exportar `.csv`;
+    * a página principal, no estado funcional atualmente previsto, apenas carrega e vincula `.csv`, sem adquirir por esta tarefa capacidade autônoma de edição tabular;
+    * tanto a página principal quanto o bundle DEVEM continuar capazes de editar o modelo `.md`, ainda que por implementações diferentes;
+    * nenhuma capacidade existente PODE ser removida, substituída ou condicionada ao formato unificado.
+
+  * [ ] **Natureza imperativa do bundle:** o bundle 100% offline é exclusivamente um **editor prévio local**. Ele DEVE preparar, editar, validar, importar, exportar e empacotar os artefatos que serão posteriormente utilizados pela página principal.
+
+    O bundle:
+
+    * NÃO É o produto executor principal;
+    * NÃO DEVE executar o processamento final de envio;
+    * NÃO DEVE assumir atribuições operacionais exclusivas da página principal;
+    * NÃO DEVE transformar-se em variante integral do produto;
+    * NÃO DEVE ampliar seu escopo além da preparação local dos dados e do modelo;
+    * DEVE permanecer 100% client-side, offline e autocontido;
+    * DEVE produzir artefatos integralmente interoperáveis com a página principal.
+
+  * [ ] **Formato unificado:** definir e implementar contêiner estruturado que encapsule, no mínimo:
+
+    * o conteúdo integral do modelo `.md`;
+    * o conteúdo integral ou representação canônica do `.csv`;
+    * metadados suficientes para identificação, validação, compatibilidade e restauração;
+    * versão do formato;
+    * codificação;
+    * convenções de serialização;
+    * hashes ou mecanismos de integridade aplicáveis;
+    * informações necessárias para distinguir conteúdo original, normalizado e derivado.
+
+  * [ ] **Escolha técnica do formato:** JSON é a recomendação inicial, mas sua extensão ou representação NÃO é obrigatória.
+
+    A implementação DEVE inspecionar o estado real e selecionar formato adequado considerando:
+
+    * preservação textual sem perda;
+    * reversibilidade;
+    * legibilidade;
+    * interoperabilidade browser-side;
+    * serialização determinística;
+    * validação por schema;
+    * versionamento;
+    * extensibilidade;
+    * segurança;
+    * facilidade de importação e exportação;
+    * tamanho proporcional;
+    * suporte integral à formatação proprietária existente no `.md`;
+    * independência de servidor e Node.js em runtime;
+    * possibilidade de distinguir o artefato unificado de JSON genérico.
+
+    O formato PODE utilizar JSON internamente e extensão própria, como contêiner de domínio, se isso reduzir ambiguidades e associações indevidas. A extensão final DEVE ser curta, inequívoca, documentada e não conflitante com formatos existentes.
+
+  * [ ] **Markdown proprietário:** o `.md` atual contém convenções proprietárias que não correspondem necessariamente ao Markdown comum.
+
+    Portanto:
+
+    * o conteúdo DEVE ser tratado como linguagem ou formato de domínio próprio, ainda que utilize extensão `.md`;
+    * o formato unificado DEVE preservar integralmente caracteres, marcações, placeholders, comandos, escapes, quebras de linha, espaços significativos e demais convenções proprietárias;
+    * É PROIBIDO reinterpretar, renderizar, normalizar ou converter o conteúdo como Markdown genérico durante encapsulamento ou restauração;
+    * a serialização DEVE permitir recuperação byte a byte quando nenhuma transformação normativa explícita for necessária;
+    * metadados DEVEM identificar a sintaxe ou versão proprietária aplicável.
+
+  * [ ] **Representação do CSV:** o conteúdo CSV encapsulado DEVE preservar integralmente:
+
+    * cabeçalhos;
+    * ordem das colunas;
+    * ordem das linhas;
+    * valores;
+    * células vazias;
+    * caracteres Unicode;
+    * quebras de linha internas;
+    * aspas;
+    * separadores;
+    * aliases válidos;
+    * colunas adicionais;
+    * demais características semanticamente relevantes.
+
+    A representação interna PODE ser:
+
+    * o texto CSV canônico integral;
+    * estrutura tabular tipada;
+    * ambas as formas, quando necessário à integridade e à eficiência.
+
+    Se houver representação dupla, uma DEVE ser definida como fonte canônica e a outra como derivada verificável, evitando divergência.
+
+  * [ ] **Padrão CSV preservado:** quando desacoplado ou exportado como `.csv`, o arquivo DEVE continuar utilizando:
+
+    * UTF-8 com BOM;
+    * separador `;`;
+    * delimitador textual `"`;
+    * extensão `.csv`;
+    * regras vigentes de escape;
+    * obrigatoriedade de `nome`;
+    * exatamente um dos aliases `telefone` XOR `fone`, reconhecidos de forma `case-insensitive`;
+    * preservação das demais colunas.
+
+  * [ ] **Capacidades comuns:** tanto a página principal quanto o bundle offline DEVEM possuir plena capacidade de:
+
+    * gerar o formato unificado;
+    * importar e validar o formato unificado;
+    * identificar sua versão;
+    * extrair o modelo e os dados;
+    * correlacionar cada conteúdo ao campo, painel ou fluxo apropriado;
+    * restaurar o estado suportado;
+    * salvar novamente o formato unificado;
+    * desacoplar e exportar `.md` e `.csv` separadamente;
+    * reencapsular os artefatos separados;
+    * rejeitar conteúdo inválido, incompatível ou incompleto;
+    * preservar campos desconhecidos compatíveis quando exigido pela política de evolução.
+
+  * [ ] **Capacidades específicas do bundle:** como editor prévio, o bundle DEVE:
+
+    * criar um projeto unificado vazio;
+    * importar `.md` isolado;
+    * importar `.csv` isolado;
+    * importar ambos e correlacioná-los;
+    * importar o formato unificado;
+    * editar o modelo;
+    * criar e editar o CSV;
+    * validar ambos;
+    * gerar o formato unificado;
+    * exportar `.md` e `.csv` separadamente;
+    * desacoplar um formato unificado em seus dois artefatos;
+    * reabrir, editar e salvar novamente o contêiner;
+    * operar integralmente no dispositivo, sem envio de dados.
+
+    Essas capacidades NÃO autorizam o bundle a executar o processamento final de mensagens.
+
+  * [ ] **Capacidades específicas da página principal:** a página executora DEVE:
+
+    * carregar `.md`;
+    * carregar e vincular `.csv`;
+    * carregar o formato unificado;
+    * redistribuir automaticamente o modelo e os dados aos fluxos apropriados;
+    * permitir edição do modelo conforme sua implementação vigente;
+    * preservar o CSV carregado sem exigir editor tabular;
+    * gerar e salvar o formato unificado a partir do estado corrente;
+    * exportar ou desacoplar `.md` e `.csv` quando o recurso correspondente estiver disponível;
+    * utilizar o conteúdo encapsulado no processamento normal.
+
+    Esta tarefa NÃO DEVE adicionar editor de CSV à página principal.
+
+  * [ ] **Redistribuição contextual:** ao importar o formato unificado, cada aplicação DEVE distribuir o conteúdo conforme suas capacidades reais.
+
+    Exemplos:
+
+    * o modelo DEVE preencher o editor `Modelo de mensagem`;
+    * os dados DEVEM preencher ou vincular o mecanismo de CSV;
+    * o bundle DEVE permitir edição tabular;
+    * a página principal DEVE apenas carregar e vincular os dados enquanto não houver norma posterior que autorize edição;
+    * metadados DEVEM alimentar os componentes correspondentes quando aplicáveis;
+    * campos não suportados NÃO DEVEM ser descartados silenciosamente.
+
+  * [ ] **Desacoplamento reversível:** qualquer formato unificado válido DEVE poder ser convertido novamente em:
+
+    * um arquivo `.md` funcionalmente equivalente ao encapsulado;
+    * um arquivo `.csv` funcionalmente equivalente ao encapsulado.
+
+    O ciclo:
+
+    ```text
+    .md + .csv → formato unificado → .md + .csv
+    ```
+
+    DEVE preservar integralmente a semântica e, quando aplicável, a representação original.
+
+  * [ ] **Reintegração determinística:** os artefatos desacoplados DEVEM poder ser novamente encapsulados sem gerar alterações materiais indevidas.
+
+    O ciclo:
+
+    ```text
+    unificado → separados → unificado
+    ```
+
+    DEVE produzir resultado semanticamente equivalente e determinístico, desconsiderando apenas metadados voláteis explicitamente normatizados, como data de salvamento.
+
+  * [ ] **Ausência parcial:** o formato unificado completo DEVE conter modelo e CSV. Contudo, durante edição preliminar, o bundle PODE manter estado parcial antes da exportação final.
+
+    A implementação DEVE distinguir:
+
+    * projeto parcial editável;
+    * projeto completo válido;
+    * artefato apto ao processamento;
+    * artefato inválido.
+
+    A página principal NÃO DEVE iniciar processamento que dependa de elemento ausente.
+
+  * [ ] **Versionamento:** o formato unificado DEVE possuir versão explícita e independente da versão da aplicação.
+
+    Alterações futuras DEVEM:
+
+    * preservar leitura de versões anteriores quando tecnicamente possível;
+    * utilizar migração determinística;
+    * impedir interpretação silenciosa de versão incompatível;
+    * registrar transformações aplicadas;
+    * não sobrescrever o arquivo original durante migração sem ação explícita;
+    * permitir evolução de novos campos sem comprometer os atuais.
+
+  * [ ] **Schema e validação:** definir schema formal ou contrato equivalente para validar:
+
+    * tipo do artefato;
+    * versão;
+    * presença dos conteúdos obrigatórios;
+    * tipos dos campos;
+    * encoding;
+    * integridade;
+    * estrutura do modelo;
+    * estrutura do CSV;
+    * aliases e exclusividade `telefone` XOR `fone`;
+    * metadados;
+    * extensões futuras;
+    * limites de tamanho;
+    * conteúdo malformado.
+
+    A validação DEVE ocorrer antes da redistribuição aos campos.
+
+  * [ ] **Estrutura conceitual mínima:** sem impor prematuramente nomes definitivos, o formato DEVE representar conceito equivalente a:
+
+    ```json
+    {
+      "format": "<identificador>",
+      "version": 1,
+      "messageModel": {
+        "syntax": "<sintaxe-proprietaria>",
+        "content": "<conteudo-integral-do-md>"
+      },
+      "data": {
+        "format": "csv",
+        "encoding": "utf-8-bom",
+        "delimiter": ";",
+        "quote": "\"",
+        "content": "<conteudo-integral-ou-canonico>"
+      },
+      "metadata": {}
+    }
+    ```
+
+    Esse exemplo é delimitador conceitual, NÃO contrato final obrigatório. A estrutura definitiva DEVE ser normatizada após inspeção.
+
+  * [ ] **Integridade:** o contêiner DEVE permitir detectar:
+
+    * truncamento;
+    * corrupção;
+    * alteração não intencional;
+    * conteúdo incompatível;
+    * divergência entre representações duplicadas.
+
+    Utilizar SHA-256 ou mecanismo já normatizado quando aplicável. Hash NÃO DEVE ser tratado como assinatura ou prova de autenticidade.
+
+  * [ ] **Segurança:** o formato unificado e seus conteúdos DEVEM ser tratados como dados não confiáveis.
+
+    A implementação DEVE impedir:
+
+    * execução de HTML ou JavaScript incorporado;
+    * prototype pollution;
+    * injeção no DOM;
+    * fórmulas CSV perigosas;
+    * abuso de tamanho ou profundidade;
+    * campos inesperados capazes de alterar comportamento;
+    * path traversal;
+    * carregamento automático de recursos externos;
+    * interpretação do modelo proprietário como código não autorizado.
+
+  * [ ] **Privacidade:** todo processamento do formato unificado no bundle DEVE ocorrer localmente. A página principal DEVE seguir as regras vigentes de tratamento de dados.
+
+    O formato NÃO DEVE incluir:
+
+    * credenciais;
+    * tokens;
+    * cookies;
+    * dados de sessão;
+    * caminhos locais desnecessários;
+    * telemetria;
+    * informações externas ao projeto preparado.
+
+  * [ ] **Nome do arquivo:** definir nomenclatura determinística para o contêiner unificado, baseada na convenção atual de salvamento do modelo, sem substituir os nomes independentes de `.md` e `.csv`.
+
+    A extensão própria, se adotada, DEVE:
+
+    * identificar claramente o formato;
+    * evitar associação enganosa com JSON genérico;
+    * permitir reconhecimento pelo produto;
+    * permanecer estável;
+    * ser registrada no RCF.
+
+  * [ ] **Interface:** ambas as aplicações DEVEM oferecer ações inequívocas, conforme capacidade:
+
+    * `Abrir modelo`;
+    * `Abrir CSV`;
+    * `Abrir projeto unificado`;
+    * `Salvar modelo`;
+    * `Salvar CSV`;
+    * `Salvar projeto unificado`;
+    * `Exportar arquivos separados`.
+
+    Os nomes PODEM variar conforme o vocabulário canônico, mas NÃO DEVEM confundir:
+
+    * arquivos independentes;
+    * projeto unificado;
+    * edição;
+    * processamento final.
+
+  * [ ] **Conflitos de importação:** ao importar conteúdo unificado sobre estado já preenchido, a aplicação DEVE:
+
+    * detectar substituição potencial;
+    * solicitar decisão explícita quando houver perda de alterações;
+    * permitir cancelar;
+    * não mesclar silenciosamente conteúdos incompatíveis;
+    * preservar estado anterior até confirmação;
+    * aplicar substituição de forma atômica.
+
+  * [ ] **Compatibilidade entre aplicações:** um contêiner gerado pelo bundle DEVE ser integralmente legível pela página principal, e um contêiner gerado pela página principal DEVE ser integralmente legível pelo bundle, respeitadas as diferenças funcionais.
+
+    Ausência de capacidade de editar CSV na página principal NÃO PODE impedir leitura, preservação, utilização, reexportação ou reencapsulamento dos dados.
+
+  * [ ] **Fonte única de regras:** parser, serializer, schema, versionamento e normalização do formato unificado DEVEM derivar de contrato comum.
+
+    Quando possível, compartilhar implementação compatível com navegador. Quando não for possível, criar implementações equivalentes submetidas aos mesmos vetores de teste.
+
+    É PROIBIDO manter formatos aproximadamente semelhantes, porém incompatíveis, em cada aplicação.
+
+  * [ ] **Autocontenção do bundle:** todos os mecanismos necessários para ler, gerar, validar, desacoplar e salvar o formato unificado DEVEM estar integralmente incorporados ao bundle offline. CDN, servidor, Node.js em runtime, API externa ou recurso remoto são proibidos.
+
+  * [ ] **Não regressão:** a implementação NÃO DEVE:
+
+    * impedir uso separado de `.md`;
+    * impedir uso separado de `.csv`;
+    * obrigar migração dos arquivos existentes;
+    * transformar o formato unificado em requisito exclusivo;
+    * adicionar editor CSV à página principal;
+    * atribuir processamento final ao bundle;
+    * modificar a sintaxe proprietária do modelo;
+    * alterar o padrão CSV vigente;
+    * remover compatibilidade com arquivos legados válidos.
+
+  * [ ] **Normatização no RCF:** incorporar integralmente:
+
+    * permanência dos formatos separados;
+    * caráter aditivo do formato unificado;
+    * natureza do bundle como mero editor prévio;
+    * competências distintas de cada aplicação;
+    * formato e extensão adotados;
+    * schema;
+    * versionamento;
+    * serialização;
+    * preservação da sintaxe proprietária;
+    * representação do CSV;
+    * reversibilidade;
+    * interoperabilidade;
+    * integridade;
+    * segurança;
+    * nomenclatura;
+    * interface;
+    * testes;
+    * critérios de aceite.
+
+  * [ ] **Testes obrigatórios:** validar, no mínimo:
+
+    * `.md` separado continua sendo criado, lido, editado e salvo;
+    * `.csv` separado continua sendo criado e editado pelo bundle;
+    * `.csv` separado continua sendo carregado pela página principal;
+    * o bundle permanece apenas editor prévio;
+    * a página principal permanece responsável pelo processamento;
+    * ambas geram o formato unificado;
+    * ambas leem o formato unificado gerado pela outra;
+    * modelo e CSV são redistribuídos corretamente;
+    * desacoplamento restaura ambos os arquivos;
+    * reencapsulamento é semanticamente determinístico;
+    * formatação proprietária do `.md` é preservada;
+    * UTF-8 BOM, `;` e `"` são preservados no CSV exportado;
+    * `nome + telefone` é aceito;
+    * `nome + fone` é aceito;
+    * `telefone` e `fone` coexistentes são rejeitados;
+    * colunas adicionais são preservadas;
+    * versões incompatíveis são rejeitadas com diagnóstico;
+    * versões antigas suportadas são migradas corretamente;
+    * corrupção é detectada;
+    * conteúdo malicioso não é executado;
+    * importação sobre estado alterado exige decisão;
+    * arquivos separados permanecem opcionais e plenamente funcionais;
+    * o bundle executa todas essas operações 100% offline.
+
+  * [ ] **Critérios de aceite:**
+
+    * [ ] `.md` e `.csv` continuam existindo e funcionando separadamente.
+    * [ ] O formato unificado é adicional, não substitutivo.
+    * [ ] O bundle está normativamente limitado a editor prévio local.
+    * [ ] O bundle não executa o processamento final.
+    * [ ] A página principal continua sendo a aplicação executora.
+    * [ ] Ambas as aplicações geram, leem, validam e salvam o formato unificado.
+    * [ ] Ambas desacoplam o formato em `.md` e `.csv`.
+    * [ ] Ambas reencapsulam os arquivos separados.
+    * [ ] O bundle edita modelo e CSV.
+    * [ ] A página principal edita o modelo e apenas carrega ou vincula o CSV.
+    * [ ] A diferença de capacidades não compromete interoperabilidade.
+    * [ ] O conteúdo proprietário do `.md` é preservado integralmente.
+    * [ ] O CSV preserva estrutura, dados e padrão normatizado.
+    * [ ] O formato possui versão e validação formal.
+    * [ ] O ciclo de conversão não causa perda semântica.
+    * [ ] Arquivos legados permanecem válidos.
+    * [ ] O bundle processa o contêiner integralmente offline e autocontido.
+    * [ ] A regra foi incorporada integralmente ao RCF.
+    * [ ] Todos os testes passam sem regressão.
+
+  * [ ] **Relatório final:** registrar objetivamente:
+
+    * formato e extensão adotados;
+    * justificativa técnica da escolha;
+    * schema e versão inicial;
+    * representação do modelo proprietário;
+    * representação do CSV;
+    * regra de serialização determinística;
+    * mecanismos de integridade;
+    * capacidades implementadas em cada aplicação;
+    * comprovação de que o bundle permanece mero editor prévio;
+    * mecanismos de desacoplamento e reencapsulamento;
+    * interoperabilidade validada;
+    * arquivos e normas alterados;
+    * testes executados e resultados;
+    * limitações ou pendências remanescentes.
