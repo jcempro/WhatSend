@@ -11,6 +11,7 @@ const os = require("os");
 const path = require("path");
 const { RELEASE_NOTES_RELATIVE_PATH, validateReleaseNotesContent } = require("./release-notes-policy");
 const { VERSION_FILE_NAME } = require("./release-metadata");
+const { OFFLINE_BUNDLE_NAME, validateOfflineBundle } = require("./build-offline-bundle");
 
 const ROOT_DIR = path.resolve(__dirname, "..");
 const DIST_DIR = path.join(ROOT_DIR, "dist");
@@ -22,6 +23,8 @@ const REQUIRED_FILES = [
   "RCF.md",
   "README.md",
   VERSION_FILE_NAME,
+  OFFLINE_BUNDLE_NAME,
+  `${OFFLINE_BUNDLE_NAME}.sha256`,
   "src/index.js",
 ];
 const REQUIRED_DIRS = ["docs", "scripts", "src", "logs", "modelos", "listas"];
@@ -36,7 +39,7 @@ const FORBIDDEN_NAMES = new Set([
   "node_modules",
   "test",
 ]);
-const ALLOWED_DOT_FILES = [/^\.env\./u, /^\.editorconfig$/u, /^\.prettier/u];
+const ALLOWED_DOT_FILES = [/^\.env\./u, /^\.editorconfig$/u, /^\.prettier/u, /^\.puppeteerrc\.cjs$/u];
 const SENSITIVE_PATTERNS = [
   /(^|[\\/])\.wwebjs/iu,
   /(^|[\\/])node_modules([\\/]|$)/iu,
@@ -65,8 +68,21 @@ function validateDist() {
   validateVersionMetadata(DIST_DIR);
   validateReleaseNotesIfPresent(DIST_DIR);
   validateLegalHeaders(DIST_DIR);
+  validateOfflineArtifact(DIST_DIR);
   validateExecutableDist(DIST_DIR);
   console.log("Dist validado com sucesso.");
+}
+
+function validateOfflineArtifact(distDir) {
+  const htmlPath = path.join(distDir, OFFLINE_BUNDLE_NAME);
+  const hashPath = `${htmlPath}.sha256`;
+  const html = fs.readFileSync(htmlPath, "utf8");
+  validateOfflineBundle(html);
+  const expected = fs.readFileSync(hashPath, "utf8").trim().split(/\s+/u)[0];
+  const actual = require("crypto").createHash("sha256").update(html, "utf8").digest("hex");
+  if (expected !== actual) {
+    throw new Error("Hash SHA-256 do bundle offline divergente.");
+  }
 }
 
 function validateVersionMetadata(distDir) {

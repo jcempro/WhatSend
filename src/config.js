@@ -12,7 +12,7 @@ const CONFIG_RESTRICTIONS = require("./config-restrictions.json");
 require("dotenv").config({ path: path.resolve(__dirname, "..", ".env"), quiet: true });
 
 const ROOT_DIR = path.resolve(__dirname, "..");
-const REQUIRED_COLUMNS = ["nome", "telefone"];
+const REQUIRED_COLUMNS = ["nome"];
 const DEFAULT_COUNTRY_CODE = "55";
 
 function readIntegerEnv(name, fallback) {

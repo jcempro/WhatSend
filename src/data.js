@@ -10,6 +10,7 @@ const path = require("path");
 const { parse } = require("csv-parse/sync");
 
 const { PATHS, REQUIRED_COLUMNS } = require("./config");
+const { PHONE_ALIASES, validateHeaders } = require("./csv-contract");
 const {
   collectReferencedFields,
   evaluateFilterExpression,
@@ -186,15 +187,10 @@ function loadCsv(filePath = PATHS.csv) {
   }
 
   const header = rows[0].map((column) => String(column).trim());
-  const normalizedHeader = header.map(normalizeFieldName);
-  const missingColumns = REQUIRED_COLUMNS.filter(
-    (column) => !normalizedHeader.includes(normalizeFieldName(column)),
-  );
+  const headerValidation = validateHeaders(header);
 
-  if (missingColumns.length > 0) {
-    throw new Error(
-      `CSV inválido: colunas obrigatórias ausentes: ${missingColumns.join(", ")}.`,
-    );
+  if (!headerValidation.ok) {
+    throw new Error(`CSV inválido: ${headerValidation.errors.join(" ")}`);
   }
 
   try {
@@ -261,7 +257,7 @@ function scoreCsvParse(rows, delimiter, quote) {
   const normalizedHeader = header.map(normalizeFieldName);
   const requiredMatches = REQUIRED_COLUMNS.filter((column) =>
     normalizedHeader.includes(normalizeFieldName(column)),
-  ).length;
+  ).length + (PHONE_ALIASES.some((column) => normalizedHeader.includes(column)) ? 1 : 0);
   const expectedLength = header.length;
   const consistentRows = rows.filter((row) => row.length === expectedLength).length;
   const nonEmptyHeaderColumns = header.filter(Boolean).length;
