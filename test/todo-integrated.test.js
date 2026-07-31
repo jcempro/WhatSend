@@ -125,6 +125,8 @@ test("bundle offline é único, íntegro, licenciado e sem dependência automát
     assert.match(html, /Prévia com a linha selecionada/u);
     assert.match(html, /Renomear coluna/u);
     assert.match(html, /Incorporar anexo/u);
+    assert.match(html, /id="emojiSelect"/u);
+    assert.match(html, /function previewHtml/u);
     assert.match(html, /data:image\/svg\+xml;base64,/u);
     assert.doesNotMatch(html, /<(?:script|link|img)\b[^>]+(?:src|href)=["']https?:/iu);
     assert.doesNotMatch(html, /<script\b[^>]+src=/iu);
