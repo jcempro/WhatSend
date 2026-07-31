@@ -24,6 +24,8 @@ Regras aplicadas ao modelo:
 
 Antes do envio efetivo, o modelo e analisado por potenciais erros de sintaxe. Exemplos: `{nome}` sem `$`, `${valor+}` com expressão inválida, `${nome` sem fechamento e `}` solto. Na GUI, a tela abre uma confirmação; na CLI, o terminal pergunta `sim` ou `não`, aceitando variações de maiúsculas/minúsculas e acentos. Se a resposta for vazia, inválida ou negativa, o envio é abortado.
 
+A análise editorial comum à GUI e ao editor offline também destaca `bom dia`, `boa tarde` e `boa noite` literais e recomenda `$diatarde$`. Essa ocorrência exige confirmação explícita antes do processamento final. Nome próprio literal em provável vocativo gera somente aviso com recomendação de `${nome}` e não impede salvamento, exportação ou processamento. Marcadores proprietários, placeholders, código, URLs e referências de mídia não são analisados como texto editorial.
+
 Funcoes de formatacao em `${...}`:
 
 ```markdown
@@ -42,7 +44,7 @@ Um arquivo pode conter multiplas variacoes separadas por uma linha com `^^^`. Qu
 
 O editor da GUI trabalha sempre com texto cru. A toolbar por ícones apenas insere ou remove marcadores textuais, como `*`, `_`, `~`, três crases para monoespaçado, `![](arquivo.pdf)`, `$diatarde$`, `$postagem$` e `^^^`; emojis são escolhidos por menu suspenso. Nenhum HTML ou conteúdo rico é persistido no modelo. A prévia renderiza negrito, itálico, tachado e monoespaçado para aproximar o resultado visual sem mudar o texto do editor, sempre limitada à aba ativa e com rolagem proporcional sincronizada.
 
-A toolbar começa por Salvar localmente (disquete), Salvar todas as abas em `.md` e Abrir. O primeiro conserva o modelo integral em `localStorage`, sem nome, arquivo ou versionamento.
+A toolbar oferece nova edição, salvamento local nomeado, recuperação automática, abertura de salvamentos, download `.md` e importação. O estado local conserva o conjunto integral de abas e nunca substitui o arquivo sem ação explícita.
 
 O quadro de notações da GUI é retrátil e recolhido por padrão. Ao adicionar novas marcações, a implementação, a GUI, o RCF, o README e este guia devem ser atualizados na mesma alteração para evitar divergência.
 
@@ -64,6 +66,8 @@ node main.js faturamento base_exemplo
 ```
 
 O carregamento do CSV tenta aceitar exportações comuns do Excel, Bloco de Notas e planilhas em geral. A leitura detecta UTF-8 com ou sem BOM, UTF-16 e ANSI/Windows-1252, preservando acentuação, `ç` e símbolos comuns. O parser também infere delimitadores frequentes: vírgula, ponto e vírgula, tabulação e `|`, com texto delimitado por aspas duplas ou simples.
+
+O cabeçalho deve conter `nome` e exatamente um alias telefônico: `telefone` ou `fone`. A comparação não diferencia maiúsculas e minúsculas. A presença simultânea dos dois aliases, cabeçalhos vazios ou duplicações após normalização são erros; as demais colunas continuam disponíveis para variáveis e filtros.
 
 Se o parametro tiver expressao de filtro, ele sera aplicado sobre `clientes.csv`:
 
@@ -245,6 +249,16 @@ Antes de baixar o pacote remoto, o atualizador compara os metadados da API com `
 Durante a copia, arquivos operacionais locais sao preservados, incluindo `clientes.csv`, `texto.md`, `.env`, `logs/`, `.wwebjs_auth/`, `.runtime/` e `node_modules/`. Depois disso, o script roda `npm install` com download automatico do Puppeteer desativado, valida o navegador com `scripts/ensure-browser.js` e so entao grava o novo `whatsend-version.json`.
 
 O botão Atualizar da GUI abre painel visual para atualizar somente `whatsapp-web.js`, todas as dependências, o software oficial ou reverter a última atualização. A seleção e confirmação são obrigatórias porque versões novas podem quebrar o ambiente estável. O backend registra um snapshot em `.runtime/updates`, poda dependências órfãs e tenta restaurar automaticamente software, dependências e metadados se uma operação falhar; sessões, configurações, dados e logs não entram no snapshot nem são alterados.
+
+## Bundle offline e formato unificado
+
+O build gera `dist/WhatSend-Modelo-Offline.html` como saída adicional. O arquivo funciona por `file://` desde a primeira abertura e incorpora CSS, scripts, favicon, contrato do pacote e Tabulator 6.5.2 sob licença MIT. A política CSP bloqueia conexões automáticas; não há CDN, servidor, Node.js ou arquivo auxiliar obrigatório em runtime.
+
+O editor offline contém somente os painéis legais, o modelo e a grade CSV. Ele permite marcações de WhatsApp, múltiplos modelos, `$diatarde$`, `$postagem$`, anexo em Data URI, prévia com a linha selecionada, salvamentos locais e edição tabular. A exportação CSV usa UTF-8 com BOM, `;`, aspas duplas e escape compatível; valores iniciados por caracteres de fórmula são neutralizados como texto e informados na interface.
+
+O formato unificado usa a extensão `.whatsend.json`, schema `https://jeancarloem.com/whatsend/package/v1` e versão `1`. Ele contém o `.md` proprietário e o CSV como textos independentes, nomes seguros e hashes SHA-256 separados. GUI e bundle usam o mesmo parser/serializer; campos adicionais compatíveis são preservados durante reencapsulamento. O hash detecta corrupção, truncamento ou alteração acidental e não prova autoria.
+
+Ao abrir um pacote sobre conteúdo preenchido, a interface pede confirmação antes de substituir e só aplica os dois artefatos depois de validar schema, versão, tamanho e integridade. O modelo e o CSV podem ser novamente baixados separadamente. A página principal vincula o CSV ao processamento sem adicionar editor tabular; o bundle prepara os arquivos, mas nunca autentica WhatsApp nem envia mensagens.
 
 ## Releases
 
