@@ -522,6 +522,87 @@ Default
 
 O usuário pode informar apenas os parâmetros que deseja alterar. Os demais devem ser herdados automaticamente. Após a resolução, o conjunto aplicável deve ser validado contra as restrições centralizadas antes de ser persistido ou aplicado.
 
+### RN036 - Título Dinâmico da Execução
+
+A GUI deve manter o título do documento derivado da mesma estrutura de estado utilizada pelo indicador de progresso e pelo status visível. A composição deve ficar centralizada e não pode manter contador, percentual ou ciclo de vida paralelo.
+
+Durante preparação, validação ou envio ativo, o título deve começar por um percentual inteiro entre `0%` e `100%`, sem conteúdo anterior, seguido imediatamente de um estado curto e do nome-base `WhatSend`. O percentual material do envio é `concluídos / total elegível`; antes de o total ser conhecido, a preparação válida usa `0%`. O título deve representar determinística e exclusivamente a campanha, que é a operação principal e não admite concorrência equivalente.
+
+Os estados mínimos são `Preparando`, `Validando`, `Enviando`, `Concluído`, `Interrompido` e `Erro`. Conclusão válida deve permanecer como `100% Concluído — WhatSend` até alteração material das entradas. Falha ou interrupção deve preservar o último percentual conhecido e nunca se apresentar como conclusão. Sem campanha ou conclusão válida, o título deve retornar a `WhatSend`.
+
+Alteração explícita em modelo, anexos embedded, arquivo ou conteúdo CSV, filtro, sessão, configurações de envio, reenvio ou reset deve invalidar imediatamente a conclusão e representar nova preparação. Foco, seleção, rolagem, expansão, navegação e outros eventos puramente visuais não invalidam o estado. Restauração só pode apresentar progresso persistido depois de validar que ele corresponde à execução real.
+
+### RN037 - Aviso de Desenvolvimento
+
+O painel superior `Licença` da GUI principal e de toda saída que reutilize esse painel deve conservar integralmente o conteúdo legal existente e acrescentar, como texto real, visível sem interação e associado semanticamente ao painel, o aviso: `Em desenvolvimento: este software pode conter erros.`
+
+O aviso deve ser legível, responsivo, acessível a leitores de tela e não pode depender apenas de cor, ícone, tooltip, modal ou rodapé. A interface atual é pt-BR; qualquer idioma adicional deve fornecer mensagem semanticamente equivalente sem suavizar os dois fatos obrigatórios: produto em desenvolvimento e possibilidade de erros.
+
+### RN038 - Identidade das Colunas de Telefone
+
+O CSV deve conter `nome` e exatamente um dos aliases `telefone` ou `fone`. Os três nomes são reconhecidos sem distinção de caixa. `telefone` e `fone` representam uma única função lógica e recebem as mesmas regras de leitura, validação, normalização, filtragem, mensagem, processamento, log e interoperabilidade.
+
+Cabeçalhos devem ser normalizados antes da validação. Cabeçalho vazio, repetição do mesmo nome normalizado, ou coexistência de `telefone` e `fone` constitui erro impeditivo e acionável. Não é permitido escolher uma coluna arbitrariamente, mesclar valores ou consolidar aliases automaticamente. O cabeçalho original deve ser preservado em importações e exportações que não exijam normalização.
+
+Internamente, consumidores devem resolver a função telefônica por utilitário comum e não por acesso direto exclusivo a `telefone`. Entradas legadas que possuam somente `telefone` permanecem válidas; entradas que possuam somente `fone` passam a ser equivalentes. Colunas adicionais continuam preservadas e disponíveis como variáveis. Mensagens e documentação devem indicar `telefone ou fone`, sem tornar `nome` opcional.
+
+### RN039 - Bundle Offline do Editor
+
+O build deve produzir, além de todas as saídas existentes, `dist/WhatSend-Modelo-Offline.html`: um único arquivo HTML autocontido, abrível diretamente por `file://`, sem servidor, Node.js, internet, CDN, telemetria, API, WebSocket, worker, fonte, script, stylesheet, imagem, manifesto ou outro asset externo obrigatório em runtime.
+
+O bundle é exclusivamente um editor prévio local. Não autentica WhatsApp, não inicia campanha e não substitui nem reduz a GUI executora. Deve conter somente o rodapé legal canônico, o painel `Licença` com o aviso da RN037, o painel `Modelo de mensagem` com os recursos aplicáveis ao contexto offline e um painel adicional de CSV em estilo de planilha.
+
+A grade CSV deve usar biblioteca open source mantida, incorporada pelo build com sua licença. Deve importar e editar localmente CSV, preservar colunas e texto, validar a RN038, e exportar UTF-8 com BOM, separador `;`, delimitador `"`, escape por duplicação e extensão `.csv`. Valores permanecem dados textuais e nunca são inseridos como HTML. Conteúdo iniciado por `=`, `+`, `-` ou `@` deve ser neutralizado na exportação para planilhas por prefixo textual seguro, sem execução ou perda silenciosa.
+
+Persistência, quando usada, deve permanecer no dispositivo e ter namespace, versão, limite e ação de limpeza. O build deve incorporar código, estilos, recursos e licenças necessários, gerar hash do artefato, incluí-lo no pacote distribuível e falhar se detectar dependência automática externa, ausência de componente canônico ou divergência material de paridade. Links referenciais acionados voluntariamente pelo usuário não são dependências de runtime.
+
+### RN040 - Pacote Interoperável de Modelo e Dados
+
+Os arquivos separados `.md` e `.csv` continuam canônicos, independentes e plenamente suportados. Adicionalmente, GUI principal e bundle offline devem ler, validar, gerar, baixar, desacoplar e reencapsular o contêiner `WhatSend Package`, com extensão determinística `.whatsend.json`, MIME `application/json` e codificação UTF-8.
+
+O contrato de versão `1` é:
+
+```json
+{
+  "schema": "https://jeancarloem.com/whatsend/package/v1",
+  "version": 1,
+  "createdAt": "data ISO 8601",
+  "template": { "name": "arquivo.md", "content": "conteúdo integral" },
+  "csv": { "name": "arquivo.csv", "content": "conteúdo integral" },
+  "integrity": { "algorithm": "SHA-256", "template": "hex", "csv": "hex" }
+}
+```
+
+Campos adicionais são preservados ao reencapsular quando seguros e não conflitantes. `version`, `template.content`, `csv.content` e hashes válidos são obrigatórios na exportação final. O bundle pode manter edição parcial, mas não pode rotulá-la como pacote completo. Tamanho, profundidade, tipos, versão, nomes e integridade devem ser validados antes de alterar o estado da aplicação.
+
+O hash é calculado sobre os bytes UTF-8 exatos de cada conteúdo normalizado somente quanto à remoção do BOM externo; quebras e sintaxe proprietária permanecem intactas. Importação com estado preenchido exige confirmação explícita e aplicação atômica. Falha, versão desconhecida ou integridade divergente não pode produzir estado parcial. O mesmo pacote deve gerar `.md` e `.csv` semanticamente idênticos e o ciclo desacoplar/reencapsular deve ser determinístico, ressalvados `createdAt` e hashes derivados.
+
+Na GUI principal, o CSV do pacote alimenta a mesma validação e execução do CSV separado; o modelo permanece editável. No bundle, ambos são editáveis e nunca são processados como campanha. Parser, serializer, schema, normalização e testes devem derivar de implementação comum apta a ser incorporada ao HTML sem dependência de runtime.
+
+### RN041 - Análise Editorial do Modelo
+
+GUI principal e bundle offline devem analisar continuamente o mesmo conteúdo por mecanismo comum, no carregamento, edição, importação, salvamento, exportação e, na GUI executora, antes do processamento.
+
+As expressões literais `bom dia`, `boa tarde` e `boa noite`, sem distinção de caixa e fora de placeholders, código, URLs, referências de mídia e demais sintaxes proprietárias protegidas, são erro editorial. A orientação obrigatória é `Saudação dependente do horário detectada. Substitua por $diatarde$.` A GUI deve exigir confirmação explícita antes do envio enquanto o erro persistir; salvamento e exportação continuam disponíveis com o alerta visível.
+
+Possível nome próprio literal é aviso não impeditivo e deve recomendar `${nome}` sem afirmar erro absoluto. A heurística deve privilegiar palavras capitalizadas em contexto de vocativo ou saudação e excluir início ordinário de frase, marcadores protegidos, termos técnicos conhecidos e ocorrência que o usuário tenha marcado como intencional para o conteúdo atual.
+
+Cada ocorrência deve informar tipo, severidade, trecho, linha, coluna e orientação. A área de edição deve receber destaque global e uma lista textual navegável; erro e aviso devem ser distinguíveis por texto e sem dependência exclusiva de cor. Atualizações devem ocorrer sem atraso perceptível e produzir resultados semanticamente iguais nas duas aplicações.
+
+### RN042 - Fontes, Marca e Transformações de Build
+
+`src/` contém fontes canônicas, `scripts/` automações e `dist/` somente artefatos gerados ou distribuíveis. Movimentação ou renomeação só ocorre diante de divergência material comprovada e com mapa de origem, destino, referências, rollback e validação; preferência estética não constitui motivo.
+
+`src/brand/` é a origem canônica da identidade visual. O conjunto pequeno e preconstruído de `src/brand/html-favicon/` pode permanecer quando for determinístico, completo e mais simples que adicionar gerador. A adoção de RealFaviconGenerator é opcional, exclusivamente de build, e exige benefício material comprovado, configuração central, licença compatível, cache por hash das entradas e reconstrução limpa. Nenhum gerador remoto ou de runtime é permitido.
+
+Adaptações de favicon, manifesto e referências para local, web, subpath ou bundle devem ocorrer somente no build, sem editar as fontes. Somente campos dependentes do destino podem variar. O build deve validar referências, MIME, paths, base path, hash, idempotência e ausência de fontes canônicas mantidas exclusivamente em `dist/`. Bundle autocontido só incorpora asset de marca com função real.
+
+### RN043 - Instalação Portátil e Dependências
+
+`npm install`, `npm ci` e `npm update` devem funcionar em Windows, Linux e macOS sem depender do download pós-instalação do Chromium feito pelo pacote `puppeteer`. O projeto usa `puppeteer-core` e a descoberta/instalação explícita de navegador normatizada em RN021; portanto, o install deve configurar de forma versionada `PUPPETEER_SKIP_DOWNLOAD=true`, preservando o comando explícito `npm run browser:ensure` para provisionamento controlado.
+
+O lockfile deve ser reproduzível e coerente com o manifesto. Dependência transitiva vulnerável ou obsoleta não pode ser ocultada: deve ser eliminada por atualização compatível, override validado ou substituição controlada. `--force`, `--legacy-peer-deps` e supressão de auditoria não são correções. O fluxo deve testar instalação limpa com cache isolado e confirmar que a execução continua localizando navegador compatível, que `whatsapp-web.js` inicia com `executablePath`/conexão já resolvidos e que dependências de build não entram no manifesto de runtime de `dist`.
+
 ## Requisitos Não Funcionais
 
 ### RNF001 - Plataforma
