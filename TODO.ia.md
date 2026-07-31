@@ -2339,6 +2339,644 @@
     * testes executados e resultados;
     * falsos positivos, limitações ou pendências conhecidas.
 
+* [ ] **Reestruturar a organização dos diretórios conforme `AGENTS.md`, somente quando materialmente necessário:** inspecionar a estrutura real do repositório e reorganizá-la apenas se houver divergência comprovada em relação ao padrão normatizado para `src/`, `dist/` e `scripts/`. A atuação DEVE ser mínima, cirúrgica, rastreável e isenta de alterações meramente estéticas. A inspeção DEVE abranger especialmente `src/brand/` e `src/brand/html-favicon/`, utilizando integralmente os recursos de identidade visual, favicons e manifestos realmente existentes e adaptando-os automaticamente, em tempo de build, somente quando o destino de publicação exigir. A centralização de configurações DEVE ser preservada e, quando houver fragmentação ou duplicação material, otimizada sem criar acoplamento indevido. Nomes de diretórios e arquivos DEVEM identificar claramente sua finalidade quando a alteração for aplicável, válida e não regressiva.
+
+  * [ ] **Inspeção prévia obrigatória:** antes de mover, criar, renomear, editar ou excluir qualquer diretório ou arquivo:
+
+    * ler integralmente o `AGENTS.md` aplicável e suas especializações locais;
+    * identificar a finalidade normativa de `src/`, `dist/` e `scripts/`;
+    * localizar RCFs, configurações centrais, schemas, manifests, scripts e demais fontes normativas aplicáveis;
+    * mapear a estrutura atual;
+    * classificar cada arquivo pelo papel real, não apenas por nome ou extensão;
+    * identificar fontes canônicas, derivados, configurações, assets, scripts operacionais e saídas;
+    * inspecionar integralmente `src/brand/` e `src/brand/html-favicon/`;
+    * inventariar os arquivos de logotipo, ícone, favicon, manifesto e demais assets efetivamente existentes;
+    * localizar referências, imports, includes, caminhos, builds, workflows, testes, documentação e automações dependentes;
+    * verificar quais GUIs, páginas e saídas são fornecidas pelo aplicativo Node.js;
+    * identificar os destinos de publicação suportados, incluindo, conforme o estado real, execução local e publicação web;
+    * localizar configurações duplicadas, dispersas, conflitantes ou específicas de target;
+    * verificar se nomes atuais de arquivos e diretórios comunicam adequadamente sua função;
+    * verificar se a estrutura vigente já atende materialmente ao contrato, ainda que não reproduza uma organização meramente estética.
+
+  * [ ] **Necessidade comprovada:** a reorganização somente DEVE ocorrer quando houver ao menos uma das seguintes condições:
+
+    * arquivo-fonte mantido fora de `src/` sem exceção normativa;
+    * artefato gerado, compilado, empacotado ou publicável mantido fora de `dist/`;
+    * script operacional, de manutenção, migração, build ou automação mantido fora de `scripts/`;
+    * asset canônico de identidade visual mantido fora de `src/brand/` sem justificativa;
+    * arquivo específico de favicon ou manifesto HTML mantido fora de `src/brand/html-favicon/` sem justificativa;
+    * mistura entre fonte, artefato gerado, configuração e automação que prejudique build, manutenção, rastreabilidade ou conformidade;
+    * conflito direto com regra expressa do `AGENTS.md`;
+    * duplicação estrutural que produza ambiguidade ou risco de regressão;
+    * caminhos atuais impedindo aplicação correta das normas ou workflows vigentes;
+    * assets de marca existentes não utilizados pelas GUIs ou páginas aplicáveis;
+    * edição manual recorrente de favicons, manifestos ou referências conforme o destino, quando essa adaptação puder ser automatizada;
+    * configurações equivalentes mantidas em múltiplos pontos sem contrato claro de precedência;
+    * nomenclatura obscura, genérica, ambígua ou incompatível com a função real do arquivo ou diretório;
+    * dependência excessiva de paths implícitos ou hardcoded que impeça evolução segura.
+
+    Ausente necessidade material, a estrutura e a nomenclatura DEVEM ser preservadas.
+
+  * [ ] **Intervenção mínima:** É PROIBIDO:
+
+    * reorganizar por preferência pessoal;
+    * mover arquivos apenas para uniformidade visual;
+    * renomear somente por estilo;
+    * criar diretórios vazios ou artificiais;
+    * fragmentar módulos sem ganho técnico demonstrável;
+    * alterar arquitetura funcional sob justificativa de organização;
+    * converter esta tarefa em refatoração geral;
+    * mover objetos de negócio denominados `src`, `dist` ou `scripts` quando não representarem os diretórios estruturais normatizados;
+    * redesenhar, substituir ou recriar assets de marca sem solicitação expressa;
+    * editar arquivos canônicos apenas para adequá-los a um destino específico quando a transformação puder ocorrer no build;
+    * duplicar manualmente variantes locais e web sem necessidade técnica comprovada;
+    * descentralizar configuração já centralizada;
+    * criar novo arquivo de configuração quando uma fonte canônica existente puder ser especializada;
+    * alterar nomes amplamente referenciados sem benefício material e sem atualização integral das referências.
+
+  * [ ] **Centralização de configuração:** preservar a configuração central existente e aprimorá-la somente quando houver ganho material de coerência, reutilização, rastreabilidade ou redução de divergência.
+
+    A implementação DEVE:
+
+    * identificar a fonte canônica de cada configuração;
+    * centralizar valores comuns entre targets;
+    * segregar apenas parâmetros realmente específicos de local, web, GitHub Pages, bundle ou outro destino;
+    * evitar valores duplicados em scripts, componentes, manifests, workflows e templates;
+    * utilizar herança, composição, overlay, mapa por target ou mecanismo equivalente aderente à arquitetura;
+    * manter precedência explícita e determinística;
+    * impedir que configuração derivada se torne nova fonte concorrente;
+    * permitir validação automatizada de campos obrigatórios;
+    * preservar compatibilidade com os comandos e builds existentes;
+    * não transformar configuração simples em sistema excessivamente abstrato.
+
+    Valores específicos de target DEVEM ser declarados centralmente sempre que tecnicamente adequado e consumidos pelos scripts de build, em vez de permanecerem hardcoded em múltiplos arquivos.
+
+  * [ ] **Contrato de nomenclatura:** nomes de diretórios e arquivos DEVEM comunicar finalidade, escopo ou função quando isso puder ser feito sem regressão, ruptura de contrato externo ou proliferação nominal.
+
+    Renomeações somente DEVEM ocorrer quando:
+
+    * o nome atual for ambíguo, enganoso ou excessivamente genérico;
+    * houver colisão semântica;
+    * a finalidade não puder ser reconhecida por manutenção humana ou automatizada;
+    * o nome contrariar convenção normativa existente;
+    * a melhoria reduzir risco real de uso incorreto.
+
+    A nomenclatura aprimorada DEVE:
+
+    * ser curta, específica e estável;
+    * refletir função real, não implementação transitória;
+    * diferenciar fonte, configuração, template, derivado e artefato final;
+    * evitar abreviações obscuras;
+    * preservar convenções técnicas exigidas por ferramentas ou plataformas;
+    * não incorporar target ao nome quando o target já estiver inequivocamente representado pela estrutura;
+    * permanecer compatível com sistemas case-sensitive e case-insensitive.
+
+    É PROIBIDO renomear arquivo ou diretório sem corrigir integralmente todas as referências dependentes.
+
+  * [ ] **Contrato de `src/`:** `src/` DEVE conter fontes humanas ou canônicas necessárias à geração, execução ou manutenção do produto, conforme a arquitetura real, incluindo quando aplicável:
+
+    * código-fonte;
+    * componentes;
+    * estilos-fonte;
+    * templates;
+    * schemas;
+    * configurações-fonte;
+    * conteúdo-fonte;
+    * assets que participem do processamento ou build;
+    * arquivos canônicos dos quais artefatos derivados sejam produzidos;
+    * identidade visual canônica em `src/brand/`;
+    * favicons, manifestos e arquivos HTML correlatos canônicos em `src/brand/html-favicon/`.
+
+    `src/` NÃO DEVE conter:
+
+    * builds finais;
+    * caches;
+    * downloads temporários;
+    * logs;
+    * artefatos intermediários descartáveis;
+    * dependências instaladas;
+    * saídas duplicadas sem função normativa;
+    * variantes específicas de destino que possam ser produzidas deterministicamente em tempo de build.
+
+  * [ ] **Contrato de `src/brand/`:** `src/brand/` DEVE constituir a fonte canônica dos recursos de identidade visual do aplicativo, conforme os arquivos realmente existentes.
+
+    A implementação DEVE:
+
+    * inspecionar todos os arquivos do diretório;
+    * determinar a função real de cada recurso;
+    * identificar logotipo, ícone principal, variantes, fontes vetoriais, bitmaps e demais assets;
+    * utilizar todos os arquivos aplicáveis nas GUIs, páginas, bundles e saídas fornecidas pelo aplicativo;
+    * evitar duplicação de assets equivalentes em outros diretórios;
+    * preservar os originais canônicos;
+    * gerar derivados apenas em tempo de build;
+    * não assumir nomes, dimensões, formatos ou finalidades sem inspeção;
+    * aprimorar nomes apenas quando a função estiver comprovada e o nome atual for materialmente inadequado;
+    * manter mapa rastreável entre cada fonte canônica e seus derivados.
+
+    Arquivos não aplicáveis a determinado destino NÃO DEVEM ser copiados indiscriminadamente, mas sua exclusão do artefato DEVE decorrer de classificação objetiva, não de omissão acidental.
+
+  * [ ] **Contrato de `src/brand/html-favicon/`:** `src/brand/html-favicon/` DEVE concentrar os arquivos canônicos destinados à identidade de páginas HTML e GUIs web ou equivalentes, incluindo, conforme existência real:
+
+    * favicons;
+    * ícones em diferentes dimensões;
+    * `apple-touch-icon`;
+    * ícones para PWA;
+    * manifestos;
+    * `browserconfig`;
+    * arquivos auxiliares de metadados;
+    * fragmentos ou referências HTML;
+    * demais recursos correlatos.
+
+    A implementação DEVE:
+
+    * inventariar e utilizar todos os arquivos aplicáveis;
+    * validar formatos, dimensões, MIME types, nomes e referências;
+    * preservar arquivos-fonte;
+    * identificar quais arquivos requerem adaptação por destino;
+    * impedir que recursos existentes permaneçam sem uso por falha de integração;
+    * não criar novo conjunto paralelo quando o diretório já contiver a fonte adequada;
+    * identificar arquivos cuja nomenclatura não revele a função e renomeá-los apenas se seguro e necessário;
+    * atualizar integralmente manifests, templates, includes e demais referências em caso de renomeação.
+
+  * [ ] **Aplicação obrigatória nas GUIs e páginas:** todas as GUIs, páginas e saídas fornecidas pelo aplicativo Node.js que suportem identidade visual DEVEM incorporar os recursos aplicáveis de `src/brand/` e `src/brand/html-favicon/`.
+
+    Isso inclui, conforme o estado real:
+
+    * páginas locais;
+    * páginas web;
+    * GitHub Pages;
+    * bundle offline;
+    * interfaces geradas;
+    * páginas auxiliares;
+    * artefatos HTML distribuíveis;
+    * demais targets compatíveis.
+
+    A aplicação DEVE considerar as diferenças de ambiente sem produzir divergência visual ou identidade concorrente.
+
+  * [ ] **Adaptação por target:** arquivos de favicon, manifesto, metadados e referências PODEM exigir edição conforme o destino de publicação.
+
+    A implementação DEVE distinguir, conforme aplicabilidade:
+
+    * execução local;
+    * publicação web;
+    * subdiretório ou base path;
+    * domínio raiz;
+    * GitHub Pages;
+    * bundle HTML autocontido;
+    * ambiente instalado;
+    * demais targets reais.
+
+    Somente os campos materialmente dependentes do destino DEVEM ser alterados, como, quando aplicável:
+
+    * caminhos;
+    * `start_url`;
+    * `scope`;
+    * URLs de ícones;
+    * base pública;
+    * identificadores;
+    * nomes de saída;
+    * referências HTML;
+    * metadados próprios do target.
+
+    Conteúdo independente do destino NÃO DEVE ser modificado.
+
+  * [ ] **Transformação exclusivamente em build:** adaptações de assets, manifestos e referências DEVEM ocorrer mediante script automatizado apropriado em tempo de build.
+
+    O processo DEVE:
+
+    * partir exclusivamente das fontes canônicas em `src/brand/` e `src/brand/html-favicon/`;
+    * consumir configuração centralizada;
+    * receber o target como entrada explícita;
+    * produzir derivados no diretório de saída aplicável;
+    * editar somente os campos necessários;
+    * preservar semântica, identidade, formatos e metadados restantes;
+    * ser determinístico;
+    * ser idempotente;
+    * ser testável;
+    * falhar diante de arquivo obrigatório ausente, referência inválida, configuração inconsistente ou target desconhecido;
+    * não alterar os arquivos-fonte;
+    * não exigir edição manual posterior;
+    * registrar quais transformações foram realizadas;
+    * validar todos os includes e referências resultantes.
+
+  * [ ] **Script automatizado:** localizar script existente capaz de executar as adaptações antes de criar outro.
+
+    Quando inexistente ou insuficiente, criar ou especializar script em `scripts/`, devidamente nomeado conforme sua finalidade e documentado, responsável por:
+
+    * inventariar os assets canônicos;
+    * validar sua integridade;
+    * selecionar os arquivos aplicáveis;
+    * gerar variantes necessárias;
+    * ajustar manifestos e referências;
+    * incorporar ou copiar os assets;
+    * produzir saídas específicas por target;
+    * validar o resultado;
+    * impedir divergência entre targets;
+    * consumir configuração centralizada;
+    * atualizar ou produzir includes derivados quando aplicável;
+    * verificar ausência de referências quebradas.
+
+    É PROIBIDO espalhar lógica equivalente por múltiplos scripts, componentes, templates ou workflows sem necessidade.
+
+  * [ ] **Contrato de entrada do script:** o script DEVE receber de forma explícita ou inferir deterministicamente apenas quando inequívoco:
+
+    * target;
+    * diretório-fonte;
+    * diretório de saída;
+    * base URL ou base path;
+    * modo local ou web;
+    * requisitos de incorporação;
+    * arquivo ou objeto de configuração canônico;
+    * demais parâmetros realmente necessários.
+
+    Defaults somente PODEM ser adotados quando seguros, normatizados e não ambíguos.
+
+  * [ ] **Contrato de saída do script:** o script DEVE produzir:
+
+    * assets corretamente posicionados;
+    * manifestos válidos;
+    * referências coerentes;
+    * includes válidos;
+    * caminhos compatíveis com o target;
+    * relatório ou log conciso das transformações;
+    * erro impeditivo quando não puder garantir conformidade.
+
+    O resultado DEVE ser reproduzível sem editar manualmente `dist/`.
+
+  * [ ] **Includes e referências:** qualquer movimentação, renomeação, centralização ou adaptação DEVE ser acompanhada pela atualização integral de todas as referências afetadas.
+
+    Revisar, conforme aplicabilidade:
+
+    * `import`;
+    * `export`;
+    * `require`;
+    * includes de templates;
+    * includes de HTML;
+    * includes de CSS/Sass;
+    * referências de script;
+    * paths de assets;
+    * aliases;
+    * manifests;
+    * workflows;
+    * configurações;
+    * schemas;
+    * fixtures;
+    * testes;
+    * documentação;
+    * links internos;
+    * referências do RCF;
+    * comandos;
+    * hashes;
+    * listas de publicação;
+    * regras de cópia;
+    * geração de bundle;
+    * release;
+    * GitHub Pages.
+
+    A correção DEVE:
+
+    * abranger referências diretas e indiretas;
+    * considerar diferenças de caixa;
+    * considerar paths montados em runtime;
+    * considerar referências geradas dinamicamente;
+    * remover somente referências obsoletas;
+    * não manter aliases legados indefinidamente sem necessidade;
+    * ser validada por busca estática, build e testes.
+
+    É PROIBIDO concluir a tarefa com include, import, path, URL ou referência quebrada.
+
+  * [ ] **Bundle autocontido:** quando o target for bundle 100% offline e autocontido:
+
+    * os assets aplicáveis DEVEM ser incorporados ao próprio artefato;
+    * nenhuma dependência externa PODE ser criada;
+    * manifestos ou referências incompatíveis com arquivo único DEVEM ser adaptados ou omitidos somente mediante regra explícita;
+    * favicons e identidade visual DEVEM permanecer disponíveis conforme as capacidades reais do navegador;
+    * CDN, servidor e arquivos auxiliares obrigatórios permanecem proibidos;
+    * a configuração específica do bundle DEVE derivar da configuração central, sem duplicação manual.
+
+  * [ ] **Publicação web:** quando o target for web:
+
+    * caminhos DEVEM considerar corretamente domínio, base path e subdiretório;
+    * manifestos DEVEM apontar para recursos realmente publicados;
+    * ícones DEVEM ser acessíveis;
+    * referências NÃO DEVEM assumir raiz absoluta quando o deploy utilizar subdiretório;
+    * a publicação local e a publicação web NÃO DEVEM compartilhar valores incorretos por reutilização cega;
+    * valores como base path, origem pública e escopo DEVEM derivar da configuração centralizada.
+
+  * [ ] **Execução local:** quando o target for local:
+
+    * referências DEVEM funcionar sem domínio público;
+    * caminhos relativos DEVEM ser preferidos quando adequados;
+    * nenhum recurso obrigatório DEVE depender de conexão remota;
+    * manifestos ou recursos incompatíveis com o ambiente local DEVEM ser tratados conforme norma explícita, sem quebrar a GUI;
+    * configurações locais DEVEM especializar, e não duplicar, os valores comuns.
+
+  * [ ] **Contrato de `dist/`:** `dist/` DEVE conter exclusivamente artefatos gerados, compilados, empacotados, distribuíveis ou publicáveis.
+
+    Aplicam-se as seguintes regras:
+
+    * seu conteúdo DEVE ser reproduzível a partir das fontes, configurações e scripts aplicáveis;
+    * arquivos manuais canônicos NÃO DEVEM residir exclusivamente em `dist/`;
+    * alterações diretas em `dist/` NÃO DEVEM substituir correções na fonte;
+    * o diretório DEVE permanecer compatível com build, release e publicação;
+    * arquivos gerados somente DEVEM ser versionados quando o contrato vigente assim exigir;
+    * saídas distintas PODEM possuir subdiretórios próprios, desde que não recriem estruturas concorrentes ou ambíguas;
+    * variantes de marca, favicons e manifestos específicas de cada target DEVEM ser derivadas, não mantidas manualmente como fontes concorrentes;
+    * nomes de subdiretórios de saída DEVEM identificar claramente o target quando isso for necessário para evitar ambiguidade.
+
+  * [ ] **Contrato de `scripts/`:** `scripts/` DEVE concentrar scripts operacionais e de automação que não constituam código-fonte direto do produto, incluindo quando aplicável:
+
+    * build;
+    * release;
+    * manutenção;
+    * migração;
+    * validação;
+    * geração;
+    * conversão;
+    * sincronização;
+    * auditoria;
+    * preparação de assets;
+    * adaptação de favicons e manifestos;
+    * utilitários administrativos;
+    * automações temporárias ainda necessárias.
+
+    Scripts DEVEM possuir nomes que indiquem sua função quando aplicável, evitando denominações genéricas como `util`, `temp`, `run` ou equivalentes sem qualificador funcional.
+
+    Scripts temporários DEVEM:
+
+    * possuir finalidade explícita;
+    * ser idempotentes quando aplicável;
+    * manter rastreabilidade;
+    * ser removidos quando sua função se esgotar;
+    * não permanecer como dependência implícita sem normatização.
+
+  * [ ] **Exceções e especializações:** arquivos somente DEVEM permanecer fora dos diretórios canônicos quando:
+
+    * houver exigência técnica da plataforma;
+    * o caminho for contrato externo;
+    * ferramenta, framework ou serviço exigir localização específica;
+    * existir norma especializada de maior precedência;
+    * o arquivo possuir função estrutural própria da raiz.
+
+    Toda exceção não evidente DEVE ser documentada no RCF, `AGENTS.md`, FT ou fonte normativa apropriada, sem duplicação desnecessária.
+
+  * [ ] **Planejamento da migração:** quando a reorganização ou renomeação for necessária, criar mapa determinístico contendo:
+
+    * caminho atual;
+    * caminho de destino;
+    * nome atual;
+    * nome proposto;
+    * classificação do arquivo;
+    * finalidade real;
+    * justificativa;
+    * referências afetadas;
+    * includes afetados;
+    * configuração relacionada;
+    * ordem de movimentação;
+    * estratégia de compatibilidade;
+    * validação;
+    * eventual remoção posterior de aliases ou caminhos legados;
+    * classificação dos arquivos de `brand/`;
+    * relação entre fonte canônica e derivado por target;
+    * transformações necessárias em build.
+
+  * [ ] **Movimentação segura:** a migração DEVE:
+
+    * preservar conteúdo, histórico e permissões relevantes;
+    * preferir movimentação reconhecível pelo Git;
+    * evitar cópia seguida de exclusão quando movimento direto for possível;
+    * impedir sobrescrita;
+    * detectar colisões;
+    * preservar nomes quando não houver razão normativa para alterá-los;
+    * manter temporariamente compatibilidade somente quando necessária;
+    * ser executável de forma atômica ou retomável;
+    * não alterar arquivos de marca canônicos durante a movimentação;
+    * não perder nenhuma variante ou manifesto existente;
+    * atualizar referências no mesmo conjunto atômico da mudança;
+    * não deixar estado intermediário funcionalmente quebrado em commit final.
+
+  * [ ] **Atualização integral de referências:** após qualquer movimentação, renomeação, centralização ou integração de marca, revisar e corrigir, conforme aplicabilidade:
+
+    * imports;
+    * exports;
+    * includes;
+    * aliases;
+    * caminhos relativos e absolutos;
+    * referências de favicon;
+    * links de manifesto;
+    * metadados HTML;
+    * scripts de package;
+    * configurações;
+    * builds;
+    * workflows;
+    * testes;
+    * fixtures;
+    * documentação;
+    * manifests;
+    * referências em RCFs;
+    * `README`;
+    * `continue.ia`;
+    * FTs;
+    * GitHub Pages;
+    * release;
+    * regras de ignore;
+    * ferramentas de lint, format, bundling e análise.
+
+    É PROIBIDO deixar referências legadas silenciosamente quebradas.
+
+  * [ ] **Compatibilidade de build e execução:** a nova estrutura, nomenclatura, centralização de configuração e integração dos assets NÃO DEVEM:
+
+    * alterar o comportamento do produto;
+    * modificar contratos públicos;
+    * alterar URLs sem necessidade;
+    * mudar nomes de artefatos finais sem regra;
+    * excluir arquivos necessários;
+    * introduzir dependência circular;
+    * duplicar fonte e build como se ambos fossem canônicos;
+    * exigir passos manuais não normatizados;
+    * quebrar execução local;
+    * quebrar publicação web;
+    * criar dependência remota para identidade visual;
+    * alterar visual ou branding além do uso dos assets canônicos existentes;
+    * criar configurações concorrentes;
+    * invalidar includes ou caminhos consumidos por ferramentas externas.
+
+  * [ ] **Conteúdo gerado e fonte canônica:** quando o mesmo conteúdo existir em mais de um local:
+
+    * identificar a fonte canônica;
+    * definir o derivado;
+    * eliminar duplicação apenas após validar geração e referências;
+    * impedir edição concorrente;
+    * documentar o fluxo `fonte + configuração → build → dist`;
+    * definir `src/brand/` e `src/brand/html-favicon/` como fontes canônicas quando compatível com o estado real;
+    * impedir que variantes geradas por target sejam tratadas como fonte;
+    * impedir que configuração derivada seja alterada manualmente como se fosse canônica.
+
+  * [ ] **Automação de conformidade:** quando proporcional, adicionar validação automatizada para detectar:
+
+    * fonte fora de `src/`;
+    * artefato gerado fora de `dist/`;
+    * script operacional fora de `scripts/`;
+    * arquivo canônico mantido apenas em `dist/`;
+    * dependência de caminho legado;
+    * diretório concorrente com a mesma função;
+    * saída de build gravada sobre fonte;
+    * asset aplicável de `src/brand/` não utilizado;
+    * referência a favicon inexistente;
+    * manifesto inválido;
+    * path ou include quebrado;
+    * caminho incompatível com o target;
+    * modificação indevida de arquivo-fonte durante o build;
+    * dependência remota introduzida em target offline;
+    * divergência entre variantes geradas e fontes canônicas;
+    * configuração duplicada ou conflitante;
+    * target sem configuração válida;
+    * nome de arquivo ou diretório reconhecidamente incompatível com convenção normativa.
+
+    A validação NÃO DEVE produzir falsos positivos contra exceções normativas legítimas.
+
+  * [ ] **Normatização:** se a inspeção revelar regra ambígua, incompleta ou incompatível com o estado real, atualizar o RCF ou `AGENTS.md` aplicável antes da reorganização, respeitando precedência e escopo.
+
+    A normatização DEVE incluir, conforme aplicabilidade:
+
+    * função de `src/brand/`;
+    * função de `src/brand/html-favicon/`;
+    * fonte canônica;
+    * centralização e precedência das configurações;
+    * especialização por target;
+    * convenções de nomenclatura;
+    * aplicação obrigatória nas GUIs e páginas;
+    * adaptação por target;
+    * transformação em build;
+    * localização e responsabilidade do script;
+    * preservação dos originais;
+    * validação de assets, manifestos, includes e referências;
+    * regras específicas para local, web e bundle offline.
+
+    A norma NÃO DEVE ser alterada apenas para legitimar organização incorreta.
+
+  * [ ] **Testes obrigatórios:** após a reorganização, renomeação, centralização e integração, validar no mínimo:
+
+    * instalação ou preparação do ambiente;
+    * lint;
+    * formatação;
+    * testes;
+    * build;
+    * execução local;
+    * geração de `dist/`;
+    * workflows;
+    * release;
+    * publicação;
+    * ausência de imports, includes ou caminhos quebrados;
+    * ausência de arquivos perdidos;
+    * equivalência funcional;
+    * reprodutibilidade das saídas;
+    * inventário integral de `src/brand/`;
+    * uso de todos os assets aplicáveis;
+    * favicons corretos;
+    * manifestos válidos;
+    * caminhos locais;
+    * caminhos web;
+    * base path de GitHub Pages;
+    * bundle autocontido;
+    * inexistência de edição dos arquivos-fonte durante o build;
+    * determinismo das transformações;
+    * ausência de dependência remota nos targets offline;
+    * consumo correto da configuração central;
+    * ausência de valores conflitantes entre targets;
+    * atualização correta das referências após renomeações;
+    * inexistência de referências ao caminho anterior;
+    * reconhecimento claro da finalidade dos nomes alterados.
+
+  * [ ] **Ordem de execução:**
+
+    1. Ler as normas aplicáveis.
+    2. Mapear a estrutura real.
+    3. Localizar e mapear a configuração central existente.
+    4. Inspecionar integralmente `src/brand/` e `src/brand/html-favicon/`.
+    5. Inventariar e classificar todos os assets, favicons e manifestos existentes.
+    6. Mapear GUIs, páginas, builds e targets que DEVEM utilizá-los.
+    7. Classificar os demais arquivos e diretórios.
+    8. Avaliar clareza e validade da nomenclatura existente.
+    9. Mapear imports, includes, paths e referências dependentes.
+    10. Verificar se existe divergência material.
+    11. Não reorganizar nem renomear se a estrutura já estiver conforme.
+    12. Definir fontes canônicas, configurações centrais e derivados por target.
+    13. Localizar e avaliar automação existente.
+    14. Havendo necessidade, elaborar mapa de migração, renomeação e transformação.
+    15. Atualizar previamente a normatização apenas se necessário.
+    16. Mover ou renomear arquivos com intervenção mínima.
+    17. Atualizar todos os includes e referências no mesmo fluxo.
+    18. Criar ou ajustar script automatizado em `scripts/`.
+    19. Integrar os assets em todas as GUIs e páginas aplicáveis.
+    20. Gerar variantes específicas para local, web e demais targets.
+    21. Remover duplicações, configurações concorrentes e caminhos legados somente após validação.
+    22. Executar testes completos.
+    23. Atualizar documentação e rastreabilidade.
+    24. Emitir relatório final.
+
+  * [ ] **Critérios de aceite:**
+
+    * [ ] A necessidade de reorganização foi objetivamente verificada.
+    * [ ] Nenhuma reorganização ou renomeação foi realizada sem necessidade material.
+    * [ ] Fontes aplicáveis estão em `src/`.
+    * [ ] Artefatos distribuíveis ou gerados estão em `dist/`.
+    * [ ] Scripts operacionais aplicáveis estão em `scripts/`.
+    * [ ] A configuração central existente foi preservada.
+    * [ ] Configurações duplicadas ou conflitantes foram consolidadas quando necessário.
+    * [ ] Valores comuns e específicos de target possuem precedência clara.
+    * [ ] Nomes alterados identificam melhor a finalidade real.
+    * [ ] Nenhum nome foi alterado apenas por preferência estética.
+    * [ ] `src/brand/` foi integralmente inspecionado.
+    * [ ] `src/brand/html-favicon/` foi integralmente inspecionado.
+    * [ ] Todos os assets existentes e aplicáveis são utilizados.
+    * [ ] Nenhum asset foi omitido por suposição sobre nome ou finalidade.
+    * [ ] Os arquivos canônicos permanecem inalterados pelo build.
+    * [ ] Adaptações por target ocorrem automaticamente.
+    * [ ] Somente campos dependentes do target são editados.
+    * [ ] Existe script apropriado, centralizado e adequadamente nomeado para as transformações.
+    * [ ] O script é determinístico, idempotente e verificável.
+    * [ ] Todos os imports, includes, paths, URLs e referências foram corrigidos.
+    * [ ] Não existem referências residuais inválidas aos caminhos ou nomes anteriores.
+    * [ ] A execução local utiliza referências corretas.
+    * [ ] A publicação web utiliza referências corretas.
+    * [ ] GitHub Pages considera corretamente o base path aplicável.
+    * [ ] O bundle offline permanece autocontido e sem dependências remotas.
+    * [ ] Favicons e manifestos são válidos nos targets aplicáveis.
+    * [ ] Exceções possuem fundamento técnico ou normativo.
+    * [ ] Nenhum arquivo foi perdido ou sobrescrito.
+    * [ ] Não existem fontes canônicas mantidas exclusivamente em `dist/`.
+    * [ ] Não existem duplicações estruturais ou configurações ambíguas.
+    * [ ] Imports, builds, workflows e documentação foram atualizados.
+    * [ ] O comportamento do produto permaneceu inalterado.
+    * [ ] A saída de build permanece reproduzível.
+    * [ ] Todos os testes passam sem regressão.
+
+  * [ ] **Relatório final:** registrar objetivamente:
+
+    * conformidade inicial encontrada;
+    * divergências materiais identificadas;
+    * estrutura e precedência da configuração central;
+    * configurações consolidadas, especializadas ou preservadas;
+    * inventário de `src/brand/`;
+    * inventário de `src/brand/html-favicon/`;
+    * função atribuída a cada asset;
+    * arquivos utilizados em cada GUI, página e target;
+    * arquivos não utilizados e justificativa;
+    * transformações aplicadas por target;
+    * script criado ou ajustado;
+    * arquivos e diretórios movidos;
+    * arquivos e diretórios renomeados;
+    * justificativa funcional de cada renomeação;
+    * includes, imports, paths e referências atualizados;
+    * caminhos preservados por exceção;
+    * fontes canônicas e artefatos derivados definidos;
+    * compatibilidades temporárias mantidas ou removidas;
+    * normas alteradas, se houver;
+    * testes executados e resultados;
+    * comprovação de que nenhuma reorganização, renomeação ou descentralização desnecessária foi realizada;
+    * pendências ou riscos remanescentes.
+
 - [ ] Corrigir erro no `npm install` e `npm update` abaixo.
   
   # Problema
