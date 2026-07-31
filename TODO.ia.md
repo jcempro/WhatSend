@@ -2740,6 +2740,8 @@
     * relação entre fonte canônica e derivado por target;
     * transformações necessárias em build.
 
+    IMPORTENTE: sistema (script de atualização) de atualização deve permanecer 100% retrocompatível, e plenamente funcional, com versão e localização nopvas e antigas.
+
   * [ ] **Movimentação segura:** a migração DEVE:
 
     * preservar conteúdo, histórico e permissões relevantes;
