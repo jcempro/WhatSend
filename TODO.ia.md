@@ -2339,7 +2339,7 @@
     * testes executados e resultados;
     * falsos positivos, limitações ou pendências conhecidas.
 
-* [ ] **Reestruturar a organização dos diretórios conforme `AGENTS.md`, somente quando materialmente necessário:** inspecionar a estrutura real do repositório e reorganizá-la apenas se houver divergência comprovada em relação ao padrão normatizado para `src/`, `dist/` e `scripts/`. A atuação DEVE ser mínima, cirúrgica, rastreável e isenta de alterações meramente estéticas. A inspeção DEVE abranger especialmente `src/brand/` e `src/brand/html-favicon/`, utilizando integralmente os recursos de identidade visual, favicons e manifestos realmente existentes e adaptando-os automaticamente, em tempo de build, somente quando o destino de publicação exigir. A centralização de configurações DEVE ser preservada e, quando houver fragmentação ou duplicação material, otimizada sem criar acoplamento indevido. Nomes de diretórios e arquivos DEVEM identificar claramente sua finalidade quando a alteração for aplicável, válida e não regressiva.
+* [ ] **Reestruturar a organização dos diretórios conforme `AGENTS.md`, somente quando materialmente necessário:** inspecionar a estrutura real do repositório e reorganizá-la apenas se houver divergência comprovada em relação ao padrão normatizado para `src/`, `dist/` e `scripts/`. A atuação DEVE ser mínima, cirúrgica, rastreável e isenta de alterações meramente estéticas. A inspeção DEVE abranger especialmente `src/brand/` e o eventual conjunto preconstruído de `src/brand/html-favicon/`, utilizando integralmente os recursos de identidade visual realmente existentes e adaptando ou gerando automaticamente favicons, manifestos e referências somente em tempo de build e quando o destino de publicação exigir. Se a inspeção demonstrar ser técnica, arquitetural e operacionalmente mais inteligente e conveniente, PODE substituir o conjunto preconstruído pelo `RealFaviconGenerator` (`https://github.com/RealFaviconGenerator/realfavicongenerator`), instalado via npm e executado apenas no build, preservando como fontes canônicas somente os logotipos/ícones originais em `src/brand/` e a configuração central aninhada aplicável. A centralização de configurações DEVE ser preservada e, quando houver fragmentação ou duplicação material, otimizada sem criar acoplamento indevido. Nomes de diretórios e arquivos DEVEM identificar claramente sua finalidade quando a alteração for aplicável, válida e não regressiva.
 
   * [ ] **Inspeção prévia obrigatória:** antes de mover, criar, renomear, editar ou excluir qualquer diretório ou arquivo:
 
@@ -2349,14 +2349,18 @@
     * mapear a estrutura atual;
     * classificar cada arquivo pelo papel real, não apenas por nome ou extensão;
     * identificar fontes canônicas, derivados, configurações, assets, scripts operacionais e saídas;
-    * inspecionar integralmente `src/brand/` e `src/brand/html-favicon/`;
+    * inspecionar integralmente `src/brand/` e, quando existente, `src/brand/html-favicon/`;
     * inventariar os arquivos de logotipo, ícone, favicon, manifesto e demais assets efetivamente existentes;
+    * distinguir originais de marca, configuração, preconstruídos, derivados e saídas de build;
+    * avaliar se o conjunto preconstruído deve ser preservado ou substituído por geração equivalente via `RealFaviconGenerator`;
+    * confirmar, pela documentação oficial vigente, o pacote npm, API, requisitos, capacidades, formatos gerados e compatibilidade com o ambiente real antes de adotá-lo;
     * localizar referências, imports, includes, caminhos, builds, workflows, testes, documentação e automações dependentes;
     * verificar quais GUIs, páginas e saídas são fornecidas pelo aplicativo Node.js;
     * identificar os destinos de publicação suportados, incluindo, conforme o estado real, execução local e publicação web;
     * localizar configurações duplicadas, dispersas, conflitantes ou específicas de target;
     * verificar se nomes atuais de arquivos e diretórios comunicam adequadamente sua função;
-    * verificar se a estrutura vigente já atende materialmente ao contrato, ainda que não reproduza uma organização meramente estética.
+    * verificar se a estrutura vigente já atende materialmente ao contrato, ainda que não reproduza uma organização meramente estética;
+    * comparar custo, simplicidade, reprodutibilidade, manutenção, cache, integração por target e risco de divergência entre preservar preconstruídos e regenerá-los no build.
 
   * [ ] **Necessidade comprovada:** a reorganização somente DEVE ocorrer quando houver ao menos uma das seguintes condições:
 
@@ -2364,13 +2368,14 @@
     * artefato gerado, compilado, empacotado ou publicável mantido fora de `dist/`;
     * script operacional, de manutenção, migração, build ou automação mantido fora de `scripts/`;
     * asset canônico de identidade visual mantido fora de `src/brand/` sem justificativa;
-    * arquivo específico de favicon ou manifesto HTML mantido fora de `src/brand/html-favicon/` sem justificativa;
+    * arquivo preconstruído de favicon ou manifesto HTML mantido fora de `src/brand/html-favicon/` sem justificativa, quando essa estratégia for preservada;
     * mistura entre fonte, artefato gerado, configuração e automação que prejudique build, manutenção, rastreabilidade ou conformidade;
     * conflito direto com regra expressa do `AGENTS.md`;
     * duplicação estrutural que produza ambiguidade ou risco de regressão;
     * caminhos atuais impedindo aplicação correta das normas ou workflows vigentes;
     * assets de marca existentes não utilizados pelas GUIs ou páginas aplicáveis;
-    * edição manual recorrente de favicons, manifestos ou referências conforme o destino, quando essa adaptação puder ser automatizada;
+    * edição manual recorrente de favicons, manifestos ou referências conforme o destino, quando essa adaptação ou regeneração puder ser automatizada;
+    * manutenção de preconstruídos quando geração equivalente no build, a partir dos originais de marca e configuração central, for comprovadamente mais simples, segura, reproduzível e econômica;
     * configurações equivalentes mantidas em múltiplos pontos sem contrato claro de precedência;
     * nomenclatura obscura, genérica, ambígua ou incompatível com a função real do arquivo ou diretório;
     * dependência excessiva de paths implícitos ou hardcoded que impeça evolução segura.
@@ -2387,11 +2392,12 @@
     * alterar arquitetura funcional sob justificativa de organização;
     * converter esta tarefa em refatoração geral;
     * mover objetos de negócio denominados `src`, `dist` ou `scripts` quando não representarem os diretórios estruturais normatizados;
-    * redesenhar, substituir ou recriar assets de marca sem solicitação expressa;
+    * redesenhar ou substituir os originais canônicos de marca sem solicitação expressa;
+    * confundir regeneração técnica de favicons/manifestos equivalentes com recriação visual dos logotipos ou ícones de origem;
     * editar arquivos canônicos apenas para adequá-los a um destino específico quando a transformação puder ocorrer no build;
     * duplicar manualmente variantes locais e web sem necessidade técnica comprovada;
     * descentralizar configuração já centralizada;
-    * criar novo arquivo de configuração quando uma fonte canônica existente puder ser especializada;
+    * criar novo arquivo de configuração quando uma fonte canônica existente puder ser especializada, salvo arquivo separado, adequadamente nomeado e aninhado sob o diretório central já normatizado quando isso tornar a configuração de favicons/manifestos materialmente mais coesa, validável ou reutilizável;
     * alterar nomes amplamente referenciados sem benefício material e sem atualização integral das referências.
 
   * [ ] **Centralização de configuração:** preservar a configuração central existente e aprimorá-la somente quando houver ganho material de coerência, reutilização, rastreabilidade ou redução de divergência.
@@ -2405,6 +2411,9 @@
     * utilizar herança, composição, overlay, mapa por target ou mecanismo equivalente aderente à arquitetura;
     * manter precedência explícita e determinística;
     * impedir que configuração derivada se torne nova fonte concorrente;
+    * manter a configuração de geração/adaptação aninhada sob o diretório central já normatizado;
+    * permitir arquivo específico, separado e semanticamente nomeado somente quando sua segregação reduzir acoplamento, dispersão ou complexidade sem criar nova raiz de configuração;
+    * centralizar também imagem-mestre por aplicação/submódulo, metadados, cores, caminhos, base path, escopo, política por target e critérios de inclusão no bundle;
     * permitir validação automatizada de campos obrigatórios;
     * preservar compatibilidade com os comandos e builds existentes;
     * não transformar configuração simples em sistema excessivamente abstrato.
@@ -2445,7 +2454,8 @@
     * assets que participem do processamento ou build;
     * arquivos canônicos dos quais artefatos derivados sejam produzidos;
     * identidade visual canônica em `src/brand/`;
-    * favicons, manifestos e arquivos HTML correlatos canônicos em `src/brand/html-favicon/`.
+    * configuração-fonte centralizada de favicon/manifesto, aninhada sob o diretório central normatizado;
+    * favicons, manifestos e arquivos HTML correlatos preconstruídos em `src/brand/html-favicon/` somente quando essa estratégia for materialmente superior à regeneração automática no build.
 
     `src/` NÃO DEVE conter:
 
@@ -2475,7 +2485,7 @@
 
     Arquivos não aplicáveis a determinado destino NÃO DEVEM ser copiados indiscriminadamente, mas sua exclusão do artefato DEVE decorrer de classificação objetiva, não de omissão acidental.
 
-  * [ ] **Contrato de `src/brand/html-favicon/`:** `src/brand/html-favicon/` DEVE concentrar os arquivos canônicos destinados à identidade de páginas HTML e GUIs web ou equivalentes, incluindo, conforme existência real:
+  * [ ] **Contrato condicional de `src/brand/html-favicon/`:** `src/brand/html-favicon/` DEVE concentrar o conjunto preconstruído destinado à identidade de páginas HTML e GUIs web ou equivalentes somente enquanto essa estratégia permanecer justificada pelo estado real, incluindo, conforme existência:
 
     * favicons;
     * ícones em diferentes dimensões;
@@ -2487,7 +2497,7 @@
     * fragmentos ou referências HTML;
     * demais recursos correlatos.
 
-    A implementação DEVE:
+    Enquanto preservado, a implementação DEVE:
 
     * inventariar e utilizar todos os arquivos aplicáveis;
     * validar formatos, dimensões, MIME types, nomes e referências;
@@ -2498,7 +2508,53 @@
     * identificar arquivos cuja nomenclatura não revele a função e renomeá-los apenas se seguro e necessário;
     * atualizar integralmente manifests, templates, includes e demais referências em caso de renomeação.
 
-  * [ ] **Aplicação obrigatória nas GUIs e páginas:** todas as GUIs, páginas e saídas fornecidas pelo aplicativo Node.js que suportem identidade visual DEVEM incorporar os recursos aplicáveis de `src/brand/` e `src/brand/html-favicon/`.
+    Se a geração automática pelo `RealFaviconGenerator` for adotada e validada como estratégia superior:
+
+    * `src/brand/html-favicon/` e os demais favicons/manifestos preconstruídos equivalentes DEVEM ser removidos como fontes versionadas;
+    * somente `src/brand/` DEVE permanecer como origem canônica dos logotipos/ícones, sem perda dos originais necessários;
+    * a configuração-fonte DEVE permanecer centralizada e aninhada sob o diretório de configuração já normatizado;
+    * essa configuração PODE residir em arquivo separado, adequadamente nomeado, quando aplicável;
+    * favicons, manifestos, metadados e includes equivalentes DEVEM existir apenas como derivados de build no destino apropriado;
+    * a remoção somente PODE ocorrer após comprovar equivalência funcional, visual, semântica e de compatibilidade em todos os targets aplicáveis;
+    * nenhum arquivo preconstruído DEVE ser mantido por inércia quando for integralmente reproduzível e não constituir entrada exigida por plataforma externa.
+
+  * [ ] **Geração opcional via `RealFaviconGenerator`:** avaliar e, somente se for mais inteligente e conveniente para a arquitetura real, instalar via npm e integrar `https://github.com/RealFaviconGenerator/realfavicongenerator` para regenerar favicons, manifestos, metadados e referências equivalentes durante o build.
+
+    A decisão DEVE ser fundamentada em inspeção e comparação objetiva entre a estratégia preconstruída e a geração, considerando ao menos:
+
+    * fidelidade e equivalência das saídas;
+    * suporte aos targets reais;
+    * compatibilidade com Node.js, build, workflows e GitHub Pages;
+    * previsibilidade e estabilidade da API oficial;
+    * manutenção, atualização e segurança da dependência;
+    * redução de arquivos derivados versionados;
+    * redução de divergência entre identidade, manifesto e HTML;
+    * custo de geração, cache e reprodutibilidade;
+    * funcionamento offline do build quando exigido;
+    * inexistência de dependência remota em runtime;
+    * simplicidade líquida, sem introduzir abstração ou dependência desproporcional.
+
+    Se adotado, o gerador DEVE:
+
+    * ser dependência npm de desenvolvimento, salvo contrato técnico contrário comprovado;
+    * utilizar exclusivamente API/pacote oficial e mantido, conforme documentação vigente;
+    * executar apenas em build, nunca em runtime;
+    * consumir somente logotipos/ícones originais de `src/brand/` e configuração centralizada;
+    * selecionar deterministicamente o ícone global para a aplicação e o logotipo específico para cada submódulo/bundle, conforme mapeamento central já normatizado;
+    * gerar apenas os assets aplicáveis ao target, omitindo de bundles offline recursos sem função real;
+    * produzir saídas exclusivamente em diretórios gerados, compilados, empacotados ou publicáveis;
+    * não modificar os originais nem a configuração-fonte;
+    * falhar com diagnóstico explícito diante de origem, configuração, target ou saída inválida;
+    * permanecer determinístico, idempotente, testável e reproduzível.
+
+    A regeneração DEVE ocorrer somente quando houver alteração material em uma das duas categorias de entrada:
+
+    * configuração centralizada efetiva de favicons/manifestos, incluindo especializações por target e, quando aplicáveis, versão/opções do gerador e contrato de saída declarados nessa configuração;
+    * logotipo ou ícone de origem aplicável.
+
+    Alteração de implementação que exija nova saída DEVE refletir-se na configuração central efetiva; É PROIBIDO criar terceiro gatilho disperso ou implícito. A detecção DEVE usar mecanismo confiável e rastreável, como hash/fingerprint dessas entradas, cache de build ou dependências declaradas no grafo de tarefas. Data de modificação isolada NÃO DEVE ser usada quando puder causar falso positivo ou falso negativo. Ausente alteração, a geração DEVE ser ignorada ou reutilizar cache válido sem comprometer limpeza, integridade ou reprodutibilidade da saída. Builds limpos DEVEM continuar capazes de reconstruir integralmente todos os derivados.
+
+  * [ ] **Aplicação obrigatória nas GUIs e páginas:** todas as GUIs, páginas e saídas fornecidas pelo aplicativo Node.js que suportem identidade visual DEVEM incorporar os recursos aplicáveis derivados de `src/brand/` e da configuração central ou, quando preservada a estratégia preconstruída, de `src/brand/html-favicon/`.
 
     Isso inclui, conforme o estado real:
 
@@ -2544,7 +2600,9 @@
 
     O processo DEVE:
 
-    * partir exclusivamente das fontes canônicas em `src/brand/` e `src/brand/html-favicon/`;
+    * partir exclusivamente dos originais canônicos em `src/brand/`, da configuração central e, somente quando preservada, da fonte preconstruída em `src/brand/html-favicon/`;
+    * gerar via `RealFaviconGenerator` quando essa estratégia tiver sido adotada pela decisão técnica normatizada;
+    * aplicar invalidação incremental somente por alteração das entradas controladas, sem impedir reconstrução integral em build limpo;
     * consumir configuração centralizada;
     * receber o target como entrada explícita;
     * produzir derivados no diretório de saída aplicável;
@@ -2566,7 +2624,7 @@
     * inventariar os assets canônicos;
     * validar sua integridade;
     * selecionar os arquivos aplicáveis;
-    * gerar variantes necessárias;
+    * gerar variantes necessárias, diretamente ou via `RealFaviconGenerator` quando adotado;
     * ajustar manifestos e referências;
     * incorporar ou copiar os assets;
     * produzir saídas específicas por target;
@@ -2574,7 +2632,10 @@
     * impedir divergência entre targets;
     * consumir configuração centralizada;
     * atualizar ou produzir includes derivados quando aplicável;
-    * verificar ausência de referências quebradas.
+    * verificar ausência de referências quebradas;
+    * calcular ou consumir fingerprint confiável das entradas e ignorar regeneração quando nada material tiver mudado;
+    * invalidar o cache somente quando a configuração central efetiva ou o logotipo/ícone de origem aplicável mudar;
+    * reconstruir integralmente os derivados em ambiente limpo.
 
     É PROIBIDO espalhar lógica equivalente por múltiplos scripts, componentes, templates ou workflows sem necessidade.
 
@@ -2586,7 +2647,8 @@
     * base URL ou base path;
     * modo local ou web;
     * requisitos de incorporação;
-    * arquivo ou objeto de configuração canônico;
+    * arquivo ou objeto de configuração canônico, centralizado e aninhado sob o diretório normatizado;
+    * imagem-mestre global ou específica do submódulo, resolvida pelo mapeamento central;
     * demais parâmetros realmente necessários.
 
     Defaults somente PODEM ser adotados quando seguros, normatizados e não ambíguos.
@@ -2595,6 +2657,7 @@
 
     * assets corretamente posicionados;
     * manifestos válidos;
+    * favicons e metadados equivalentes aos requisitos do target;
     * referências coerentes;
     * includes válidos;
     * caminhos compatíveis com o target;
@@ -2682,6 +2745,7 @@
     * arquivos gerados somente DEVEM ser versionados quando o contrato vigente assim exigir;
     * saídas distintas PODEM possuir subdiretórios próprios, desde que não recriem estruturas concorrentes ou ambíguas;
     * variantes de marca, favicons e manifestos específicas de cada target DEVEM ser derivadas, não mantidas manualmente como fontes concorrentes;
+    * quando adotado o `RealFaviconGenerator`, nenhum preconstruído reproduzível DEVE permanecer em `src/`, e todos os derivados DEVEM ser reconstruíveis a partir de `src/brand/` e da configuração central;
     * nomes de subdiretórios de saída DEVEM identificar claramente o target quando isso for necessário para evitar ambiguidade.
 
   * [ ] **Contrato de `scripts/`:** `scripts/` DEVE concentrar scripts operacionais e de automação que não constituam código-fonte direto do produto, incluindo quando aplicável:
@@ -2740,7 +2804,7 @@
     * relação entre fonte canônica e derivado por target;
     * transformações necessárias em build.
 
-    IMPORTENTE: sistema (script de atualização) de atualização deve permanecer 100% retrocompatível, e plenamente funcional, com versão e localização nopvas e antigas.
+    IMPORTANTE: o sistema/script de atualização DEVE permanecer 100% retrocompatível e plenamente funcional com versões e localizações novas e antigas.
 
   * [ ] **Movimentação segura:** a migração DEVE:
 
@@ -2810,7 +2874,9 @@
     * eliminar duplicação apenas após validar geração e referências;
     * impedir edição concorrente;
     * documentar o fluxo `fonte + configuração → build → dist`;
-    * definir `src/brand/` e `src/brand/html-favicon/` como fontes canônicas quando compatível com o estado real;
+    * definir `src/brand/` como fonte canônica dos originais de marca;
+    * definir `src/brand/html-favicon/` como fonte canônica somente se a estratégia preconstruída for preservada;
+    * se o `RealFaviconGenerator` for adotado, definir `src/brand/` + configuração central como únicas entradas canônicas e favicons/manifestos como derivados exclusivos de build;
     * impedir que variantes geradas por target sejam tratadas como fonte;
     * impedir que configuração derivada seja alterada manualmente como se fosse canônica.
 
@@ -2831,6 +2897,9 @@
     * modificação indevida de arquivo-fonte durante o build;
     * dependência remota introduzida em target offline;
     * divergência entre variantes geradas e fontes canônicas;
+    * preconstruído reproduzível mantido após adoção validada da geração automática;
+    * regeneração desnecessária sem alteração material das entradas;
+    * cache reutilizado após mudança da configuração central efetiva ou do logotipo/ícone de origem aplicável;
     * configuração duplicada ou conflitante;
     * target sem configuração válida;
     * nome de arquivo ou diretório reconhecidamente incompatível com convenção normativa.
@@ -2842,7 +2911,11 @@
     A normatização DEVE incluir, conforme aplicabilidade:
 
     * função de `src/brand/`;
-    * função de `src/brand/html-favicon/`;
+    * função condicional de `src/brand/html-favicon/`;
+    * critérios de decisão entre preconstruídos e geração via `RealFaviconGenerator`;
+    * remoção dos preconstruídos quando substituídos por geração equivalente;
+    * localização aninhada da configuração central e admissibilidade de arquivo específico separado;
+    * invalidação incremental por alteração das entradas controladas;
     * fonte canônica;
     * centralização e precedência das configurações;
     * especialização por target;
@@ -2874,6 +2947,11 @@
     * equivalência funcional;
     * reprodutibilidade das saídas;
     * inventário integral de `src/brand/`;
+    * inventário de `src/brand/html-favicon/` quando existente antes ou depois da decisão;
+    * decisão fundamentada entre preservar preconstruídos e gerar via `RealFaviconGenerator`;
+    * equivalência dos derivados gerados com os recursos substituídos, quando aplicável;
+    * não regeneração sem alteração material e regeneração obrigatória após alteração controlada;
+    * reconstrução integral em build limpo sem preconstruídos;
     * uso de todos os assets aplicáveis;
     * favicons corretos;
     * manifestos válidos;
@@ -2895,27 +2973,29 @@
     1. Ler as normas aplicáveis.
     2. Mapear a estrutura real.
     3. Localizar e mapear a configuração central existente.
-    4. Inspecionar integralmente `src/brand/` e `src/brand/html-favicon/`.
-    5. Inventariar e classificar todos os assets, favicons e manifestos existentes.
+    4. Inspecionar integralmente `src/brand/` e, quando existente, `src/brand/html-favicon/`.
+    5. Inventariar e classificar originais, configurações, preconstruídos, derivados, favicons e manifestos existentes.
     6. Mapear GUIs, páginas, builds e targets que DEVEM utilizá-los.
-    7. Classificar os demais arquivos e diretórios.
-    8. Avaliar clareza e validade da nomenclatura existente.
-    9. Mapear imports, includes, paths e referências dependentes.
-    10. Verificar se existe divergência material.
-    11. Não reorganizar nem renomear se a estrutura já estiver conforme.
-    12. Definir fontes canônicas, configurações centrais e derivados por target.
-    13. Localizar e avaliar automação existente.
-    14. Havendo necessidade, elaborar mapa de migração, renomeação e transformação.
-    15. Atualizar previamente a normatização apenas se necessário.
-    16. Mover ou renomear arquivos com intervenção mínima.
-    17. Atualizar todos os includes e referências no mesmo fluxo.
-    18. Criar ou ajustar script automatizado em `scripts/`.
-    19. Integrar os assets em todas as GUIs e páginas aplicáveis.
-    20. Gerar variantes específicas para local, web e demais targets.
-    21. Remover duplicações, configurações concorrentes e caminhos legados somente após validação.
-    22. Executar testes completos.
-    23. Atualizar documentação e rastreabilidade.
-    24. Emitir relatório final.
+    7. Avaliar objetivamente se preservar preconstruídos ou gerar via `RealFaviconGenerator` é a estratégia mais inteligente e conveniente.
+    8. Classificar os demais arquivos e diretórios.
+    9. Avaliar clareza e validade da nomenclatura existente.
+    10. Mapear imports, includes, paths e referências dependentes.
+    11. Verificar se existe divergência material.
+    12. Não reorganizar nem renomear se a estrutura já estiver conforme.
+    13. Definir fontes canônicas, configurações centrais e derivados por target.
+    14. Localizar e avaliar automação existente.
+    15. Se adotado, instalar o pacote npm oficial do `RealFaviconGenerator`, implementar configuração central aninhada e definir fingerprint/cache das entradas.
+    16. Havendo necessidade, elaborar mapa de migração, renomeação e transformação.
+    17. Atualizar previamente a normatização apenas se necessário.
+    18. Mover ou renomear arquivos com intervenção mínima.
+    19. Atualizar todos os includes e referências no mesmo fluxo.
+    20. Criar ou ajustar script automatizado em `scripts/`.
+    21. Integrar os assets em todas as GUIs e páginas aplicáveis.
+    22. Gerar variantes específicas para local, web e demais targets.
+    23. Remover duplicações, configurações concorrentes e caminhos legados somente após validação.
+    24. Executar testes completos.
+    25. Atualizar documentação e rastreabilidade.
+    26. Emitir relatório final.
 
   * [ ] **Critérios de aceite:**
 
@@ -2930,7 +3010,14 @@
     * [ ] Nomes alterados identificam melhor a finalidade real.
     * [ ] Nenhum nome foi alterado apenas por preferência estética.
     * [ ] `src/brand/` foi integralmente inspecionado.
-    * [ ] `src/brand/html-favicon/` foi integralmente inspecionado.
+    * [ ] `src/brand/html-favicon/`, quando existente, foi integralmente inspecionado.
+    * [ ] A estratégia preconstruída foi comparada objetivamente com a geração via `RealFaviconGenerator`.
+    * [ ] O `RealFaviconGenerator` somente foi adotado quando demonstrado mais inteligente, conveniente e proporcional.
+    * [ ] Quando adotado, o pacote npm/API oficial vigente foi utilizado exclusivamente no build.
+    * [ ] Quando adotado, os preconstruídos equivalentes foram removidos após validação, permanecendo somente `src/brand/` e a configuração central aninhada como entradas canônicas.
+    * [ ] A configuração específica reside no diretório central normatizado e somente foi separada em arquivo adequadamente nomeado quando aplicável.
+    * [ ] A regeneração ocorre apenas após alteração material das entradas controladas, com invalidação confiável.
+    * [ ] Build limpo reconstrói integralmente favicons, manifestos, metadados e referências sem depender de preconstruídos.
     * [ ] Todos os assets existentes e aplicáveis são utilizados.
     * [ ] Nenhum asset foi omitido por suposição sobre nome ou finalidade.
     * [ ] Os arquivos canônicos permanecem inalterados pelo build.
@@ -2945,6 +3032,9 @@
     * [ ] GitHub Pages considera corretamente o base path aplicável.
     * [ ] O bundle offline permanece autocontido e sem dependências remotas.
     * [ ] Favicons e manifestos são válidos nos targets aplicáveis.
+    * [ ] Cada aplicação/submódulo utiliza o ícone ou logotipo de origem correto conforme configuração central.
+    * [ ] Bundles offline não incluem assets de favicon/manifesto sem função real.
+    * [ ] Nenhuma geração ocorre em runtime nem depende de serviço remoto.
     * [ ] Exceções possuem fundamento técnico ou normativo.
     * [ ] Nenhum arquivo foi perdido ou sobrescrito.
     * [ ] Não existem fontes canônicas mantidas exclusivamente em `dist/`.
@@ -2961,7 +3051,13 @@
     * estrutura e precedência da configuração central;
     * configurações consolidadas, especializadas ou preservadas;
     * inventário de `src/brand/`;
-    * inventário de `src/brand/html-favicon/`;
+    * inventário de `src/brand/html-favicon/`, quando existente;
+    * decisão fundamentada entre preservação dos preconstruídos e geração via `RealFaviconGenerator`;
+    * pacote/API oficial e versão instalados, quando adotados;
+    * configuração central/aninhada criada, especializada ou preservada;
+    * preconstruídos removidos ou preservados e respectiva justificativa;
+    * mecanismo de fingerprint, cache e invalidação por alteração de entrada;
+    * comprovação de build limpo integralmente reproduzível;
     * função atribuída a cada asset;
     * arquivos utilizados em cada GUI, página e target;
     * arquivos não utilizados e justificativa;
