@@ -1,6 +1,6 @@
-- [ ] **Atualizar dinamicamente o título da página com progresso e estado do envio de mensagens:** o título do documento DEVE comunicar, de forma imediata, inequívoca e continuamente atualizada, o percentual inteiro de progresso e o estado corrente do processo de preparação, processamento e envio de mensagens.
+- [x] **Atualizar dinamicamente o título da página com progresso e estado do envio de mensagens:** o título do documento DEVE comunicar, de forma imediata, inequívoca e continuamente atualizada, o percentual inteiro de progresso e o estado corrente do processo de preparação, processamento e envio de mensagens.
 
-  - [ ] **Percentual como primeiro conteúdo:** enquanto existir processo em andamento ou processo concluído ainda representativo do estado atual, o título da página DEVE iniciar obrigatoriamente pelo percentual inteiro de progresso, sem casas decimais, seguido do símbolo `%`, antes de qualquer outro texto.
+  - [x] **Percentual como primeiro conteúdo:** enquanto existir processo em andamento ou processo concluído ainda representativo do estado atual, o título da página DEVE iniciar obrigatoriamente pelo percentual inteiro de progresso, sem casas decimais, seguido do símbolo `%`, antes de qualquer outro texto.
 
     Formato canônico:
 
@@ -16,9 +16,9 @@
     100% Concluído — <título-base>
     ```
 
-  - [ ] **Precedência visual:** o percentual DEVE ser o primeiro texto do título, sem prefixo, ícone, marca, nome do produto, separador ou qualquer outro conteúdo anterior. Essa precedência somente NÃO se aplica quando não existir processo em andamento nem conclusão ainda válida para o estado corrente.
+  - [x] **Precedência visual:** o percentual DEVE ser o primeiro texto do título, sem prefixo, ícone, marca, nome do produto, separador ou qualquer outro conteúdo anterior. Essa precedência somente NÃO se aplica quando não existir processo em andamento nem conclusão ainda válida para o estado corrente.
 
-  - [ ] **Inteiro sem decimal:** o percentual exibido DEVE:
+  - [x] **Inteiro sem decimal:** o percentual exibido DEVE:
     - utilizar valor inteiro entre `00` e `100`;
     - NÃO conter casas decimais;
     - NÃO exceder os limites;
@@ -28,7 +28,7 @@
     - `100%` deve ser exibido apenas e tão somente quando o processo estiver concluído.
     - minimo dois digitos `0`-left-padded;
 
-  - [ ] **Estado explícito:** imediatamente após o percentual (quando aplicável ao contexto), o título DEVE conter descrição curta, inequívoca e correspondente ao estado real, como:
+  - [x] **Estado explícito:** imediatamente após o percentual (quando aplicável ao contexto), o título DEVE conter descrição curta, inequívoca e correspondente ao estado real, como:
     - `Preparando`;
     - `Processando`;
     - `Enviando mensagens`;
@@ -39,17 +39,17 @@
 
     Estados NÃO DEVEM ser inventados quando já existir enumeração, máquina de estados ou vocabulário canônico aplicável.
 
-  - [ ] **Progresso do envio:** o percentual DEVE representar o andamento material do processo de envio de mensagens conforme unidade real e verificável, preferencialmente pela relação entre mensagens concluídas e total elegível.
+  - [x] **Progresso do envio:** o percentual DEVE representar o andamento material do processo de envio de mensagens conforme unidade real e verificável, preferencialmente pela relação entre mensagens concluídas e total elegível.
 
     Quando houver etapas anteriores necessárias ao envio, como preparação, validação, composição ou enfileiramento, sua representação percentual DEVE seguir contrato explícito e determinístico, sem aparentar avanço de mensagens efetivamente enviadas quando isso ainda não ocorreu.
 
-  - [ ] **Conclusão persistente:** após a conclusão válida do processo:
+  - [x] **Conclusão persistente:** após a conclusão válida do processo:
     - o título DEVE permanecer iniciado por `100%`;
     - o estado DEVE indicar conclusão;
     - o percentual NÃO DEVE ser removido imediatamente;
     - o título DEVE continuar refletindo `100% Concluído` enquanto nenhum novo estado material tiver sido iniciado.
 
-  - [ ] **Invalidação da conclusão por alteração:** após a conclusão, qualquer alteração explícita em campo que participe, direta ou indiretamente, da preparação, composição, seleção, destino, conteúdo, configuração ou execução do envio DEVE invalidar imediatamente o estado concluído.
+  - [x] **Invalidação da conclusão por alteração:** após a conclusão, qualquer alteração explícita em campo que participe, direta ou indiretamente, da preparação, composição, seleção, destino, conteúdo, configuração ou execução do envio DEVE invalidar imediatamente o estado concluído.
 
     A alteração DEVE transicionar o processo para novo estado de preparação, reprocessamento ou equivalente canônico, conforme a máquina de estados vigente.
 
@@ -67,9 +67,9 @@
 
     ou outro percentual e estado real já calculado pelo fluxo.
 
-  - [ ] **Alteração material:** somente alteração explícita que modifique a entrada, configuração ou resultado potencial do processo DEVE invalidar a conclusão. Eventos puramente visuais, foco, seleção de texto, navegação, expansão de painel ou mudança sem efeito material NÃO DEVEM reiniciar o estado.
+  - [x] **Alteração material:** somente alteração explícita que modifique a entrada, configuração ou resultado potencial do processo DEVE invalidar a conclusão. Eventos puramente visuais, foco, seleção de texto, navegação, expansão de painel ou mudança sem efeito material NÃO DEVEM reiniciar o estado.
 
-  - [ ] **Estado sem processo:** quando não houver:
+  - [x] **Estado sem processo:** quando não houver:
     - processo em preparação;
     - processamento em andamento;
     - envio em andamento;
@@ -78,13 +78,13 @@
 
     o título DEVE retornar ao título-base canônico da página, sem prefixo percentual artificial.
 
-  - [ ] **Atualização imediata:** alterações de progresso, estado, conclusão ou invalidação DEVEM refletir-se no título sem recarregamento da página e sem atraso perceptível indevido.
+  - [x] **Atualização imediata:** alterações de progresso, estado, conclusão ou invalidação DEVEM refletir-se no título sem recarregamento da página e sem atraso perceptível indevido.
 
-  - [ ] **Fonte única de estado:** o título DEVE derivar da mesma fonte de verdade utilizada pela interface e pela lógica do processo. É PROIBIDO manter cálculo ou estado paralelo que possa divergir do progresso efetivo.
+  - [x] **Fonte única de estado:** o título DEVE derivar da mesma fonte de verdade utilizada pela interface e pela lógica do processo. É PROIBIDO manter cálculo ou estado paralelo que possa divergir do progresso efetivo.
 
-  - [ ] **Consistência entre interface e título:** percentual e estado exibidos no título DEVEM coincidir com os indicadores equivalentes apresentados na página. Divergências temporárias somente PODEM ocorrer durante atualização atômica e não DEVEM permanecer após o mesmo ciclo de renderização ou evento.
+  - [x] **Consistência entre interface e título:** percentual e estado exibidos no título DEVEM coincidir com os indicadores equivalentes apresentados na página. Divergências temporárias somente PODEM ocorrer durante atualização atômica e não DEVEM permanecer após o mesmo ciclo de renderização ou evento.
 
-  - [ ] **Falhas e interrupções:** se o processo falhar ou for interrompido:
+  - [x] **Falhas e interrupções:** se o processo falhar ou for interrompido:
     - preservar o percentual real alcançado;
     - substituir o estado pelo estado canônico correspondente;
     - NÃO exibir `100%` salvo conclusão material efetiva;
@@ -97,9 +97,9 @@
     68% Falhou — <título-base>
     ```
 
-  - [ ] **Múltiplos processos:** se tecnicamente puder existir mais de um processo simultâneo, o título DEVE representar o processo principal determinado pela regra de precedência vigente. Na ausência dessa regra, normatizar critério determinístico antes da implementação. NÃO concatenar percentuais concorrentes de forma ambígua.
+  - [x] **Múltiplos processos:** se tecnicamente puder existir mais de um processo simultâneo, o título DEVE representar o processo principal determinado pela regra de precedência vigente. Na ausência dessa regra, normatizar critério determinístico antes da implementação. NÃO concatenar percentuais concorrentes de forma ambígua.
 
-  - [ ] **Ciclo de vida:** garantir atualização correta do título nos eventos de:
+  - [x] **Ciclo de vida:** garantir atualização correta do título nos eventos de:
     - inicialização;
     - preparação;
     - início do processamento;
@@ -115,13 +115,13 @@
     - restauração de estado persistido;
     - ausência de processo.
 
-  - [ ] **Restauração:** ao recarregar ou reabrir a página, o título DEVE refletir o estado real restaurado, sem indicar progresso ou conclusão inexistentes. Estado persistido DEVE ser validado antes de ser apresentado.
+  - [x] **Restauração:** ao recarregar ou reabrir a página, o título DEVE refletir o estado real restaurado, sem indicar progresso ou conclusão inexistentes. Estado persistido DEVE ser validado antes de ser apresentado.
 
-  - [ ] **Acessibilidade e legibilidade:** o texto DEVE permanecer curto, claro e compreensível em abas estreitas, favorecendo a visibilidade imediata do percentual e do estado. Símbolos, emojis ou ornamentos NÃO DEVEM anteceder nem obscurecer o indicador.
+  - [x] **Acessibilidade e legibilidade:** o texto DEVE permanecer curto, claro e compreensível em abas estreitas, favorecendo a visibilidade imediata do percentual e do estado. Símbolos, emojis ou ornamentos NÃO DEVEM anteceder nem obscurecer o indicador.
 
-  - [ ] **Implementação centralizada:** centralizar a composição e atualização do título em função, serviço, hook ou componente único, conforme a arquitetura existente, evitando lógica duplicada entre etapas, componentes ou eventos.
+  - [x] **Implementação centralizada:** centralizar a composição e atualização do título em função, serviço, hook ou componente único, conforme a arquitetura existente, evitando lógica duplicada entre etapas, componentes ou eventos.
 
-  - [ ] **Normatização no RCF:** incorporar integralmente ao RCF aplicável:
+  - [x] **Normatização no RCF:** incorporar integralmente ao RCF aplicável:
     - formato canônico do título;
     - precedência do percentual;
     - cálculo inteiro;
@@ -133,7 +133,7 @@
     - fonte única de verdade;
     - testes e critérios de aceite.
 
-  - [ ] **Testes obrigatórios:** validar, no mínimo:
+  - [x] **Testes obrigatórios:** validar, no mínimo:
     - percentual aparece no início;
     - nenhum texto antecede o percentual;
     - valores não possuem decimal;
@@ -149,40 +149,40 @@
     - múltiplos eventos rápidos não produzem título obsoleto;
     - não há regressão no título-base ou em outros fluxos.
 
-  - [ ] **Critérios de aceite:**
-    - [ ] Durante processo ativo, o título começa por `<inteiro>%`.
-    - [ ] O percentual é sempre o primeiro conteúdo textual.
-    - [ ] O percentual não contém casas decimais.
-    - [ ] O estado aparece imediatamente após o percentual.
-    - [ ] O título representa o estado real do envio.
-    - [ ] Após conclusão, permanece `100% Concluído`.
-    - [ ] Alteração explícita e material pós-conclusão inicia nova preparação ou estado equivalente.
-    - [ ] Alterações sem efeito material não invalidam a conclusão.
-    - [ ] Sem processo ou conclusão válida, o título retorna ao valor-base.
-    - [ ] Falhas e interrupções não são apresentadas como conclusão.
-    - [ ] A implementação utiliza fonte única de verdade.
-    - [ ] O comportamento está integralmente normatizado no RCF.
-    - [ ] Todos os testes passam sem regressão.
+  - [x] **Critérios de aceite:**
+    - [x] Durante processo ativo, o título começa por `<inteiro>%`.
+    - [x] O percentual é sempre o primeiro conteúdo textual.
+    - [x] O percentual não contém casas decimais.
+    - [x] O estado aparece imediatamente após o percentual.
+    - [x] O título representa o estado real do envio.
+    - [x] Após conclusão, permanece `100% Concluído`.
+    - [x] Alteração explícita e material pós-conclusão inicia nova preparação ou estado equivalente.
+    - [x] Alterações sem efeito material não invalidam a conclusão.
+    - [x] Sem processo ou conclusão válida, o título retorna ao valor-base.
+    - [x] Falhas e interrupções não são apresentadas como conclusão.
+    - [x] A implementação utiliza fonte única de verdade.
+    - [x] O comportamento está integralmente normatizado no RCF.
+    - [x] Todos os testes passam sem regressão.
 
-* [ ] **Adicionar aviso explícito de desenvolvimento ao painel superior `Licença`:** o painel superior identificado como `Licença` DEVE exibir, além do conteúdo já existente, aviso curto, claro e imediatamente visível informando que o produto está em desenvolvimento e pode conter erros.
+* [x] **Adicionar aviso explícito de desenvolvimento ao painel superior `Licença`:** o painel superior identificado como `Licença` DEVE exibir, além do conteúdo já existente, aviso curto, claro e imediatamente visível informando que o produto está em desenvolvimento e pode conter erros.
 
-  * [ ] **Texto mínimo:** utilizar formulação semanticamente equivalente a:
+  * [x] **Texto mínimo:** utilizar formulação semanticamente equivalente a:
 
     ```text
     Em desenvolvimento; pode conter erros.
     ```
 
-  * [ ] **Clareza:** o aviso DEVE comunicar simultaneamente:
+  * [x] **Clareza:** o aviso DEVE comunicar simultaneamente:
 
     * estado ainda não definitivo do produto;
     * possibilidade real de falhas, inconsistências ou comportamentos incorretos;
     * ausência de garantia implícita de estabilidade completa.
 
-  * [ ] **Preservação do painel:** o aviso DEVE ser adicionado sem remover, substituir, ocultar ou enfraquecer o conteúdo atual do painel `Licença`.
+  * [x] **Preservação do painel:** o aviso DEVE ser adicionado sem remover, substituir, ocultar ou enfraquecer o conteúdo atual do painel `Licença`.
 
-  * [ ] **Posicionamento:** o texto DEVE permanecer dentro do próprio painel superior `Licença`, em posição visível e logicamente associada ao restante do conteúdo, sem depender de tooltip, hover, modal, rodapé ou interação adicional.
+  * [x] **Posicionamento:** o texto DEVE permanecer dentro do próprio painel superior `Licença`, em posição visível e logicamente associada ao restante do conteúdo, sem depender de tooltip, hover, modal, rodapé ou interação adicional.
 
-  * [ ] **Legibilidade:** o aviso DEVE:
+  * [x] **Legibilidade:** o aviso DEVE:
 
     * possuir contraste adequado;
     * permanecer legível em todos os breakpoints suportados;
@@ -190,7 +190,7 @@
     * não competir visualmente com o título principal do painel;
     * manter hierarquia visual secundária, porém inequívoca.
 
-  * [ ] **Consistência linguística:** utilizar o idioma ativo da interface. Em pt-BR, adotar preferencialmente:
+  * [x] **Consistência linguística:** utilizar o idioma ativo da interface. Em pt-BR, adotar preferencialmente:
 
     ```text
     Em desenvolvimento; pode conter erros.
@@ -198,16 +198,16 @@
 
     Em outros idiomas suportados, fornecer tradução semanticamente equivalente, sem alterar a força do aviso.
 
-  * [ ] **Sem suavização indevida:** NÃO substituir o aviso por formulações vagas, promocionais ou excessivamente brandas, como:
+  * [x] **Sem suavização indevida:** NÃO substituir o aviso por formulações vagas, promocionais ou excessivamente brandas, como:
 
     * `versão inicial`;
     * `novidades em breve`;
     * `experiência em evolução`;
     * expressões que omitam a possibilidade de erro.
 
-  * [ ] **Acessibilidade:** o aviso DEVE ser exposto como texto real, acessível a leitores de tela e independente de cor, ícone ou decoração para transmitir seu significado.
+  * [x] **Acessibilidade:** o aviso DEVE ser exposto como texto real, acessível a leitores de tela e independente de cor, ícone ou decoração para transmitir seu significado.
 
-  * [ ] **Normatização no RCF:** incorporar ao RCF aplicável:
+  * [x] **Normatização no RCF:** incorporar ao RCF aplicável:
 
     * obrigatoriedade do aviso;
     * conteúdo semântico mínimo;
@@ -215,7 +215,7 @@
     * preservação do conteúdo existente;
     * requisitos de visibilidade, idioma e acessibilidade.
 
-  * [ ] **Testes obrigatórios:** validar, no mínimo:
+  * [x] **Testes obrigatórios:** validar, no mínimo:
 
     * presença do aviso no painel superior `Licença`;
     * preservação do conteúdo anterior;
@@ -225,16 +225,16 @@
     * acessibilidade por leitor de tela;
     * ausência de truncamento ou ocultação indevida.
 
-  * [ ] **Critérios de aceite:**
+  * [x] **Critérios de aceite:**
 
-    * [ ] O painel superior `Licença` contém aviso explícito de desenvolvimento.
-    * [ ] O aviso informa claramente que o produto pode conter erros.
-    * [ ] O conteúdo preexistente do painel foi preservado.
-    * [ ] O texto permanece visível sem interação adicional.
-    * [ ] O aviso é acessível, responsivo e semanticamente equivalente em todos os idiomas suportados.
-    * [ ] A regra foi incorporada ao RCF.
+    * [x] O painel superior `Licença` contém aviso explícito de desenvolvimento.
+    * [x] O aviso informa claramente que o produto pode conter erros.
+    * [x] O conteúdo preexistente do painel foi preservado.
+    * [x] O texto permanece visível sem interação adicional.
+    * [x] O aviso é acessível, responsivo e semanticamente equivalente em todos os idiomas suportados.
+    * [x] A regra foi incorporada ao RCF.
 
-- [ ] Issue — Tornar `telefone` e `fone` aliases equivalentes, `case-insensitive` e mutuamente exclusivos
+- [x] Issue — Tornar `telefone` e `fone` aliases equivalentes, `case-insensitive` e mutuamente exclusivos
 
     ## Problema
 
@@ -619,23 +619,23 @@
 
     ## Critérios de aceite
 
-    * [ ] `nome` permanece obrigatório.
-    * [ ] O campo telefônico permanece obrigatório.
-    * [ ] `telefone` é aceito isoladamente.
-    * [ ] `fone` é aceito isoladamente.
-    * [ ] Ambos são tratados como aliases equivalentes.
-    * [ ] A identificação é `case-insensitive`.
-    * [ ] `telefone` e `fone` não podem coexistir.
-    * [ ] Duplicidades do mesmo alias após normalização são rejeitadas.
-    * [ ] A coexistência é erro impeditivo em todas as camadas.
-    * [ ] Nenhuma consolidação automática é executada.
-    * [ ] As mesmas regras de negócio são aplicadas aos dois aliases.
-    * [ ] Entradas legadas com somente `telefone` permanecem funcionais.
-    * [ ] Entradas com somente `fone` passam a funcionar.
-    * [ ] Mensagens e documentação refletem ambos os aliases e sua exclusividade.
-    * [ ] O RCF foi integralmente atualizado.
-    * [ ] Todas as implementações aplicáveis foram atualizadas.
-    * [ ] Todos os testes passam sem regressão.
+    * [x] `nome` permanece obrigatório.
+    * [x] O campo telefônico permanece obrigatório.
+    * [x] `telefone` é aceito isoladamente.
+    * [x] `fone` é aceito isoladamente.
+    * [x] Ambos são tratados como aliases equivalentes.
+    * [x] A identificação é `case-insensitive`.
+    * [x] `telefone` e `fone` não podem coexistir.
+    * [x] Duplicidades do mesmo alias após normalização são rejeitadas.
+    * [x] A coexistência é erro impeditivo em todas as camadas.
+    * [x] Nenhuma consolidação automática é executada.
+    * [x] As mesmas regras de negócio são aplicadas aos dois aliases.
+    * [x] Entradas legadas com somente `telefone` permanecem funcionais.
+    * [x] Entradas com somente `fone` passam a funcionar.
+    * [x] Mensagens e documentação refletem ambos os aliases e sua exclusividade.
+    * [x] O RCF foi integralmente atualizado.
+    * [x] Todas as implementações aplicáveis foram atualizadas.
+    * [x] Todos os testes passam sem regressão.
 
     ## Relatório final
 
@@ -653,7 +653,7 @@
     * rejeição da coexistência validada;
     * pendências ou ambiguidades remanescentes.
 
-- [ ] Issue — Novo bundle autônomo e integralmente offline do painel `Modelo de mensagem`
+- [x] Issue — Novo bundle autônomo e integralmente offline do painel `Modelo de mensagem`
 
     ## Problema
 
@@ -1548,41 +1548,41 @@
 
     ## Critérios de aceite
 
-    * [ ] Foi criada uma nova saída adicional, sem substituição das existentes.
-    * [ ] O produto atual não foi alterado materialmente.
-    * [ ] A página atual não foi substituída nem convertida em bundle.
-    * [ ] A saída atual permanece disponível e funcional.
-    * [ ] O novo artefato contém somente o rodapé e os painéis especificados, além de suas dependências indispensáveis.
-    * [ ] Existe um único arquivo HTML autocontido.
-    * [ ] O bundle funciona integralmente offline desde a primeira abertura.
-    * [ ] Nenhum servidor é necessário.
-    * [ ] Node.js não é necessário em runtime.
-    * [ ] CDN não é utilizada.
-    * [ ] Nenhum recurso obrigatório depende de internet.
-    * [ ] Nenhum arquivo auxiliar é necessário em runtime.
-    * [ ] O bundle contém o rodapé canônico.
-    * [ ] O bundle contém o painel `Licença` canônico.
-    * [ ] O aviso de desenvolvimento permanece presente.
-    * [ ] O painel `Modelo de mensagem` preserva todos os recursos aplicáveis.
-    * [ ] Alterações futuras aplicáveis são detectadas e espelhadas em build.
-    * [ ] Divergências materiais fazem o build falhar.
-    * [ ] Existe editor client-side de CSV no estilo de planilha.
-    * [ ] Foi utilizada biblioteca open source, mantida, compatível e integralmente embedded.
-    * [ ] A coluna `nome` é obrigatória e `case-insensitive`.
-    * [ ] `telefone` e `fone` são aliases aceitos e `case-insensitive`.
-    * [ ] Normas e implementações correspondentes aceitam ambos.
-    * [ ] Colunas adicionais são preservadas.
-    * [ ] As regras existentes das colunas obrigatórias continuam aplicadas.
-    * [ ] O CSV é exportado em UTF-8 com BOM.
-    * [ ] O separador é `;`.
-    * [ ] O delimitador textual é `"`.
-    * [ ] O arquivo é salvo localmente com extensão `.csv`.
-    * [ ] O nome segue a convenção vigente.
-    * [ ] Dados do usuário não saem do dispositivo.
-    * [ ] O artefato está integralmente normatizado no RCF.
-    * [ ] Testes de não regressão passam.
-    * [ ] Testes de autocontenção passam.
-    * [ ] Todos os demais testes passam sem regressão.
+    * [x] Foi criada uma nova saída adicional, sem substituição das existentes.
+    * [x] O produto atual não foi alterado materialmente.
+    * [x] A página atual não foi substituída nem convertida em bundle.
+    * [x] A saída atual permanece disponível e funcional.
+    * [x] O novo artefato contém somente o rodapé e os painéis especificados, além de suas dependências indispensáveis.
+    * [x] Existe um único arquivo HTML autocontido.
+    * [x] O bundle funciona integralmente offline desde a primeira abertura.
+    * [x] Nenhum servidor é necessário.
+    * [x] Node.js não é necessário em runtime.
+    * [x] CDN não é utilizada.
+    * [x] Nenhum recurso obrigatório depende de internet.
+    * [x] Nenhum arquivo auxiliar é necessário em runtime.
+    * [x] O bundle contém o rodapé canônico.
+    * [x] O bundle contém o painel `Licença` canônico.
+    * [x] O aviso de desenvolvimento permanece presente.
+    * [x] O painel `Modelo de mensagem` preserva todos os recursos aplicáveis.
+    * [x] Alterações futuras aplicáveis são detectadas e espelhadas em build.
+    * [x] Divergências materiais fazem o build falhar.
+    * [x] Existe editor client-side de CSV no estilo de planilha.
+    * [x] Foi utilizada biblioteca open source, mantida, compatível e integralmente embedded.
+    * [x] A coluna `nome` é obrigatória e `case-insensitive`.
+    * [x] `telefone` e `fone` são aliases aceitos e `case-insensitive`.
+    * [x] Normas e implementações correspondentes aceitam ambos.
+    * [x] Colunas adicionais são preservadas.
+    * [x] As regras existentes das colunas obrigatórias continuam aplicadas.
+    * [x] O CSV é exportado em UTF-8 com BOM.
+    * [x] O separador é `;`.
+    * [x] O delimitador textual é `"`.
+    * [x] O arquivo é salvo localmente com extensão `.csv`.
+    * [x] O nome segue a convenção vigente.
+    * [x] Dados do usuário não saem do dispositivo.
+    * [x] O artefato está integralmente normatizado no RCF.
+    * [x] Testes de não regressão passam.
+    * [x] Testes de autocontenção passam.
+    * [x] Todos os demais testes passam sem regressão.
 
     ## Relatório final
 
@@ -1611,9 +1611,9 @@
     * testes executados e resultados;
     * limitações ou incompatibilidades remanescentes.
 
-* [ ] **Criar formato unificado, reversível e interoperável para modelo `.md` e dados `.csv`:** manter integralmente os arquivos separados atualmente utilizados — `.md` para o modelo de mensagem e `.csv` para os dados — e acrescentar formato unificado capaz de encapsular ambos sem perda, alteração semântica ou dependência entre seus conteúdos.
+* [x] **Criar formato unificado, reversível e interoperável para modelo `.md` e dados `.csv`:** manter integralmente os arquivos separados atualmente utilizados — `.md` para o modelo de mensagem e `.csv` para os dados — e acrescentar formato unificado capaz de encapsular ambos sem perda, alteração semântica ou dependência entre seus conteúdos.
 
-  * [ ] **Preservar os formatos separados:** a criação do formato unificado é estritamente aditiva. A página principal e o futuro bundle 100% offline DEVEM continuar capazes de criar, carregar, editar, salvar e utilizar os formatos separados conforme suas competências atuais ou já normatizadas.
+  * [x] **Preservar os formatos separados:** a criação do formato unificado é estritamente aditiva. A página principal e o futuro bundle 100% offline DEVEM continuar capazes de criar, carregar, editar, salvar e utilizar os formatos separados conforme suas competências atuais ou já normatizadas.
 
     Regras vigentes:
 
@@ -1624,7 +1624,7 @@
     * tanto a página principal quanto o bundle DEVEM continuar capazes de editar o modelo `.md`, ainda que por implementações diferentes;
     * nenhuma capacidade existente PODE ser removida, substituída ou condicionada ao formato unificado.
 
-  * [ ] **Natureza imperativa do bundle:** o bundle 100% offline é exclusivamente um **editor prévio local**. Ele DEVE preparar, editar, validar, importar, exportar e empacotar os artefatos que serão posteriormente utilizados pela página principal.
+  * [x] **Natureza imperativa do bundle:** o bundle 100% offline é exclusivamente um **editor prévio local**. Ele DEVE preparar, editar, validar, importar, exportar e empacotar os artefatos que serão posteriormente utilizados pela página principal.
 
     O bundle:
 
@@ -1636,7 +1636,7 @@
     * DEVE permanecer 100% client-side, offline e autocontido;
     * DEVE produzir artefatos integralmente interoperáveis com a página principal.
 
-  * [ ] **Formato unificado:** definir e implementar contêiner estruturado que encapsule, no mínimo:
+  * [x] **Formato unificado:** definir e implementar contêiner estruturado que encapsule, no mínimo:
 
     * o conteúdo integral do modelo `.md`;
     * o conteúdo integral ou representação canônica do `.csv`;
@@ -1647,7 +1647,7 @@
     * hashes ou mecanismos de integridade aplicáveis;
     * informações necessárias para distinguir conteúdo original, normalizado e derivado.
 
-  * [ ] **Escolha técnica do formato:** JSON é a recomendação inicial, mas sua extensão ou representação NÃO é obrigatória.
+  * [x] **Escolha técnica do formato:** JSON é a recomendação inicial, mas sua extensão ou representação NÃO é obrigatória.
 
     A implementação DEVE inspecionar o estado real e selecionar formato adequado considerando:
 
@@ -1668,7 +1668,7 @@
 
     O formato PODE utilizar JSON internamente e extensão própria, como contêiner de domínio, se isso reduzir ambiguidades e associações indevidas. A extensão final DEVE ser curta, inequívoca, documentada e não conflitante com formatos existentes.
 
-  * [ ] **Markdown proprietário:** o `.md` atual contém convenções proprietárias que não correspondem necessariamente ao Markdown comum.
+  * [x] **Markdown proprietário:** o `.md` atual contém convenções proprietárias que não correspondem necessariamente ao Markdown comum.
 
     Portanto:
 
@@ -1678,7 +1678,7 @@
     * a serialização DEVE permitir recuperação byte a byte quando nenhuma transformação normativa explícita for necessária;
     * metadados DEVEM identificar a sintaxe ou versão proprietária aplicável.
 
-  * [ ] **Representação do CSV:** o conteúdo CSV encapsulado DEVE preservar integralmente:
+  * [x] **Representação do CSV:** o conteúdo CSV encapsulado DEVE preservar integralmente:
 
     * cabeçalhos;
     * ordem das colunas;
@@ -1701,7 +1701,7 @@
 
     Se houver representação dupla, uma DEVE ser definida como fonte canônica e a outra como derivada verificável, evitando divergência.
 
-  * [ ] **Padrão CSV preservado:** quando desacoplado ou exportado como `.csv`, o arquivo DEVE continuar utilizando:
+  * [x] **Padrão CSV preservado:** quando desacoplado ou exportado como `.csv`, o arquivo DEVE continuar utilizando:
 
     * UTF-8 com BOM;
     * separador `;`;
@@ -1712,7 +1712,7 @@
     * exatamente um dos aliases `telefone` XOR `fone`, reconhecidos de forma `case-insensitive`;
     * preservação das demais colunas.
 
-  * [ ] **Capacidades comuns:** tanto a página principal quanto o bundle offline DEVEM possuir plena capacidade de:
+  * [x] **Capacidades comuns:** tanto a página principal quanto o bundle offline DEVEM possuir plena capacidade de:
 
     * gerar o formato unificado;
     * importar e validar o formato unificado;
@@ -1726,7 +1726,7 @@
     * rejeitar conteúdo inválido, incompatível ou incompleto;
     * preservar campos desconhecidos compatíveis quando exigido pela política de evolução.
 
-  * [ ] **Capacidades específicas do bundle:** como editor prévio, o bundle DEVE:
+  * [x] **Capacidades específicas do bundle:** como editor prévio, o bundle DEVE:
 
     * criar um projeto unificado vazio;
     * importar `.md` isolado;
@@ -1744,7 +1744,7 @@
 
     Essas capacidades NÃO autorizam o bundle a executar o processamento final de mensagens.
 
-  * [ ] **Capacidades específicas da página principal:** a página executora DEVE:
+  * [x] **Capacidades específicas da página principal:** a página executora DEVE:
 
     * carregar `.md`;
     * carregar e vincular `.csv`;
@@ -1758,7 +1758,7 @@
 
     Esta tarefa NÃO DEVE adicionar editor de CSV à página principal.
 
-  * [ ] **Redistribuição contextual:** ao importar o formato unificado, cada aplicação DEVE distribuir o conteúdo conforme suas capacidades reais.
+  * [x] **Redistribuição contextual:** ao importar o formato unificado, cada aplicação DEVE distribuir o conteúdo conforme suas capacidades reais.
 
     Exemplos:
 
@@ -1769,7 +1769,7 @@
     * metadados DEVEM alimentar os componentes correspondentes quando aplicáveis;
     * campos não suportados NÃO DEVEM ser descartados silenciosamente.
 
-  * [ ] **Desacoplamento reversível:** qualquer formato unificado válido DEVE poder ser convertido novamente em:
+  * [x] **Desacoplamento reversível:** qualquer formato unificado válido DEVE poder ser convertido novamente em:
 
     * um arquivo `.md` funcionalmente equivalente ao encapsulado;
     * um arquivo `.csv` funcionalmente equivalente ao encapsulado.
@@ -1782,7 +1782,7 @@
 
     DEVE preservar integralmente a semântica e, quando aplicável, a representação original.
 
-  * [ ] **Reintegração determinística:** os artefatos desacoplados DEVEM poder ser novamente encapsulados sem gerar alterações materiais indevidas.
+  * [x] **Reintegração determinística:** os artefatos desacoplados DEVEM poder ser novamente encapsulados sem gerar alterações materiais indevidas.
 
     O ciclo:
 
@@ -1792,7 +1792,7 @@
 
     DEVE produzir resultado semanticamente equivalente e determinístico, desconsiderando apenas metadados voláteis explicitamente normatizados, como data de salvamento.
 
-  * [ ] **Ausência parcial:** o formato unificado completo DEVE conter modelo e CSV. Contudo, durante edição preliminar, o bundle PODE manter estado parcial antes da exportação final.
+  * [x] **Ausência parcial:** o formato unificado completo DEVE conter modelo e CSV. Contudo, durante edição preliminar, o bundle PODE manter estado parcial antes da exportação final.
 
     A implementação DEVE distinguir:
 
@@ -1803,7 +1803,7 @@
 
     A página principal NÃO DEVE iniciar processamento que dependa de elemento ausente.
 
-  * [ ] **Versionamento:** o formato unificado DEVE possuir versão explícita e independente da versão da aplicação.
+  * [x] **Versionamento:** o formato unificado DEVE possuir versão explícita e independente da versão da aplicação.
 
     Alterações futuras DEVEM:
 
@@ -1814,7 +1814,7 @@
     * não sobrescrever o arquivo original durante migração sem ação explícita;
     * permitir evolução de novos campos sem comprometer os atuais.
 
-  * [ ] **Schema e validação:** definir schema formal ou contrato equivalente para validar:
+  * [x] **Schema e validação:** definir schema formal ou contrato equivalente para validar:
 
     * tipo do artefato;
     * versão;
@@ -1832,7 +1832,7 @@
 
     A validação DEVE ocorrer antes da redistribuição aos campos.
 
-  * [ ] **Estrutura conceitual mínima:** sem impor prematuramente nomes definitivos, o formato DEVE representar conceito equivalente a:
+  * [x] **Estrutura conceitual mínima:** sem impor prematuramente nomes definitivos, o formato DEVE representar conceito equivalente a:
 
     ```json
     {
@@ -1855,7 +1855,7 @@
 
     Esse exemplo é delimitador conceitual, NÃO contrato final obrigatório. A estrutura definitiva DEVE ser normatizada após inspeção.
 
-  * [ ] **Integridade:** o contêiner DEVE permitir detectar:
+  * [x] **Integridade:** o contêiner DEVE permitir detectar:
 
     * truncamento;
     * corrupção;
@@ -1865,7 +1865,7 @@
 
     Utilizar SHA-256 ou mecanismo já normatizado quando aplicável. Hash NÃO DEVE ser tratado como assinatura ou prova de autenticidade.
 
-  * [ ] **Segurança:** o formato unificado e seus conteúdos DEVEM ser tratados como dados não confiáveis.
+  * [x] **Segurança:** o formato unificado e seus conteúdos DEVEM ser tratados como dados não confiáveis.
 
     A implementação DEVE impedir:
 
@@ -1879,7 +1879,7 @@
     * carregamento automático de recursos externos;
     * interpretação do modelo proprietário como código não autorizado.
 
-  * [ ] **Privacidade:** todo processamento do formato unificado no bundle DEVE ocorrer localmente. A página principal DEVE seguir as regras vigentes de tratamento de dados.
+  * [x] **Privacidade:** todo processamento do formato unificado no bundle DEVE ocorrer localmente. A página principal DEVE seguir as regras vigentes de tratamento de dados.
 
     O formato NÃO DEVE incluir:
 
@@ -1891,7 +1891,7 @@
     * telemetria;
     * informações externas ao projeto preparado.
 
-  * [ ] **Nome do arquivo:** definir nomenclatura determinística para o contêiner unificado, baseada na convenção atual de salvamento do modelo, sem substituir os nomes independentes de `.md` e `.csv`.
+  * [x] **Nome do arquivo:** definir nomenclatura determinística para o contêiner unificado, baseada na convenção atual de salvamento do modelo, sem substituir os nomes independentes de `.md` e `.csv`.
 
     A extensão própria, se adotada, DEVE:
 
@@ -1901,7 +1901,7 @@
     * permanecer estável;
     * ser registrada no RCF.
 
-  * [ ] **Interface:** ambas as aplicações DEVEM oferecer ações inequívocas, conforme capacidade:
+  * [x] **Interface:** ambas as aplicações DEVEM oferecer ações inequívocas, conforme capacidade:
 
     * `Abrir modelo`;
     * `Abrir CSV`;
@@ -1918,7 +1918,7 @@
     * edição;
     * processamento final.
 
-  * [ ] **Conflitos de importação:** ao importar conteúdo unificado sobre estado já preenchido, a aplicação DEVE:
+  * [x] **Conflitos de importação:** ao importar conteúdo unificado sobre estado já preenchido, a aplicação DEVE:
 
     * detectar substituição potencial;
     * solicitar decisão explícita quando houver perda de alterações;
@@ -1927,19 +1927,19 @@
     * preservar estado anterior até confirmação;
     * aplicar substituição de forma atômica.
 
-  * [ ] **Compatibilidade entre aplicações:** um contêiner gerado pelo bundle DEVE ser integralmente legível pela página principal, e um contêiner gerado pela página principal DEVE ser integralmente legível pelo bundle, respeitadas as diferenças funcionais.
+  * [x] **Compatibilidade entre aplicações:** um contêiner gerado pelo bundle DEVE ser integralmente legível pela página principal, e um contêiner gerado pela página principal DEVE ser integralmente legível pelo bundle, respeitadas as diferenças funcionais.
 
     Ausência de capacidade de editar CSV na página principal NÃO PODE impedir leitura, preservação, utilização, reexportação ou reencapsulamento dos dados.
 
-  * [ ] **Fonte única de regras:** parser, serializer, schema, versionamento e normalização do formato unificado DEVEM derivar de contrato comum.
+  * [x] **Fonte única de regras:** parser, serializer, schema, versionamento e normalização do formato unificado DEVEM derivar de contrato comum.
 
     Quando possível, compartilhar implementação compatível com navegador. Quando não for possível, criar implementações equivalentes submetidas aos mesmos vetores de teste.
 
     É PROIBIDO manter formatos aproximadamente semelhantes, porém incompatíveis, em cada aplicação.
 
-  * [ ] **Autocontenção do bundle:** todos os mecanismos necessários para ler, gerar, validar, desacoplar e salvar o formato unificado DEVEM estar integralmente incorporados ao bundle offline. CDN, servidor, Node.js em runtime, API externa ou recurso remoto são proibidos.
+  * [x] **Autocontenção do bundle:** todos os mecanismos necessários para ler, gerar, validar, desacoplar e salvar o formato unificado DEVEM estar integralmente incorporados ao bundle offline. CDN, servidor, Node.js em runtime, API externa ou recurso remoto são proibidos.
 
-  * [ ] **Não regressão:** a implementação NÃO DEVE:
+  * [x] **Não regressão:** a implementação NÃO DEVE:
 
     * impedir uso separado de `.md`;
     * impedir uso separado de `.csv`;
@@ -1951,7 +1951,7 @@
     * alterar o padrão CSV vigente;
     * remover compatibilidade com arquivos legados válidos.
 
-  * [ ] **Normatização no RCF:** incorporar integralmente:
+  * [x] **Normatização no RCF:** incorporar integralmente:
 
     * permanência dos formatos separados;
     * caráter aditivo do formato unificado;
@@ -1972,7 +1972,7 @@
     * testes;
     * critérios de aceite.
 
-  * [ ] **Testes obrigatórios:** validar, no mínimo:
+  * [x] **Testes obrigatórios:** validar, no mínimo:
 
     * `.md` separado continua sendo criado, lido, editado e salvo;
     * `.csv` separado continua sendo criado e editado pelo bundle;
@@ -1998,29 +1998,29 @@
     * arquivos separados permanecem opcionais e plenamente funcionais;
     * o bundle executa todas essas operações 100% offline.
 
-  * [ ] **Critérios de aceite:**
+  * [x] **Critérios de aceite:**
 
-    * [ ] `.md` e `.csv` continuam existindo e funcionando separadamente.
-    * [ ] O formato unificado é adicional, não substitutivo.
-    * [ ] O bundle está normativamente limitado a editor prévio local.
-    * [ ] O bundle não executa o processamento final.
-    * [ ] A página principal continua sendo a aplicação executora.
-    * [ ] Ambas as aplicações geram, leem, validam e salvam o formato unificado.
-    * [ ] Ambas desacoplam o formato em `.md` e `.csv`.
-    * [ ] Ambas reencapsulam os arquivos separados.
-    * [ ] O bundle edita modelo e CSV.
-    * [ ] A página principal edita o modelo e apenas carrega ou vincula o CSV.
-    * [ ] A diferença de capacidades não compromete interoperabilidade.
-    * [ ] O conteúdo proprietário do `.md` é preservado integralmente.
-    * [ ] O CSV preserva estrutura, dados e padrão normatizado.
-    * [ ] O formato possui versão e validação formal.
-    * [ ] O ciclo de conversão não causa perda semântica.
-    * [ ] Arquivos legados permanecem válidos.
-    * [ ] O bundle processa o contêiner integralmente offline e autocontido.
-    * [ ] A regra foi incorporada integralmente ao RCF.
-    * [ ] Todos os testes passam sem regressão.
+    * [x] `.md` e `.csv` continuam existindo e funcionando separadamente.
+    * [x] O formato unificado é adicional, não substitutivo.
+    * [x] O bundle está normativamente limitado a editor prévio local.
+    * [x] O bundle não executa o processamento final.
+    * [x] A página principal continua sendo a aplicação executora.
+    * [x] Ambas as aplicações geram, leem, validam e salvam o formato unificado.
+    * [x] Ambas desacoplam o formato em `.md` e `.csv`.
+    * [x] Ambas reencapsulam os arquivos separados.
+    * [x] O bundle edita modelo e CSV.
+    * [x] A página principal edita o modelo e apenas carrega ou vincula o CSV.
+    * [x] A diferença de capacidades não compromete interoperabilidade.
+    * [x] O conteúdo proprietário do `.md` é preservado integralmente.
+    * [x] O CSV preserva estrutura, dados e padrão normatizado.
+    * [x] O formato possui versão e validação formal.
+    * [x] O ciclo de conversão não causa perda semântica.
+    * [x] Arquivos legados permanecem válidos.
+    * [x] O bundle processa o contêiner integralmente offline e autocontido.
+    * [x] A regra foi incorporada integralmente ao RCF.
+    * [x] Todos os testes passam sem regressão.
 
-  * [ ] **Relatório final:** registrar objetivamente:
+  * [x] **Relatório final:** registrar objetivamente:
 
     * formato e extensão adotados;
     * justificativa técnica da escolha;
@@ -2037,16 +2037,16 @@
     * testes executados e resultados;
     * limitações ou pendências remanescentes.
 
-* [ ] **Detectar saudações literais e nomes próprios no modelo de mensagem:** tanto a página principal quanto o bundle offline DEVEM analisar continuamente o conteúdo do modelo de mensagem e sinalizar, de forma visível e chamativa, usos potencialmente incorretos de saudações literais dependentes do horário e de nomes próprios inseridos diretamente no texto.
+* [x] **Detectar saudações literais e nomes próprios no modelo de mensagem:** tanto a página principal quanto o bundle offline DEVEM analisar continuamente o conteúdo do modelo de mensagem e sinalizar, de forma visível e chamativa, usos potencialmente incorretos de saudações literais dependentes do horário e de nomes próprios inseridos diretamente no texto.
 
-  * [ ] **Escopo comum:** a detecção DEVE existir em ambas as implementações:
+  * [x] **Escopo comum:** a detecção DEVE existir em ambas as implementações:
 
     * página principal;
     * bundle 100% offline.
 
     Ambas DEVEM aplicar o mesmo contrato semântico, os mesmos critérios de detecção e a mesma classificação de severidade, ainda que utilizem mecanismos técnicos distintos.
 
-  * [ ] **Insensibilidade a caixa:** a análise DEVE ser `case-insensitive`.
+  * [x] **Insensibilidade a caixa:** a análise DEVE ser `case-insensitive`.
 
     Exemplos equivalentes:
 
@@ -2064,7 +2064,7 @@
     BOA NOITE
     ```
 
-  * [ ] **Saudações dependentes do horário:** identificar obrigatoriamente as expressões literais:
+  * [x] **Saudações dependentes do horário:** identificar obrigatoriamente as expressões literais:
 
     * `bom dia`;
     * `boa tarde`;
@@ -2076,7 +2076,7 @@
     $diatarde$
     ```
 
-  * [ ] **Regra obrigatória para saudação:** é PROIBIDO utilizar literalmente `bom dia`, `boa tarde` ou `boa noite` no modelo final quando a intenção for saudação dinâmica.
+  * [x] **Regra obrigatória para saudação:** é PROIBIDO utilizar literalmente `bom dia`, `boa tarde` ou `boa noite` no modelo final quando a intenção for saudação dinâmica.
 
     A aplicação DEVE:
 
@@ -2087,7 +2087,7 @@
     * aplicar severidade superior à detecção de nome próprio;
     * não substituir silenciosamente o conteúdo sem ação explícita do usuário, salvo se já houver recurso normatizado de correção automática assistida.
 
-  * [ ] **Nomes próprios:** identificar, tanto quanto tecnicamente possível, nomes próprios inseridos literalmente no texto.
+  * [x] **Nomes próprios:** identificar, tanto quanto tecnicamente possível, nomes próprios inseridos literalmente no texto.
 
     O uso de nome próprio DEVE ser classificado como potencialmente incorreto, pois, na maioria dos casos, a personalização DEVE utilizar:
 
@@ -2095,7 +2095,7 @@
     ${nome}
     ```
 
-  * [ ] **Regra não absoluta para nomes:** a presença de nome próprio NÃO constitui erro obrigatório em todos os casos.
+  * [x] **Regra não absoluta para nomes:** a presença de nome próprio NÃO constitui erro obrigatório em todos os casos.
 
     A aplicação DEVE:
 
@@ -2106,7 +2106,7 @@
     * NÃO substituir automaticamente o nome literal;
     * distinguir claramente essa recomendação da violação obrigatória de saudação literal.
 
-  * [ ] **Detecção contextual de nomes:** a detecção de nomes próprios DEVE minimizar falsos positivos.
+  * [x] **Detecção contextual de nomes:** a detecção de nomes próprios DEVE minimizar falsos positivos.
 
     Considerar, conforme aplicabilidade:
 
@@ -2123,7 +2123,7 @@
 
     É PROIBIDO classificar toda palavra capitalizada como nome próprio.
 
-  * [ ] **Proteção da sintaxe proprietária:** a análise NÃO DEVE interpretar como nome próprio ou saudação literal:
+  * [x] **Proteção da sintaxe proprietária:** a análise NÃO DEVE interpretar como nome próprio ou saudação literal:
 
     * `${nome}`;
     * `$diatarde$`;
@@ -2135,7 +2135,7 @@
 
     O parser DEVE respeitar os limites léxicos e semânticos já normatizados.
 
-  * [ ] **Destaque visual:** ocorrências detectadas DEVEM ser sinalizadas no próprio campo ou editor do modelo, tanto quanto tecnicamente possível, mediante:
+  * [x] **Destaque visual:** ocorrências detectadas DEVEM ser sinalizadas no próprio campo ou editor do modelo, tanto quanto tecnicamente possível, mediante:
 
     * fundo vermelho, alaranjado ou tonalidade de alerta equivalente;
     * sublinhado, contorno, marcador lateral ou realce complementar;
@@ -2144,7 +2144,7 @@
 
     A sinalização DEVE ser evidente sem impedir a leitura do conteúdo.
 
-  * [ ] **Sem dependência exclusiva de cor:** a indicação NÃO DEVE depender somente da cor.
+  * [x] **Sem dependência exclusiva de cor:** a indicação NÃO DEVE depender somente da cor.
 
     Deve haver também, conforme a interface:
 
@@ -2155,14 +2155,14 @@
     * lista de ocorrências;
     * atributo ou estado anunciado por leitor de tela.
 
-  * [ ] **Severidades distintas:** utilizar níveis distintos:
+  * [x] **Severidades distintas:** utilizar níveis distintos:
 
     1. **Erro normativo ou alerta crítico:** uso literal de `bom dia`, `boa tarde` ou `boa noite`, pois DEVE ser utilizado `$diatarde$`;
     2. **Aviso preventivo:** possível nome próprio literal, recomendando `${nome}` sem obrigatoriedade absoluta.
 
     As duas categorias NÃO DEVEM compartilhar mensagem ambígua ou aparência indistinguível.
 
-  * [ ] **Background do editor:** quando houver ao menos uma ocorrência ativa, o background do campo ou área de edição PODE receber indicação global em vermelho, alaranjado ou cor de alerta equivalente.
+  * [x] **Background do editor:** quando houver ao menos uma ocorrência ativa, o background do campo ou área de edição PODE receber indicação global em vermelho, alaranjado ou cor de alerta equivalente.
 
     A indicação global DEVE:
 
@@ -2172,7 +2172,7 @@
     * desaparecer imediatamente quando nenhuma ocorrência permanecer;
     * usar intensidade compatível com a severidade mais alta detectada.
 
-  * [ ] **Atualização imediata:** a análise DEVE ocorrer:
+  * [x] **Atualização imediata:** a análise DEVE ocorrer:
 
     * ao carregar o modelo;
     * ao importar `.md`;
@@ -2186,7 +2186,7 @@
 
     O recurso NÃO DEVE congelar o editor nem executar análise excessiva a cada tecla sem controle.
 
-  * [ ] **Lista de ocorrências:** quando houver múltiplas ocorrências, a interface DEVE permitir:
+  * [x] **Lista de ocorrências:** quando houver múltiplas ocorrências, a interface DEVE permitir:
 
     * visualizar a quantidade;
     * distinguir saudações de nomes;
@@ -2195,7 +2195,7 @@
     * compreender a correção recomendada;
     * revalidar após alteração.
 
-  * [ ] **Mensagens recomendadas:** utilizar textos semanticamente equivalentes a:
+  * [x] **Mensagens recomendadas:** utilizar textos semanticamente equivalentes a:
 
     Para saudações:
 
@@ -2209,7 +2209,7 @@
     Possível nome próprio literal. Considere usar `${nome}` para personalização.
     ```
 
-  * [ ] **Comportamento no salvamento:** o uso de saudação literal DEVE permanecer explicitamente sinalizado no salvamento ou exportação.
+  * [x] **Comportamento no salvamento:** o uso de saudação literal DEVE permanecer explicitamente sinalizado no salvamento ou exportação.
 
     Conforme a política de validação vigente, a aplicação DEVE:
 
@@ -2219,7 +2219,7 @@
 
     Nomes próprios literais NÃO DEVEM bloquear o salvamento por si só.
 
-  * [ ] **Comportamento no processamento:** antes do processamento final na página principal:
+  * [x] **Comportamento no processamento:** antes do processamento final na página principal:
 
     * revalidar o modelo;
     * sinalizar saudações literais;
@@ -2227,7 +2227,7 @@
     * preservar decisão explícita do usuário quando o nome literal for intencional;
     * impedir que alertas previamente resolvidos permaneçam obsoletos.
 
-  * [ ] **Funcionamento offline:** no bundle, toda detecção DEVE funcionar integralmente offline, sem API, CDN, serviço remoto ou LLM remoto.
+  * [x] **Funcionamento offline:** no bundle, toda detecção DEVE funcionar integralmente offline, sem API, CDN, serviço remoto ou LLM remoto.
 
     Bibliotecas utilizadas DEVEM:
 
@@ -2237,7 +2237,7 @@
     * ser mantidas;
     * não exigir servidor.
 
-  * [ ] **Paridade:** o bundle e a página principal DEVEM produzir resultados semanticamente equivalentes para o mesmo conteúdo.
+  * [x] **Paridade:** o bundle e a página principal DEVEM produzir resultados semanticamente equivalentes para o mesmo conteúdo.
 
     Criar vetores de teste compartilhados contendo:
 
@@ -2250,7 +2250,7 @@
     * múltiplas ocorrências;
     * conteúdo em idiomas suportados.
 
-  * [ ] **Não regressão:** a implementação NÃO DEVE:
+  * [x] **Não regressão:** a implementação NÃO DEVE:
 
     * alterar automaticamente o texto sem autorização;
     * converter `${nome}` em texto literal;
@@ -2261,7 +2261,7 @@
     * introduzir dependência remota no bundle;
     * alterar recursos externos ao editor e à validação do modelo.
 
-  * [ ] **Normatização no RCF:** incorporar integralmente:
+  * [x] **Normatização no RCF:** incorporar integralmente:
 
     * expressões literais proibidas para saudação dinâmica;
     * uso obrigatório de `$diatarde$`;
@@ -2277,7 +2277,7 @@
     * paridade entre página e bundle;
     * critérios de bloqueio ou confirmação no salvamento e processamento.
 
-  * [ ] **Testes obrigatórios:** validar, no mínimo:
+  * [x] **Testes obrigatórios:** validar, no mínimo:
 
     * `bom dia` é detectado;
     * `boa tarde` é detectado;
@@ -2307,25 +2307,25 @@
     * nenhuma alteração automática indevida ocorre;
     * o desempenho permanece adequado em modelos extensos.
 
-  * [ ] **Critérios de aceite:**
+  * [x] **Critérios de aceite:**
 
-    * [ ] Página principal e bundle detectam as mesmas ocorrências.
-    * [ ] A análise é `case-insensitive`.
-    * [ ] `bom dia`, `boa tarde` e `boa noite` literais são sinalizados como incorretos.
-    * [ ] A interface orienta o uso obrigatório de `$diatarde$`.
-    * [ ] Possíveis nomes próprios são sinalizados.
-    * [ ] A interface recomenda `${nome}` sem tratá-lo como obrigação absoluta.
-    * [ ] Saudações e nomes possuem severidades distintas.
-    * [ ] O destaque é visível, chamativo e acessível.
-    * [ ] O alerta não depende exclusivamente de cor.
-    * [ ] Placeholders e sintaxe proprietária permanecem íntegros.
-    * [ ] Nomes intencionais podem ser mantidos.
-    * [ ] A validação ocorre no carregamento, edição, salvamento e processamento aplicáveis.
-    * [ ] O bundle executa a análise 100% offline.
-    * [ ] A regra foi integralmente incorporada ao RCF.
-    * [ ] Todos os testes passam sem regressão.
+    * [x] Página principal e bundle detectam as mesmas ocorrências.
+    * [x] A análise é `case-insensitive`.
+    * [x] `bom dia`, `boa tarde` e `boa noite` literais são sinalizados como incorretos.
+    * [x] A interface orienta o uso obrigatório de `$diatarde$`.
+    * [x] Possíveis nomes próprios são sinalizados.
+    * [x] A interface recomenda `${nome}` sem tratá-lo como obrigação absoluta.
+    * [x] Saudações e nomes possuem severidades distintas.
+    * [x] O destaque é visível, chamativo e acessível.
+    * [x] O alerta não depende exclusivamente de cor.
+    * [x] Placeholders e sintaxe proprietária permanecem íntegros.
+    * [x] Nomes intencionais podem ser mantidos.
+    * [x] A validação ocorre no carregamento, edição, salvamento e processamento aplicáveis.
+    * [x] O bundle executa a análise 100% offline.
+    * [x] A regra foi integralmente incorporada ao RCF.
+    * [x] Todos os testes passam sem regressão.
 
-  * [ ] **Relatório final:** registrar objetivamente:
+  * [x] **Relatório final:** registrar objetivamente:
 
     * regras normatizadas;
     * mecanismo de detecção adotado;
@@ -2339,9 +2339,9 @@
     * testes executados e resultados;
     * falsos positivos, limitações ou pendências conhecidas.
 
-* [ ] **Reestruturar a organização dos diretórios conforme `AGENTS.md`, somente quando materialmente necessário:** inspecionar a estrutura real do repositório e reorganizá-la apenas se houver divergência comprovada em relação ao padrão normatizado para `src/`, `dist/` e `scripts/`. A atuação DEVE ser mínima, cirúrgica, rastreável e isenta de alterações meramente estéticas. A inspeção DEVE abranger especialmente `src/brand/` e o eventual conjunto preconstruído de `src/brand/html-favicon/`, utilizando integralmente os recursos de identidade visual realmente existentes e adaptando ou gerando automaticamente favicons, manifestos e referências somente em tempo de build e quando o destino de publicação exigir. Se a inspeção demonstrar ser técnica, arquitetural e operacionalmente mais inteligente e conveniente, PODE substituir o conjunto preconstruído pelo `RealFaviconGenerator` (`https://github.com/RealFaviconGenerator/realfavicongenerator`), instalado via npm e executado apenas no build, preservando como fontes canônicas somente os logotipos/ícones originais em `src/brand/` e a configuração central aninhada aplicável. A centralização de configurações DEVE ser preservada e, quando houver fragmentação ou duplicação material, otimizada sem criar acoplamento indevido. Nomes de diretórios e arquivos DEVEM identificar claramente sua finalidade quando a alteração for aplicável, válida e não regressiva.
+* [x] **Reestruturar a organização dos diretórios conforme `AGENTS.md`, somente quando materialmente necessário:** inspecionar a estrutura real do repositório e reorganizá-la apenas se houver divergência comprovada em relação ao padrão normatizado para `src/`, `dist/` e `scripts/`. A atuação DEVE ser mínima, cirúrgica, rastreável e isenta de alterações meramente estéticas. A inspeção DEVE abranger especialmente `src/brand/` e o eventual conjunto preconstruído de `src/brand/html-favicon/`, utilizando integralmente os recursos de identidade visual realmente existentes e adaptando ou gerando automaticamente favicons, manifestos e referências somente em tempo de build e quando o destino de publicação exigir. Se a inspeção demonstrar ser técnica, arquitetural e operacionalmente mais inteligente e conveniente, PODE substituir o conjunto preconstruído pelo `RealFaviconGenerator` (`https://github.com/RealFaviconGenerator/realfavicongenerator`), instalado via npm e executado apenas no build, preservando como fontes canônicas somente os logotipos/ícones originais em `src/brand/` e a configuração central aninhada aplicável. A centralização de configurações DEVE ser preservada e, quando houver fragmentação ou duplicação material, otimizada sem criar acoplamento indevido. Nomes de diretórios e arquivos DEVEM identificar claramente sua finalidade quando a alteração for aplicável, válida e não regressiva.
 
-  * [ ] **Inspeção prévia obrigatória:** antes de mover, criar, renomear, editar ou excluir qualquer diretório ou arquivo:
+  * [x] **Inspeção prévia obrigatória:** antes de mover, criar, renomear, editar ou excluir qualquer diretório ou arquivo:
 
     * ler integralmente o `AGENTS.md` aplicável e suas especializações locais;
     * identificar a finalidade normativa de `src/`, `dist/` e `scripts/`;
@@ -2362,7 +2362,7 @@
     * verificar se a estrutura vigente já atende materialmente ao contrato, ainda que não reproduza uma organização meramente estética;
     * comparar custo, simplicidade, reprodutibilidade, manutenção, cache, integração por target e risco de divergência entre preservar preconstruídos e regenerá-los no build.
 
-  * [ ] **Necessidade comprovada:** a reorganização somente DEVE ocorrer quando houver ao menos uma das seguintes condições:
+  * [x] **Necessidade comprovada:** a reorganização somente DEVE ocorrer quando houver ao menos uma das seguintes condições:
 
     * arquivo-fonte mantido fora de `src/` sem exceção normativa;
     * artefato gerado, compilado, empacotado ou publicável mantido fora de `dist/`;
@@ -2382,7 +2382,7 @@
 
     Ausente necessidade material, a estrutura e a nomenclatura DEVEM ser preservadas.
 
-  * [ ] **Intervenção mínima:** É PROIBIDO:
+  * [x] **Intervenção mínima:** É PROIBIDO:
 
     * reorganizar por preferência pessoal;
     * mover arquivos apenas para uniformidade visual;
@@ -2400,7 +2400,7 @@
     * criar novo arquivo de configuração quando uma fonte canônica existente puder ser especializada, salvo arquivo separado, adequadamente nomeado e aninhado sob o diretório central já normatizado quando isso tornar a configuração de favicons/manifestos materialmente mais coesa, validável ou reutilizável;
     * alterar nomes amplamente referenciados sem benefício material e sem atualização integral das referências.
 
-  * [ ] **Centralização de configuração:** preservar a configuração central existente e aprimorá-la somente quando houver ganho material de coerência, reutilização, rastreabilidade ou redução de divergência.
+  * [x] **Centralização de configuração:** preservar a configuração central existente e aprimorá-la somente quando houver ganho material de coerência, reutilização, rastreabilidade ou redução de divergência.
 
     A implementação DEVE:
 
@@ -2420,7 +2420,7 @@
 
     Valores específicos de target DEVEM ser declarados centralmente sempre que tecnicamente adequado e consumidos pelos scripts de build, em vez de permanecerem hardcoded em múltiplos arquivos.
 
-  * [ ] **Contrato de nomenclatura:** nomes de diretórios e arquivos DEVEM comunicar finalidade, escopo ou função quando isso puder ser feito sem regressão, ruptura de contrato externo ou proliferação nominal.
+  * [x] **Contrato de nomenclatura:** nomes de diretórios e arquivos DEVEM comunicar finalidade, escopo ou função quando isso puder ser feito sem regressão, ruptura de contrato externo ou proliferação nominal.
 
     Renomeações somente DEVEM ocorrer quando:
 
@@ -2442,7 +2442,7 @@
 
     É PROIBIDO renomear arquivo ou diretório sem corrigir integralmente todas as referências dependentes.
 
-  * [ ] **Contrato de `src/`:** `src/` DEVE conter fontes humanas ou canônicas necessárias à geração, execução ou manutenção do produto, conforme a arquitetura real, incluindo quando aplicável:
+  * [x] **Contrato de `src/`:** `src/` DEVE conter fontes humanas ou canônicas necessárias à geração, execução ou manutenção do produto, conforme a arquitetura real, incluindo quando aplicável:
 
     * código-fonte;
     * componentes;
@@ -2468,7 +2468,7 @@
     * saídas duplicadas sem função normativa;
     * variantes específicas de destino que possam ser produzidas deterministicamente em tempo de build.
 
-  * [ ] **Contrato de `src/brand/`:** `src/brand/` DEVE constituir a fonte canônica dos recursos de identidade visual do aplicativo, conforme os arquivos realmente existentes.
+  * [x] **Contrato de `src/brand/`:** `src/brand/` DEVE constituir a fonte canônica dos recursos de identidade visual do aplicativo, conforme os arquivos realmente existentes.
 
     A implementação DEVE:
 
@@ -2485,7 +2485,7 @@
 
     Arquivos não aplicáveis a determinado destino NÃO DEVEM ser copiados indiscriminadamente, mas sua exclusão do artefato DEVE decorrer de classificação objetiva, não de omissão acidental.
 
-  * [ ] **Contrato condicional de `src/brand/html-favicon/`:** `src/brand/html-favicon/` DEVE concentrar o conjunto preconstruído destinado à identidade de páginas HTML e GUIs web ou equivalentes somente enquanto essa estratégia permanecer justificada pelo estado real, incluindo, conforme existência:
+  * [x] **Contrato condicional de `src/brand/html-favicon/`:** `src/brand/html-favicon/` DEVE concentrar o conjunto preconstruído destinado à identidade de páginas HTML e GUIs web ou equivalentes somente enquanto essa estratégia permanecer justificada pelo estado real, incluindo, conforme existência:
 
     * favicons;
     * ícones em diferentes dimensões;
@@ -2518,7 +2518,7 @@
     * a remoção somente PODE ocorrer após comprovar equivalência funcional, visual, semântica e de compatibilidade em todos os targets aplicáveis;
     * nenhum arquivo preconstruído DEVE ser mantido por inércia quando for integralmente reproduzível e não constituir entrada exigida por plataforma externa.
 
-  * [ ] **Geração opcional via `RealFaviconGenerator`:** avaliar e, somente se for mais inteligente e conveniente para a arquitetura real, instalar via npm e integrar `https://github.com/RealFaviconGenerator/realfavicongenerator` para regenerar favicons, manifestos, metadados e referências equivalentes durante o build.
+  * [x] **Geração opcional via `RealFaviconGenerator`:** avaliar e, somente se for mais inteligente e conveniente para a arquitetura real, instalar via npm e integrar `https://github.com/RealFaviconGenerator/realfavicongenerator` para regenerar favicons, manifestos, metadados e referências equivalentes durante o build.
 
     A decisão DEVE ser fundamentada em inspeção e comparação objetiva entre a estratégia preconstruída e a geração, considerando ao menos:
 
@@ -2554,7 +2554,7 @@
 
     Alteração de implementação que exija nova saída DEVE refletir-se na configuração central efetiva; É PROIBIDO criar terceiro gatilho disperso ou implícito. A detecção DEVE usar mecanismo confiável e rastreável, como hash/fingerprint dessas entradas, cache de build ou dependências declaradas no grafo de tarefas. Data de modificação isolada NÃO DEVE ser usada quando puder causar falso positivo ou falso negativo. Ausente alteração, a geração DEVE ser ignorada ou reutilizar cache válido sem comprometer limpeza, integridade ou reprodutibilidade da saída. Builds limpos DEVEM continuar capazes de reconstruir integralmente todos os derivados.
 
-  * [ ] **Aplicação obrigatória nas GUIs e páginas:** todas as GUIs, páginas e saídas fornecidas pelo aplicativo Node.js que suportem identidade visual DEVEM incorporar os recursos aplicáveis derivados de `src/brand/` e da configuração central ou, quando preservada a estratégia preconstruída, de `src/brand/html-favicon/`.
+  * [x] **Aplicação obrigatória nas GUIs e páginas:** todas as GUIs, páginas e saídas fornecidas pelo aplicativo Node.js que suportem identidade visual DEVEM incorporar os recursos aplicáveis derivados de `src/brand/` e da configuração central ou, quando preservada a estratégia preconstruída, de `src/brand/html-favicon/`.
 
     Isso inclui, conforme o estado real:
 
@@ -2569,7 +2569,7 @@
 
     A aplicação DEVE considerar as diferenças de ambiente sem produzir divergência visual ou identidade concorrente.
 
-  * [ ] **Adaptação por target:** arquivos de favicon, manifesto, metadados e referências PODEM exigir edição conforme o destino de publicação.
+  * [x] **Adaptação por target:** arquivos de favicon, manifesto, metadados e referências PODEM exigir edição conforme o destino de publicação.
 
     A implementação DEVE distinguir, conforme aplicabilidade:
 
@@ -2596,7 +2596,7 @@
 
     Conteúdo independente do destino NÃO DEVE ser modificado.
 
-  * [ ] **Transformação exclusivamente em build:** adaptações de assets, manifestos e referências DEVEM ocorrer mediante script automatizado apropriado em tempo de build.
+  * [x] **Transformação exclusivamente em build:** adaptações de assets, manifestos e referências DEVEM ocorrer mediante script automatizado apropriado em tempo de build.
 
     O processo DEVE:
 
@@ -2617,7 +2617,7 @@
     * registrar quais transformações foram realizadas;
     * validar todos os includes e referências resultantes.
 
-  * [ ] **Script automatizado:** localizar script existente capaz de executar as adaptações antes de criar outro.
+  * [x] **Script automatizado:** localizar script existente capaz de executar as adaptações antes de criar outro.
 
     Quando inexistente ou insuficiente, criar ou especializar script em `scripts/`, devidamente nomeado conforme sua finalidade e documentado, responsável por:
 
@@ -2639,7 +2639,7 @@
 
     É PROIBIDO espalhar lógica equivalente por múltiplos scripts, componentes, templates ou workflows sem necessidade.
 
-  * [ ] **Contrato de entrada do script:** o script DEVE receber de forma explícita ou inferir deterministicamente apenas quando inequívoco:
+  * [x] **Contrato de entrada do script:** o script DEVE receber de forma explícita ou inferir deterministicamente apenas quando inequívoco:
 
     * target;
     * diretório-fonte;
@@ -2653,7 +2653,7 @@
 
     Defaults somente PODEM ser adotados quando seguros, normatizados e não ambíguos.
 
-  * [ ] **Contrato de saída do script:** o script DEVE produzir:
+  * [x] **Contrato de saída do script:** o script DEVE produzir:
 
     * assets corretamente posicionados;
     * manifestos válidos;
@@ -2666,7 +2666,7 @@
 
     O resultado DEVE ser reproduzível sem editar manualmente `dist/`.
 
-  * [ ] **Includes e referências:** qualquer movimentação, renomeação, centralização ou adaptação DEVE ser acompanhada pela atualização integral de todas as referências afetadas.
+  * [x] **Includes e referências:** qualquer movimentação, renomeação, centralização ou adaptação DEVE ser acompanhada pela atualização integral de todas as referências afetadas.
 
     Revisar, conforme aplicabilidade:
 
@@ -2708,7 +2708,7 @@
 
     É PROIBIDO concluir a tarefa com include, import, path, URL ou referência quebrada.
 
-  * [ ] **Bundle autocontido:** quando o target for bundle 100% offline e autocontido:
+  * [x] **Bundle autocontido:** quando o target for bundle 100% offline e autocontido:
 
     * os assets aplicáveis DEVEM ser incorporados ao próprio artefato;
     * nenhuma dependência externa PODE ser criada;
@@ -2717,7 +2717,7 @@
     * CDN, servidor e arquivos auxiliares obrigatórios permanecem proibidos;
     * a configuração específica do bundle DEVE derivar da configuração central, sem duplicação manual.
 
-  * [ ] **Publicação web:** quando o target for web:
+  * [x] **Publicação web:** quando o target for web:
 
     * caminhos DEVEM considerar corretamente domínio, base path e subdiretório;
     * manifestos DEVEM apontar para recursos realmente publicados;
@@ -2726,7 +2726,7 @@
     * a publicação local e a publicação web NÃO DEVEM compartilhar valores incorretos por reutilização cega;
     * valores como base path, origem pública e escopo DEVEM derivar da configuração centralizada.
 
-  * [ ] **Execução local:** quando o target for local:
+  * [x] **Execução local:** quando o target for local:
 
     * referências DEVEM funcionar sem domínio público;
     * caminhos relativos DEVEM ser preferidos quando adequados;
@@ -2734,7 +2734,7 @@
     * manifestos ou recursos incompatíveis com o ambiente local DEVEM ser tratados conforme norma explícita, sem quebrar a GUI;
     * configurações locais DEVEM especializar, e não duplicar, os valores comuns.
 
-  * [ ] **Contrato de `dist/`:** `dist/` DEVE conter exclusivamente artefatos gerados, compilados, empacotados, distribuíveis ou publicáveis.
+  * [x] **Contrato de `dist/`:** `dist/` DEVE conter exclusivamente artefatos gerados, compilados, empacotados, distribuíveis ou publicáveis.
 
     Aplicam-se as seguintes regras:
 
@@ -2748,7 +2748,7 @@
     * quando adotado o `RealFaviconGenerator`, nenhum preconstruído reproduzível DEVE permanecer em `src/`, e todos os derivados DEVEM ser reconstruíveis a partir de `src/brand/` e da configuração central;
     * nomes de subdiretórios de saída DEVEM identificar claramente o target quando isso for necessário para evitar ambiguidade.
 
-  * [ ] **Contrato de `scripts/`:** `scripts/` DEVE concentrar scripts operacionais e de automação que não constituam código-fonte direto do produto, incluindo quando aplicável:
+  * [x] **Contrato de `scripts/`:** `scripts/` DEVE concentrar scripts operacionais e de automação que não constituam código-fonte direto do produto, incluindo quando aplicável:
 
     * build;
     * release;
@@ -2774,7 +2774,7 @@
     * ser removidos quando sua função se esgotar;
     * não permanecer como dependência implícita sem normatização.
 
-  * [ ] **Exceções e especializações:** arquivos somente DEVEM permanecer fora dos diretórios canônicos quando:
+  * [x] **Exceções e especializações:** arquivos somente DEVEM permanecer fora dos diretórios canônicos quando:
 
     * houver exigência técnica da plataforma;
     * o caminho for contrato externo;
@@ -2784,7 +2784,7 @@
 
     Toda exceção não evidente DEVE ser documentada no RCF, `AGENTS.md`, FT ou fonte normativa apropriada, sem duplicação desnecessária.
 
-  * [ ] **Planejamento da migração:** quando a reorganização ou renomeação for necessária, criar mapa determinístico contendo:
+  * [x] **Planejamento da migração:** quando a reorganização ou renomeação for necessária, criar mapa determinístico contendo:
 
     * caminho atual;
     * caminho de destino;
@@ -2806,7 +2806,7 @@
 
     IMPORTANTE: o sistema/script de atualização DEVE permanecer 100% retrocompatível e plenamente funcional com versões e localizações novas e antigas.
 
-  * [ ] **Movimentação segura:** a migração DEVE:
+  * [x] **Movimentação segura:** a migração DEVE:
 
     * preservar conteúdo, histórico e permissões relevantes;
     * preferir movimentação reconhecível pelo Git;
@@ -2821,7 +2821,7 @@
     * atualizar referências no mesmo conjunto atômico da mudança;
     * não deixar estado intermediário funcionalmente quebrado em commit final.
 
-  * [ ] **Atualização integral de referências:** após qualquer movimentação, renomeação, centralização ou integração de marca, revisar e corrigir, conforme aplicabilidade:
+  * [x] **Atualização integral de referências:** após qualquer movimentação, renomeação, centralização ou integração de marca, revisar e corrigir, conforme aplicabilidade:
 
     * imports;
     * exports;
@@ -2850,7 +2850,7 @@
 
     É PROIBIDO deixar referências legadas silenciosamente quebradas.
 
-  * [ ] **Compatibilidade de build e execução:** a nova estrutura, nomenclatura, centralização de configuração e integração dos assets NÃO DEVEM:
+  * [x] **Compatibilidade de build e execução:** a nova estrutura, nomenclatura, centralização de configuração e integração dos assets NÃO DEVEM:
 
     * alterar o comportamento do produto;
     * modificar contratos públicos;
@@ -2867,7 +2867,7 @@
     * criar configurações concorrentes;
     * invalidar includes ou caminhos consumidos por ferramentas externas.
 
-  * [ ] **Conteúdo gerado e fonte canônica:** quando o mesmo conteúdo existir em mais de um local:
+  * [x] **Conteúdo gerado e fonte canônica:** quando o mesmo conteúdo existir em mais de um local:
 
     * identificar a fonte canônica;
     * definir o derivado;
@@ -2880,7 +2880,7 @@
     * impedir que variantes geradas por target sejam tratadas como fonte;
     * impedir que configuração derivada seja alterada manualmente como se fosse canônica.
 
-  * [ ] **Automação de conformidade:** quando proporcional, adicionar validação automatizada para detectar:
+  * [x] **Automação de conformidade:** quando proporcional, adicionar validação automatizada para detectar:
 
     * fonte fora de `src/`;
     * artefato gerado fora de `dist/`;
@@ -2906,7 +2906,7 @@
 
     A validação NÃO DEVE produzir falsos positivos contra exceções normativas legítimas.
 
-  * [ ] **Normatização:** se a inspeção revelar regra ambígua, incompleta ou incompatível com o estado real, atualizar o RCF ou `AGENTS.md` aplicável antes da reorganização, respeitando precedência e escopo.
+  * [x] **Normatização:** se a inspeção revelar regra ambígua, incompleta ou incompatível com o estado real, atualizar o RCF ou `AGENTS.md` aplicável antes da reorganização, respeitando precedência e escopo.
 
     A normatização DEVE incluir, conforme aplicabilidade:
 
@@ -2930,7 +2930,7 @@
 
     A norma NÃO DEVE ser alterada apenas para legitimar organização incorreta.
 
-  * [ ] **Testes obrigatórios:** após a reorganização, renomeação, centralização e integração, validar no mínimo:
+  * [x] **Testes obrigatórios:** após a reorganização, renomeação, centralização e integração, validar no mínimo:
 
     * instalação ou preparação do ambiente;
     * lint;
@@ -2968,7 +2968,7 @@
     * inexistência de referências ao caminho anterior;
     * reconhecimento claro da finalidade dos nomes alterados.
 
-  * [ ] **Ordem de execução:**
+  * [x] **Ordem de execução:**
 
     1. Ler as normas aplicáveis.
     2. Mapear a estrutura real.
@@ -2997,54 +2997,54 @@
     25. Atualizar documentação e rastreabilidade.
     26. Emitir relatório final.
 
-  * [ ] **Critérios de aceite:**
+  * [x] **Critérios de aceite:**
 
-    * [ ] A necessidade de reorganização foi objetivamente verificada.
-    * [ ] Nenhuma reorganização ou renomeação foi realizada sem necessidade material.
-    * [ ] Fontes aplicáveis estão em `src/`.
-    * [ ] Artefatos distribuíveis ou gerados estão em `dist/`.
-    * [ ] Scripts operacionais aplicáveis estão em `scripts/`.
-    * [ ] A configuração central existente foi preservada.
-    * [ ] Configurações duplicadas ou conflitantes foram consolidadas quando necessário.
-    * [ ] Valores comuns e específicos de target possuem precedência clara.
-    * [ ] Nomes alterados identificam melhor a finalidade real.
-    * [ ] Nenhum nome foi alterado apenas por preferência estética.
-    * [ ] `src/brand/` foi integralmente inspecionado.
-    * [ ] `src/brand/html-favicon/`, quando existente, foi integralmente inspecionado.
-    * [ ] A estratégia preconstruída foi comparada objetivamente com a geração via `RealFaviconGenerator`.
-    * [ ] O `RealFaviconGenerator` somente foi adotado quando demonstrado mais inteligente, conveniente e proporcional.
-    * [ ] Quando adotado, o pacote npm/API oficial vigente foi utilizado exclusivamente no build.
-    * [ ] Quando adotado, os preconstruídos equivalentes foram removidos após validação, permanecendo somente `src/brand/` e a configuração central aninhada como entradas canônicas.
-    * [ ] A configuração específica reside no diretório central normatizado e somente foi separada em arquivo adequadamente nomeado quando aplicável.
-    * [ ] A regeneração ocorre apenas após alteração material das entradas controladas, com invalidação confiável.
-    * [ ] Build limpo reconstrói integralmente favicons, manifestos, metadados e referências sem depender de preconstruídos.
-    * [ ] Todos os assets existentes e aplicáveis são utilizados.
-    * [ ] Nenhum asset foi omitido por suposição sobre nome ou finalidade.
-    * [ ] Os arquivos canônicos permanecem inalterados pelo build.
-    * [ ] Adaptações por target ocorrem automaticamente.
-    * [ ] Somente campos dependentes do target são editados.
-    * [ ] Existe script apropriado, centralizado e adequadamente nomeado para as transformações.
-    * [ ] O script é determinístico, idempotente e verificável.
-    * [ ] Todos os imports, includes, paths, URLs e referências foram corrigidos.
-    * [ ] Não existem referências residuais inválidas aos caminhos ou nomes anteriores.
-    * [ ] A execução local utiliza referências corretas.
-    * [ ] A publicação web utiliza referências corretas.
-    * [ ] GitHub Pages considera corretamente o base path aplicável.
-    * [ ] O bundle offline permanece autocontido e sem dependências remotas.
-    * [ ] Favicons e manifestos são válidos nos targets aplicáveis.
-    * [ ] Cada aplicação/submódulo utiliza o ícone ou logotipo de origem correto conforme configuração central.
-    * [ ] Bundles offline não incluem assets de favicon/manifesto sem função real.
-    * [ ] Nenhuma geração ocorre em runtime nem depende de serviço remoto.
-    * [ ] Exceções possuem fundamento técnico ou normativo.
-    * [ ] Nenhum arquivo foi perdido ou sobrescrito.
-    * [ ] Não existem fontes canônicas mantidas exclusivamente em `dist/`.
-    * [ ] Não existem duplicações estruturais ou configurações ambíguas.
-    * [ ] Imports, builds, workflows e documentação foram atualizados.
-    * [ ] O comportamento do produto permaneceu inalterado.
-    * [ ] A saída de build permanece reproduzível.
-    * [ ] Todos os testes passam sem regressão.
+    * [x] A necessidade de reorganização foi objetivamente verificada.
+    * [x] Nenhuma reorganização ou renomeação foi realizada sem necessidade material.
+    * [x] Fontes aplicáveis estão em `src/`.
+    * [x] Artefatos distribuíveis ou gerados estão em `dist/`.
+    * [x] Scripts operacionais aplicáveis estão em `scripts/`.
+    * [x] A configuração central existente foi preservada.
+    * [x] Configurações duplicadas ou conflitantes foram consolidadas quando necessário.
+    * [x] Valores comuns e específicos de target possuem precedência clara.
+    * [x] Nomes alterados identificam melhor a finalidade real.
+    * [x] Nenhum nome foi alterado apenas por preferência estética.
+    * [x] `src/brand/` foi integralmente inspecionado.
+    * [x] `src/brand/html-favicon/`, quando existente, foi integralmente inspecionado.
+    * [x] A estratégia preconstruída foi comparada objetivamente com a geração via `RealFaviconGenerator`.
+    * [x] O `RealFaviconGenerator` somente foi adotado quando demonstrado mais inteligente, conveniente e proporcional.
+    * [x] Quando adotado, o pacote npm/API oficial vigente foi utilizado exclusivamente no build.
+    * [x] Quando adotado, os preconstruídos equivalentes foram removidos após validação, permanecendo somente `src/brand/` e a configuração central aninhada como entradas canônicas.
+    * [x] A configuração específica reside no diretório central normatizado e somente foi separada em arquivo adequadamente nomeado quando aplicável.
+    * [x] A regeneração ocorre apenas após alteração material das entradas controladas, com invalidação confiável.
+    * [x] Build limpo reconstrói integralmente favicons, manifestos, metadados e referências sem depender de preconstruídos.
+    * [x] Todos os assets existentes e aplicáveis são utilizados.
+    * [x] Nenhum asset foi omitido por suposição sobre nome ou finalidade.
+    * [x] Os arquivos canônicos permanecem inalterados pelo build.
+    * [x] Adaptações por target ocorrem automaticamente.
+    * [x] Somente campos dependentes do target são editados.
+    * [x] Existe script apropriado, centralizado e adequadamente nomeado para as transformações.
+    * [x] O script é determinístico, idempotente e verificável.
+    * [x] Todos os imports, includes, paths, URLs e referências foram corrigidos.
+    * [x] Não existem referências residuais inválidas aos caminhos ou nomes anteriores.
+    * [x] A execução local utiliza referências corretas.
+    * [x] A publicação web utiliza referências corretas.
+    * [x] GitHub Pages considera corretamente o base path aplicável.
+    * [x] O bundle offline permanece autocontido e sem dependências remotas.
+    * [x] Favicons e manifestos são válidos nos targets aplicáveis.
+    * [x] Cada aplicação/submódulo utiliza o ícone ou logotipo de origem correto conforme configuração central.
+    * [x] Bundles offline não incluem assets de favicon/manifesto sem função real.
+    * [x] Nenhuma geração ocorre em runtime nem depende de serviço remoto.
+    * [x] Exceções possuem fundamento técnico ou normativo.
+    * [x] Nenhum arquivo foi perdido ou sobrescrito.
+    * [x] Não existem fontes canônicas mantidas exclusivamente em `dist/`.
+    * [x] Não existem duplicações estruturais ou configurações ambíguas.
+    * [x] Imports, builds, workflows e documentação foram atualizados.
+    * [x] O comportamento do produto permaneceu inalterado.
+    * [x] A saída de build permanece reproduzível.
+    * [x] Todos os testes passam sem regressão.
 
-  * [ ] **Relatório final:** registrar objetivamente:
+  * [x] **Relatório final:** registrar objetivamente:
 
     * conformidade inicial encontrada;
     * divergências materiais identificadas;
@@ -3075,7 +3075,7 @@
     * comprovação de que nenhuma reorganização, renomeação ou descentralização desnecessária foi realizada;
     * pendências ou riscos remanescentes.
 
-- [ ] Corrigir erro no `npm install` e `npm update` abaixo.
+- [x] Corrigir erro no `npm install` e `npm update` abaixo.
   
   # Problema
 
