@@ -190,19 +190,19 @@ decisoes=
 pendencias=
 - Obter nova autorizacao humana explicita antes da implementacao tecnica.
 
-FT-011|nome=Implementar reinicio observavel e painel offline literalmente espelhado|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=pendente
+FT-011|nome=Implementar reinicio observavel e painel offline literalmente espelhado|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=em andamento
 criado_em=2026-07-31T15:55:58-03:00
 inicio=20260731.1555.58
-ultima_atualizacao=20260731.1600.31
+ultima_atualizacao=20260731.1615.00
 objetivo=Corrigir o atualizador para publicar estados terminais e reiniciar servidor e GUI com retomada observavel; gerar o painel Modelo de mensagem offline a partir da mesma fonte visual e comportamental da GUI Node.js; e oferecer na GUI o download validado do bundle, como unica excecao ausente da projecao offline, preservando recursos e compatibilidade existentes.
 dependencias=FT-010 concluida;nova autorizacao humana explicita posterior
-estado_atual=Norma concluida; bloqueada exclusivamente pela autorizacao humana explicita posterior; nenhum codigo iniciado.
-proximo_ponto_executavel=Aguardar autorizacao humana explicita posterior.
+estado_atual=[INTERROMPIDO_POR_SOLICITACAO_HUMANA] Autorizacao recebida; etapa 1/5 parcialmente implementada e ainda nao validada.
+proximo_ponto_executavel=Retomar pela auditoria sintatica e pelo diff dos arquivos parciais; concluir a integracao de startGuiUpdate com estado persistido e handoff de reinicio antes de alterar o painel offline.
 
 etapas=
-1/5 Atualizador e retomada [pendente]
-  1/4 Persistir estado terminal e token de retomada [pendente]
-  2/4 Exibir andamento, conclusao e erro ate terminalidade [pendente]
+1/5 Atualizador e retomada [em andamento]
+  1/4 Persistir estado terminal e token de retomada [em andamento]
+  2/4 Exibir andamento, conclusao e erro ate terminalidade [em andamento]
   3/4 Reiniciar servidor e reabrir GUI automaticamente [pendente]
   4/4 Blindar falha, timeout, rollback e multiplas abas [pendente]
 2/5 Componente canônico compartilhado [pendente]
@@ -230,8 +230,17 @@ restricoes=
 - Nao reiniciar antes de persistir e expor resultado terminal; nao perder rollback, logs, sessoes ou dados locais.
 - Nao transformar o bundle em executor de campanha nem introduzir rede em runtime offline.
 
+trabalho_parcial_nao_validado=
+- `src/update-state.js` criado com estado atomico, terminais, token de reinicio e separacao entre resultado da atualizacao e resultado do reinicio.
+- `scripts/update-project.js` alterado para publicar fases persistidas, terminal de sucesso/sem alteracao/reversao/falha e resultado de rollback.
+- `scripts/restart-gui.js` criado como supervisor destacado que aguarda a instancia anterior encerrar e inicia a GUI na porta e sessao recebidas.
+- `src/gui.js` parcialmente alterado: importa o contrato de estado, hidrata estado persistido, conclui token ao escutar, expoe endpoint de download do bundle e helper de resposta para download.
+- A GUI ainda NAO possui o botao de download; `startGuiUpdate` ainda NAO consome os eventos estruturados nem aciona o supervisor; o bundle offline ainda NAO foi refatorado para a projecao canônica.
+- Nenhum teste, lint, check, build ou execucao manual foi realizado depois dessas alteracoes. O codigo parcial NAO deve ser considerado funcional ate validacao e conclusao.
+- Arquivos atualmente esperados como modificados/novos: `.ia.rules/continue.ia`, `src/update-state.js`, `scripts/update-project.js`, `scripts/restart-gui.js`, `src/gui.js`.
+
 pendencias=
-- Autorizacao humana explicita posterior.
+- Retomar e validar o trabalho parcial; concluir as etapas 1/5 a 5/5.
 
 FT-006|nome=Deteccao assincrona de atualizacoes e reorganizacao da GUI|escopo=Tecnico|prioridade=alta|status=em andamento
 criado_em=2026-07-22T10:13:56-03:00

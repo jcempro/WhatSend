@@ -57,6 +57,13 @@ const {
   checkUpdates,
   createUpdateCheckState,
 } = require("./update-check");
+const {
+  UPDATE_STATE_MARKER,
+  completeUpdateRestart,
+  failUpdateRestart,
+  prepareUpdateRestart,
+  readUpdateState,
+} = require("./update-state");
 
 const GUI_HOST = "127.0.0.1";
 const GUI_PORT = readIntegerEnv("GUI_PORT", 3137);
@@ -89,6 +96,7 @@ const GUI_HINTS = Object.freeze({
   saveLocal: "Salvar o conjunto de guias neste navegador.",
   templateModels: "Selecionar modelo preexistente do repositório.",
   save: "Salvar todas as abas em um arquivo .md separado por ^^^.",
+  saveOffline: "Baixar a versão offline autocontida deste editor.",
   settings: "Abrir configurações desta execução.",
   shutdown: "Desligar o processo local e fechar o navegador controlado.",
   update: "Atualizar motor, dependências, software ou reverter a última atualização.",
@@ -248,6 +256,18 @@ function listenGuiServer(client, basePaths, baseOptions, state, port, attempt) {
         });
       }
 
+      const restartToken = String(process.env.WHATSEND_UPDATE_RESTART_TOKEN || "");
+      if (restartToken) {
+        const completed = completeUpdateRestart(basePaths.root || ROOT_DIR, restartToken);
+        if (completed && completed.restart && completed.restart.status === "concluido") {
+          state.update = completed;
+          pushGuiLog(state, {
+            message: `Servidor e GUI reiniciados. ${completed.result || "Operação retomada."}`,
+            type: completed.status === "falhou" ? "error" : "success",
+          });
+        }
+      }
+
       resolve({
         server,
         state,
@@ -258,7 +278,8 @@ function listenGuiServer(client, basePaths, baseOptions, state, port, attempt) {
 }
 
 function createGuiState(paths = PATHS) {
-  return {
+  const persistedUpdate = readUpdateState(paths.root || ROOT_DIR);
+  const state = {
     activeSession: paths.activeSession || null,
     busy: false,
     guiClients: createGuiClientsState(),
@@ -267,7 +288,7 @@ function createGuiState(paths = PATHS) {
     log: [],
     operations: createGuiOperationsState(),
     progress: createEmptyGuiProgress(),
-    update: { active: false, action: "", result: "" },
+    update: persistedUpdate || { active: false, action: "", phase: "", result: "", status: "" },
     updateCheck: createUpdateCheckState(),
     templates: createTemplatesState(),
     startedAt: null,
@@ -275,6 +296,13 @@ function createGuiState(paths = PATHS) {
     sessions: listSessions(paths),
     whatsappReady: false,
   };
+  if (persistedUpdate && persistedUpdate.result) {
+    pushGuiLog(state, {
+      message: [persistedUpdate.result, persistedUpdate.error, persistedUpdate.recovery].filter(Boolean).join(" "),
+      type: persistedUpdate.status === "falhou" ? "error" : "success",
+    });
+  }
+  return state;
 }
 
 function createEmptyGuiProgress() {
@@ -608,6 +636,16 @@ async function routeGuiRequest(req, res, context) {
 
   if (req.method === "GET" && url.pathname === "/docs/usage.md") {
     sendText(res, readOptionalFile(path.join(ROOT_DIR, "docs", "usage.md")) || "Documentação não encontrada.");
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/offline-bundle/download") {
+    const { OFFLINE_BUNDLE_NAME, buildOfflineBundle } = require("../scripts/build-offline-bundle");
+    const targetDir = path.join(GUI_RUNTIME_DIR, "offline-bundle");
+    pushGuiLog(context.state, { message: "Preparando bundle offline validado.", type: "info" });
+    const built = buildOfflineBundle(targetDir);
+    sendDownload(res, built.outputPath, OFFLINE_BUNDLE_NAME, "text/html; charset=utf-8");
+    pushGuiLog(context.state, { message: `Bundle offline preparado: ${OFFLINE_BUNDLE_NAME}.`, type: "success" });
     return;
   }
 
@@ -1725,6 +1763,22 @@ function sendAsset(res, filePath, contentType) {
     "Content-Type": contentType,
   });
   res.end(fs.readFileSync(filePath));
+}
+
+function sendDownload(res, filePath, fileName, contentType) {
+  if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
+    res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
+    res.end("Artefato não encontrado.");
+    return;
+  }
+  const safeName = String(fileName || path.basename(filePath)).replace(/["\r\n]/gu, "_");
+  res.writeHead(200, {
+    "Cache-Control": "no-store",
+    "Content-Disposition": `attachment; filename="${safeName}"`,
+    "Content-Length": fs.statSync(filePath).size,
+    "Content-Type": contentType,
+  });
+  fs.createReadStream(filePath).pipe(res);
 }
 
 function sendJson(res, statusCode, payload) {

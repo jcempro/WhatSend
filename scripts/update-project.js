@@ -13,6 +13,12 @@ const path = require("path");
 const zlib = require("zlib");
 const { extractZip } = require("./archive");
 const { VERSION_FILE_NAME, buildVersionId } = require("./release-metadata");
+const {
+  createUpdateOperation,
+  emitUpdateState,
+  transitionUpdateState,
+  writeUpdateState,
+} = require("../src/update-state");
 
 const OWNER = "JeanCarloEM";
 const REPO = "WhatSend";
@@ -533,37 +539,71 @@ async function updateProject(options = {}) {
   const action = options.action || "software";
   if (!UPDATE_ACTIONS.has(action)) throw new Error(`Ação de atualização inválida: ${action}`);
   if (!options.confirmed) throw new Error("Confirmação explícita obrigatória para atualização ou reversão.");
-  const previous = readLastUpdate(rootDir);
-  const snapshot = snapshotUpdate(action, rootDir);
+  const onState = typeof options.onState === "function" ? options.onState : emitUpdateState;
+  let updateState = createUpdateOperation(action);
+  let snapshot = null;
+  const publish = (changes, transitionOptions = {}) => {
+    updateState = transitionUpdateState(rootDir, updateState, changes, {
+      onState,
+      ...transitionOptions,
+    });
+    return updateState;
+  };
+  writeUpdateState(rootDir, updateState);
+  onState(updateState);
 
   try {
+    publish({ phase: "salvando_snapshot", status: "salvando_snapshot" });
+    const previous = readLastUpdate(rootDir);
+    snapshot = snapshotUpdate(action, rootDir);
+
     if (action === "revert") {
       if (!previous) throw new Error("Nenhuma atualização válida disponível para reverter.");
+      publish({ phase: "revertendo", status: "revertendo" });
       console.log(`Revertendo atualização registrada em ${previous.createdAt}.`);
       restoreSnapshot(previous, rootDir);
+      publish({ phase: "validando", status: "validando" });
       validateUpdate(rootDir);
       writeLastUpdate(previous, { action, revertedAt: new Date().toISOString() }, rootDir);
-      console.log("Reversão concluída. Reinicie o WhatSend para carregar o estado restaurado.");
-      return { action, reverted: true };
+      publish({
+        phase: "revertida",
+        recovery: "",
+        restart: { required: true, status: "pendente" },
+        result: "Reversão concluída e validada.",
+        status: "revertida",
+      });
+      console.log("Reversão concluída. O servidor e a GUI serão reiniciados automaticamente.");
+      return { action, restartRequired: true, reverted: true, state: updateState };
     }
 
     if (action === "whatsapp-web.js") {
+      publish({ phase: "resolvendo_dependencias", status: "resolvendo_dependencias" });
       console.log("Atualizando somente whatsapp-web.js.");
       run("npm", ["install", "whatsapp-web.js@latest"], { rootDir });
     } else if (action === "dependencies") {
+      publish({ phase: "resolvendo_dependencias", status: "resolvendo_dependencias" });
       console.log("Atualizando todas as dependências declaradas.");
       run("npm", ["update"], { rootDir });
     } else {
+      publish({ phase: "consultando_origem", status: "consultando_origem" });
       const source = await resolveUpdateSource(options);
       console.log(`Fonte da atualização: ${source.label}`);
       const installed = readInstalledVersion(rootDir);
       if (isSameInstalledVersion(installed, source)) {
+        publish({
+          phase: "sem_alteracao",
+          restart: { required: false, status: "nao_requerido" },
+          result: `WhatSend já está atualizado (${source.versionId}).`,
+          status: "sem_alteracao",
+        });
         console.log(`WhatSend já está atualizado (${source.versionId}).`);
-        return { action, updated: false };
+        return { action, restartRequired: false, state: updateState, updated: false };
       }
+      publish({ phase: "baixando", status: "baixando" });
       const archive = await downloadTarball(source);
       const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), `${REPO}-update-`));
       try {
+        publish({ phase: "aplicando", status: "aplicando" });
         const extractDir = path.join(tempDir, "source");
         fs.mkdirSync(extractDir, { recursive: true });
         extractArchive(archive, source, extractDir);
@@ -571,24 +611,65 @@ async function updateProject(options = {}) {
       } finally {
         fs.rmSync(tempDir, { force: true, maxRetries: 5, recursive: true, retryDelay: 200 });
       }
+      publish({ phase: "resolvendo_dependencias", status: "resolvendo_dependencias" });
       run("npm", ["install"], { rootDir });
       writeInstalledVersion(source, rootDir);
     }
 
     run("npm", ["prune"], { rootDir });
+    publish({ phase: "validando_navegador", status: "validando_navegador" });
     run("node", ["scripts/ensure-browser.js"], { rootDir });
+    publish({ phase: "validando_aplicacao", status: "validando" });
     validateUpdate(rootDir);
     writeLastUpdate(snapshot, { action, success: true }, rootDir);
-    console.log("Atualização concluída. Reinicie o WhatSend para carregar as versões instaladas.");
-    return { action, updated: true };
+    publish({
+      phase: "concluida",
+      restart: { required: true, status: "pendente" },
+      result: "Atualização concluída e validada.",
+      status: "concluida",
+    });
+    console.log("Atualização concluída. O servidor e a GUI serão reiniciados automaticamente.");
+    return { action, restartRequired: true, state: updateState, updated: true };
   } catch (error) {
     console.error(`Atualização falhou: ${error.message}`);
+    let rollbackError = null;
+    let rollbackSucceeded = false;
     try {
-      restoreSnapshot(snapshot, rootDir);
-      console.error("Estado anterior restaurado automaticamente.");
+      if (snapshot) {
+        publish({
+          phase: "revertendo",
+          rollback: { attempted: true, error: "", succeeded: false },
+          status: "revertendo",
+        });
+        restoreSnapshot(snapshot, rootDir);
+        rollbackSucceeded = true;
+        console.error("Estado anterior restaurado automaticamente.");
+      }
     } catch (restoreError) {
+      rollbackError = restoreError;
       console.error(`Recuperação automática falhou: ${restoreError.message}`);
     }
+    publish({
+      error: error.message,
+      phase: "falhou",
+      recovery: rollbackSucceeded
+        ? "Estado anterior restaurado automaticamente."
+        : rollbackError
+          ? `Recuperação automática falhou: ${rollbackError.message}`
+          : "A operação falhou antes da criação do snapshot.",
+      restart: {
+        required: rollbackSucceeded,
+        status: rollbackSucceeded ? "pendente" : "nao_requerido",
+      },
+      result: "Atualização falhou.",
+      rollback: {
+        attempted: Boolean(snapshot),
+        error: rollbackError ? rollbackError.message : "",
+        succeeded: rollbackSucceeded,
+      },
+      status: "falhou",
+    });
+    error.updateState = updateState;
     throw error;
   }
 }
