@@ -117,7 +117,7 @@ Este marcador encerra a seção de governança e inicia exclusivamente as TO-DOs
     * `XOR(...)`.
     * `AND`, `OR` e `XOR` DEVEM aceitar quantidade ilimitada de parâmetros tecnicamente suportável pelo parser/runtime, sem limite arbitrário.
     * Todas DEVEM admitir aninhamento entre si e de múltiplos `IF`.
-    * `IF` DEVE aceitar `\r?\n` entre parâmetros.
+    * `IF` DEVE aceitar `\r?\n` entre parâmetros (incluindo eventualmente a existência deles em funções fornecidas como parametros aninhados).
     * `VERDADE` e `FALSO` PODEM ser valor literal, texto puro, número ou resultado de função.
     * Texto puro multiline DEVE tolerar `\r?\n` sem corromper parsing ou conteúdo.
     * Resultado textual ou numérico de função DEVE ser inserido como valor textual de saída no ponto de avaliação; números literais DEVEM igualmente poder ser emitidos diretamente.
