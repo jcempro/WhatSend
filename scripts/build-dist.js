@@ -9,6 +9,7 @@ const fs = require("fs");
 const path = require("path");
 const terser = require("terser");
 const { createZipFromDirectory } = require("./archive");
+const { buildOfflineBundle } = require("./build-offline-bundle");
 const { RELEASE_NOTES_PATH, validateReleaseNotesContent } = require("./release-notes-policy");
 const {
   VERSION_FILE_NAME,
@@ -38,6 +39,7 @@ const ROOT_FILES = [
 const ROOT_GLOB_PREFIXES = [
   ".editorconfig",
   ".prettier",
+  ".puppeteerrc",
   "README",
 ];
 const ROOT_DIRS = ["docs", "scripts", "src"];
@@ -52,6 +54,7 @@ const EXCLUDED_NAMES = new Set([
   "IMPLEMENTACOES.md",
   "continue.ia",
   "dist",
+  "build-offline-bundle.js",
   "generate-agents-status.js",
   "logs",
   "node_modules",
@@ -103,6 +106,7 @@ async function buildDist(options = {}) {
 
   ensureEnvExample();
   writeVersionFile(releaseMetadata, path.join(DIST_DIR, VERSION_FILE_NAME));
+  const offlineBundle = buildOfflineBundle(DIST_DIR);
   await minifyJavaScriptFiles(DIST_DIR);
   restoreExistingReleaseNotes(releaseNotesSnapshot);
   validateBuiltDist();
@@ -111,6 +115,7 @@ async function buildDist(options = {}) {
   console.log(`Pacote ZIP gerado em ${path.relative(ROOT_DIR, archivePath)}`);
   return {
     archivePath,
+    offlineBundle,
     metadata: releaseMetadata,
   };
 }
@@ -186,6 +191,7 @@ function writeRuntimePackageFiles() {
     license: packageJson.license,
     main: packageJson.main,
     name: packageJson.name,
+    overrides: packageJson.overrides || {},
     scripts: pickRuntimeScripts(packageJson.scripts || {}),
     type: packageJson.type,
     version: packageJson.version,

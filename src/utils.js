@@ -71,6 +71,11 @@ function buildCaseInsensitiveDataMap(data) {
     }
   }
 
+  const telefone = map.get("telefone");
+  const fone = map.get("fone");
+  if (telefone && !fone) map.set("fone", telefone);
+  if (fone && !telefone) map.set("telefone", fone);
+
   return map;
 }
 

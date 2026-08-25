@@ -23,6 +23,7 @@ const {
   renderComplianceSummaryHtml,
 } = require("./notice");
 const { loadCsv, normalizeTextContent } = require("./data");
+const { analyzeTemplate } = require("./template-advisory");
 const { initLogFiles, resetSentLog } = require("./logs");
 const { processCampaign, validateRuntimeFiles } = require("./campaign");
 const { buildSendPlan, isOggSource, isUrl, validateTemplateMediaReferences } = require("./media");
@@ -56,6 +57,13 @@ const {
   checkUpdates,
   createUpdateCheckState,
 } = require("./update-check");
+const {
+  UPDATE_STATE_MARKER,
+  completeUpdateRestart,
+  failUpdateRestart,
+  prepareUpdateRestart,
+  readUpdateState,
+} = require("./update-state");
 
 const GUI_HOST = "127.0.0.1";
 const GUI_PORT = readIntegerEnv("GUI_PORT", 3137);
@@ -88,6 +96,7 @@ const GUI_HINTS = Object.freeze({
   saveLocal: "Salvar o conjunto de guias neste navegador.",
   templateModels: "Selecionar modelo preexistente do repositório.",
   save: "Salvar todas as abas em um arquivo .md separado por ^^^.",
+  saveOffline: "Baixar a versão offline autocontida deste editor.",
   settings: "Abrir configurações desta execução.",
   shutdown: "Desligar o processo local e fechar o navegador controlado.",
   update: "Atualizar motor, dependências, software ou reverter a última atualização.",
@@ -247,6 +256,18 @@ function listenGuiServer(client, basePaths, baseOptions, state, port, attempt) {
         });
       }
 
+      const restartToken = String(process.env.WHATSEND_UPDATE_RESTART_TOKEN || "");
+      if (restartToken) {
+        const completed = completeUpdateRestart(basePaths.root || ROOT_DIR, restartToken);
+        if (completed && completed.restart && completed.restart.status === "concluido") {
+          state.update = completed;
+          pushGuiLog(state, {
+            message: `Servidor e GUI reiniciados. ${completed.result || "Operação retomada."}`,
+            type: completed.status === "falhou" ? "error" : "success",
+          });
+        }
+      }
+
       resolve({
         server,
         state,
@@ -257,7 +278,8 @@ function listenGuiServer(client, basePaths, baseOptions, state, port, attempt) {
 }
 
 function createGuiState(paths = PATHS) {
-  return {
+  const persistedUpdate = readUpdateState(paths.root || ROOT_DIR);
+  const state = {
     activeSession: paths.activeSession || null,
     busy: false,
     guiClients: createGuiClientsState(),
@@ -266,7 +288,7 @@ function createGuiState(paths = PATHS) {
     log: [],
     operations: createGuiOperationsState(),
     progress: createEmptyGuiProgress(),
-    update: { active: false, action: "", result: "" },
+    update: persistedUpdate || { active: false, action: "", phase: "", result: "", status: "" },
     updateCheck: createUpdateCheckState(),
     templates: createTemplatesState(),
     startedAt: null,
@@ -274,6 +296,13 @@ function createGuiState(paths = PATHS) {
     sessions: listSessions(paths),
     whatsappReady: false,
   };
+  if (persistedUpdate && persistedUpdate.result) {
+    pushGuiLog(state, {
+      message: [persistedUpdate.result, persistedUpdate.error, persistedUpdate.recovery].filter(Boolean).join(" "),
+      type: persistedUpdate.status === "falhou" ? "error" : "success",
+    });
+  }
+  return state;
 }
 
 function createEmptyGuiProgress() {
@@ -590,8 +619,33 @@ async function routeGuiRequest(req, res, context) {
     return;
   }
 
+  const brandAssets = {
+    "/brand/apple-touch-icon.png": ["apple-touch-icon.png", "image/png"],
+    "/brand/favicon.ico": ["favicon.ico", "image/x-icon"],
+    "/brand/favicon.svg": ["favicon.svg", "image/svg+xml; charset=utf-8"],
+    "/brand/favicon-96x96.png": ["favicon-96x96.png", "image/png"],
+    "/brand/site.webmanifest": ["site.webmanifest", "application/manifest+json; charset=utf-8"],
+    "/brand/web-app-manifest-192x192.png": ["web-app-manifest-192x192.png", "image/png"],
+    "/brand/web-app-manifest-512x512.png": ["web-app-manifest-512x512.png", "image/png"],
+  };
+  if (req.method === "GET" && brandAssets[url.pathname]) {
+    const [name, contentType] = brandAssets[url.pathname];
+    sendAsset(res, path.join(ROOT_DIR, "src", "brand", "html-favicon", name), contentType);
+    return;
+  }
+
   if (req.method === "GET" && url.pathname === "/docs/usage.md") {
     sendText(res, readOptionalFile(path.join(ROOT_DIR, "docs", "usage.md")) || "Documentação não encontrada.");
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/offline-bundle/download") {
+    const { OFFLINE_BUNDLE_NAME, buildOfflineBundle } = require("../scripts/build-offline-bundle");
+    const targetDir = path.join(GUI_RUNTIME_DIR, "offline-bundle");
+    pushGuiLog(context.state, { message: "Preparando bundle offline validado.", type: "info" });
+    const built = buildOfflineBundle(targetDir);
+    sendDownload(res, built.outputPath, OFFLINE_BUNDLE_NAME, "text/html; charset=utf-8");
+    pushGuiLog(context.state, { message: `Bundle offline preparado: ${OFFLINE_BUNDLE_NAME}.`, type: "success" });
     return;
   }
 
@@ -693,6 +747,21 @@ async function routeGuiRequest(req, res, context) {
       loadedAt: new Date().toISOString(),
     };
     sendJson(res, result.ok ? 200 : 207, result);
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/inputs/default") {
+    sendJson(res, 200, {
+      csv: {
+        content: readOptionalFile(context.basePaths.csv),
+        name: path.basename(context.basePaths.csv || "clientes.csv"),
+      },
+      ok: true,
+      template: {
+        content: readOptionalFile(context.basePaths.template),
+        name: path.basename(context.basePaths.template || "texto.md"),
+      },
+    });
     return;
   }
 
@@ -966,6 +1035,19 @@ async function routeGuiRequest(req, res, context) {
       return;
     }
 
+    if (
+      validation.editorialIssues &&
+      validation.editorialIssues.some((issue) => issue.severity === "error") &&
+      !payload.confirmEditorialIssues
+    ) {
+      sendJson(res, 409, {
+        editorialIssues: validation.editorialIssues,
+        error: "Confirme a saudação literal antes de enviar ou substitua-a por $diatarde$.",
+        ok: false,
+      });
+      return;
+    }
+
     if (context.state.busy) {
       sendJson(res, 409, {
         error: "Já existe um processamento em andamento.",
@@ -1170,6 +1252,7 @@ function validateGuiPayload(payload = {}, basePaths = PATHS) {
     readOptionalFile(basePaths.template);
 
   const syntaxIssues = inspectTemplateSyntax(templateCandidate);
+  const editorialIssues = analyzeTemplate(templateCandidate);
 
   if (filter) {
     try {
@@ -1195,11 +1278,12 @@ function validateGuiPayload(payload = {}, basePaths = PATHS) {
   }
 
   return errors.length
-    ? { errors, ok: false, syntaxIssues }
+    ? { editorialIssues, errors, ok: false, syntaxIssues }
     : {
         message: syntaxIssues.length
           ? "Validação preliminar aprovada com avisos de sintaxe no modelo."
           : "Validação preliminar aprovada.",
+        editorialIssues,
         ok: true,
         syntaxIssues,
       };
@@ -1668,6 +1752,35 @@ function sendText(res, text) {
   res.end(text);
 }
 
+function sendAsset(res, filePath, contentType) {
+  if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
+    res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
+    res.end("Recurso não encontrado.");
+    return;
+  }
+  res.writeHead(200, {
+    "Cache-Control": "public, max-age=3600",
+    "Content-Type": contentType,
+  });
+  res.end(fs.readFileSync(filePath));
+}
+
+function sendDownload(res, filePath, fileName, contentType) {
+  if (!fs.existsSync(filePath) || !fs.statSync(filePath).isFile()) {
+    res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
+    res.end("Artefato não encontrado.");
+    return;
+  }
+  const safeName = String(fileName || path.basename(filePath)).replace(/["\r\n]/gu, "_");
+  res.writeHead(200, {
+    "Cache-Control": "no-store",
+    "Content-Disposition": `attachment; filename="${safeName}"`,
+    "Content-Length": fs.statSync(filePath).size,
+    "Content-Type": contentType,
+  });
+  fs.createReadStream(filePath).pipe(res);
+}
+
 function sendJson(res, statusCode, payload) {
   res.writeHead(statusCode, {
     "Cache-Control": "no-store",
@@ -1766,12 +1879,21 @@ function openSystemBrowser(url) {
 }
 
 function renderGuiHtml() {
+  const brandHead = readOptionalFile(path.join(__dirname, "brand", "html-favicon", "head-modelo.html")).trim();
+  const sharedBrowserSources = [
+    "csv-contract.js",
+    "whatsend-package.js",
+    "template-advisory.js",
+  ].map((name) => readOptionalFile(path.join(__dirname, name)))
+    .join("\n")
+    .replace(/<\/script/giu, "<\\/script");
   return `<!doctype html>
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Disparador WhatsApp</title>
+  ${brandHead}
+  <title>WhatSend</title>
   <style>
     :root {
       color-scheme: light;
@@ -2326,6 +2448,16 @@ function renderGuiHtml() {
       margin-bottom: 8px;
     }
 
+    .development-warning {
+      background: #fffaeb;
+      border: 2px solid #f79009;
+      border-radius: 8px;
+      color: #7a2e0e;
+      font-size: 13px !important;
+      font-weight: 800;
+      padding: 9px 10px;
+    }
+
     .wa-editor-shell {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(280px, 0.78fr);
@@ -2389,6 +2521,46 @@ function renderGuiHtml() {
     .wa-placeholder-token {
       color: #175cd3;
       font-weight: 800;
+    }
+
+    .wa-editorial-error {
+      background: #fee4e2;
+      border-bottom: 2px solid var(--danger);
+      color: #7a271a;
+      font-weight: 800;
+    }
+
+    .wa-editorial-warning {
+      background: #fef0c7;
+      border-bottom: 2px dotted #b54708;
+      color: #7a2e0e;
+      font-weight: 750;
+    }
+
+    .template-advisories {
+      display: grid;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .template-advisory {
+      background: #fff;
+      border: 1px solid currentColor;
+      border-radius: 8px;
+      color: #7a2e0e;
+      cursor: pointer;
+      font: inherit;
+      padding: 8px 10px;
+      text-align: left;
+    }
+
+    .template-advisory.error { color: var(--danger); }
+    .template-advisory.warning { color: #b54708; }
+
+    .package-csv-status {
+      color: var(--info);
+      font-size: 12px;
+      margin-top: 6px;
     }
 
     code,
@@ -3099,12 +3271,14 @@ function renderGuiHtml() {
           <h2>Licença</h2>
           <p><strong>Autor:</strong> <a href="${AUTHOR_URL}" target="_blank" rel="noreferrer">${AUTHOR}</a></p>
           <p><strong>Licença:</strong> <a href="/license" target="_blank" rel="noreferrer">${LICENSE_NAME}</a> <span class="hint">(${LICENSE_LOCAL_PATH}; <a href="${LICENSE_URL}" target="_blank" rel="noreferrer">${LICENSE_URL}</a>)</span></p>
+          <p class="development-warning" role="note">Em desenvolvimento: este software pode conter erros.</p>
           <div class="compliance-notice" role="note" aria-label="Aviso legal resumido">${renderComplianceSummaryHtml()}</div>
         </section>
 
         <section class="full-card template-card">
           <h2>Modelo de mensagem</h2>
           <input id="templateFile" class="visually-hidden-field" type="file" accept=".md,text/markdown,text/plain" tabindex="-1" aria-hidden="true">
+          <input id="packageFile" class="visually-hidden-field" type="file" accept=".whatsend.json,application/json" tabindex="-1" aria-hidden="true">
           <input id="embeddedAttachmentInput" class="visually-hidden-field" type="file" accept="${getEmbeddedAttachmentAccept()}" tabindex="-1" aria-hidden="true">
           <div id="templateMediaStatus" class="field-message"></div>
           <div id="templateBaseDirBox" class="template-base-dir">
@@ -3138,6 +3312,9 @@ function renderGuiHtml() {
               <span class="toolbar-separator" aria-hidden="true"></span>
               <button type="button" id="saveTemplateButton" data-hint="${escapeHtml(GUI_HINTS.save)}" aria-label="Salvar">${renderGuiIcon("f56d")}</button>
               <button type="button" id="openTemplateButton" data-hint="${escapeHtml(GUI_HINTS.open)}" aria-label="Abrir">${renderGuiIcon("f574")}</button>
+              <button type="button" id="savePackageButton" data-hint="Salvar modelo e CSV em pacote .whatsend.json" aria-label="Salvar pacote">${renderGuiIcon("layerGroup")}</button>
+              <button type="button" id="openPackageButton" data-hint="Abrir pacote .whatsend.json" aria-label="Abrir pacote">${renderGuiIcon("folderOpenRegular")}</button>
+              <button type="button" id="savePackageCsvButton" data-hint="Salvar o CSV importado do pacote" aria-label="Salvar CSV do pacote">CSV</button>
               <span class="toolbar-separator" aria-hidden="true"></span>
               <button type="button" data-wrap="*" data-hint="${escapeHtml(GUI_HINTS.bold)}" aria-label="Negrito">${renderGuiIcon("bold")}</button>
               <button type="button" data-wrap="_" data-hint="${escapeHtml(GUI_HINTS.italic)}" aria-label="Itálico">${renderGuiIcon("italic")}</button>
@@ -3161,6 +3338,7 @@ function renderGuiHtml() {
             </div>
           </div>
           <textarea id="templateText" class="visually-hidden-field" tabindex="-1" aria-hidden="true"></textarea>
+          <div id="templateAdvisories" class="template-advisories" aria-live="polite"></div>
           <div class="hint">\${campo} aceita colunas/expressões. Use a toolbar para inserir apenas marcação textual do WhatsApp. Anexos em <code>![](arquivo.pdf)</code>, <code>$postagem$</code> e separadores <code>^^^</code> permanecem texto puro. ${renderHelpLink("info", DOCS_USAGE_GITHUB_URL, GUI_HINTS.docs)}</div>
           <details class="syntax-details">
             <summary>Notações suportadas</summary>
@@ -3205,7 +3383,8 @@ function renderGuiHtml() {
                 <span class="help-links">${renderHelpLink("youtube", HELP_VIDEO_URLS.clients, GUI_HINTS.videoClients, "video-help")}</span>
               </div>
               <input id="csvFile" type="file" accept=".csv,text/csv,text/plain">
-              <div class="hint">CSV com cabeçalho; colunas obrigatórias: nome e telefone. Outras colunas podem ser usadas em <code>\${campo}</code>.</div>
+              <div id="packageCsvStatus" class="package-csv-status" aria-live="polite"></div>
+              <div class="hint">CSV com cabeçalho; colunas obrigatórias: nome e exatamente um alias, telefone ou fone. Outras colunas podem ser usadas em <code>\${campo}</code>.</div>
             </div>
           </div>
         </section>
@@ -3297,6 +3476,7 @@ function renderGuiHtml() {
     </div>
   </div>
 
+  <script>${sharedBrowserSources}</script>
   <script>
     const form = document.getElementById("runForm");
     const button = document.getElementById("runButton");
@@ -3314,6 +3494,7 @@ function renderGuiHtml() {
     const renameSessionButton = document.getElementById("renameSessionButton");
     const removeSessionButton = document.getElementById("removeSessionButton");
     const templateFileInput = document.getElementById("templateFile");
+    const packageFileInput = document.getElementById("packageFile");
     const embeddedAttachmentInput = document.getElementById("embeddedAttachmentInput");
     const templateBaseDirInput = document.getElementById("templateBaseDir");
     const templateBaseDirBox = document.getElementById("templateBaseDirBox");
@@ -3329,6 +3510,12 @@ function renderGuiHtml() {
     const openLocalSavesButton = document.getElementById("openLocalSavesButton");
     const saveTemplateLocalButton = document.getElementById("saveTemplateLocalButton");
     const saveTemplateButton = document.getElementById("saveTemplateButton");
+    const savePackageButton = document.getElementById("savePackageButton");
+    const openPackageButton = document.getElementById("openPackageButton");
+    const savePackageCsvButton = document.getElementById("savePackageCsvButton");
+    const templateAdvisories = document.getElementById("templateAdvisories");
+    const csvFileInput = document.getElementById("csvFile");
+    const packageCsvStatus = document.getElementById("packageCsvStatus");
     const templateActiveName = document.getElementById("templateActiveName");
     const templateSaveState = document.getElementById("templateSaveState");
     const templateModelsButton = document.getElementById("templateModelsButton");
@@ -3385,6 +3572,11 @@ function renderGuiHtml() {
     let embeddedFooter = "";
     let selectedUpdateAction = "";
     let logExpanded = false;
+    let importedPackageCsv = null;
+    let preservedPackageDocument = null;
+    let currentEditorialIssues = [];
+    let lastGuiState = null;
+    let completionInvalidated = false;
     const embeddedAttachmentCapabilities = ${JSON.stringify(getEmbeddedAttachmentCapabilities())};
     const maxEmbeddedAttachmentBytes = ${MAX_EMBEDDED_ATTACHMENT_BYTES};
     const tabDeleteIcon = ${JSON.stringify(renderGuiIcon("trash"))};
@@ -3780,15 +3972,44 @@ function renderGuiHtml() {
       const source = String(text || "");
       const monoMarker = String.fromCharCode(96).repeat(3);
       const markerPattern = new RegExp("(" + monoMarker + "|\\\\*|_|~)", "g");
-      const highlighted = escapeMarkup(source || " ")
+      currentEditorialIssues = WhatSendAdvisory.analyzeTemplate(source);
+      let cursor = 0;
+      let highlighted = "";
+      const formatTokens = (segment) => escapeMarkup(segment || "")
         .replace(/(\\$\\{[^}]*\\})/g, '<span class="wa-placeholder-token">$1</span>')
         .replace(markerPattern, '<span class="wa-marker">$1</span>');
+      currentEditorialIssues.forEach((issue) => {
+        highlighted += formatTokens(source.slice(cursor, issue.index));
+        highlighted += '<span class="wa-editorial-' + issue.severity + '">' +
+          escapeMarkup(source.slice(issue.index, issue.index + issue.length)) +
+          '</span>';
+        cursor = issue.index + issue.length;
+      });
+      highlighted += formatTokens(source.slice(cursor));
+      if (!highlighted) highlighted = " ";
       return highlighted + (source.endsWith("\\n") ? " " : "\\n");
     }
 
     function renderTemplateHighlight() {
       templateHighlight.innerHTML = highlightTemplateText(templateEditorInput.value);
+      renderTemplateAdvisories();
       syncHighlightScroll();
+    }
+
+    function renderTemplateAdvisories() {
+      templateAdvisories.innerHTML = "";
+      currentEditorialIssues.forEach((issue) => {
+        const item = document.createElement("button");
+        item.type = "button";
+        item.className = "template-advisory " + issue.severity;
+        item.textContent = (issue.severity === "error" ? "Erro" : "Aviso") +
+          " — linha " + issue.line + ", coluna " + issue.column + ": " + issue.message;
+        item.addEventListener("click", () => {
+          templateEditorInput.focus();
+          templateEditorInput.setSelectionRange(issue.index, issue.index + issue.length);
+        });
+        templateAdvisories.append(item);
+      });
     }
 
     function syncHighlightScroll() {
@@ -3897,6 +4118,7 @@ function renderGuiHtml() {
       refreshTemplatePreviewNow();
       templateDirty = Boolean(options.dirty);
       updateTemplateIdentity();
+      invalidateCompletionForMaterialChange();
     }
 
     function hasUnsavedTemplateChanges() {
@@ -3936,6 +4158,7 @@ function renderGuiHtml() {
 
     function markTemplateDirty() {
       templateDirty = true;
+      invalidateCompletionForMaterialChange();
       updateTemplateIdentity();
       scheduleAutosave();
     }
@@ -4366,6 +4589,86 @@ function renderGuiHtml() {
       showMessage("Modelo baixado em arquivo.", "ok");
     }
 
+    function downloadContent(name, content, type) {
+      const blob = new Blob([content], { type: type || "application/octet-stream" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = name;
+      document.body.append(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    async function getCurrentCsvFile() {
+      const selected = await readFile(csvFileInput);
+      if (selected) return selected;
+      if (importedPackageCsv) return importedPackageCsv;
+      const defaults = await getJson("/api/inputs/default");
+      return defaults.csv && String(defaults.csv.content || "").trim() ? defaults.csv : null;
+    }
+
+    async function saveUnifiedPackage() {
+      syncTemplateHidden();
+      const csvFile = await getCurrentCsvFile();
+      if (!csvFile) throw new Error("Selecione ou disponibilize um CSV antes de salvar o pacote.");
+      WhatSendCsv.parseCsv(csvFile.content);
+      let templateContent = templateTextHidden.value;
+      if (!templateContent.trim()) {
+        const defaults = await getJson("/api/inputs/default");
+        templateContent = defaults.template ? String(defaults.template.content || "") : "";
+      }
+      const documentValue = await WhatSendPackage.createPackage({
+        csvContent: csvFile.content,
+        csvName: csvFile.name || "clientes.csv",
+        preserved: preservedPackageDocument,
+        templateContent,
+        templateName: activeDocument.sourceName || "modelo.md",
+      });
+      downloadContent(
+        "modelo-whatsend.whatsend.json",
+        WhatSendPackage.stringifyPackage(documentValue),
+        "application/json;charset=utf-8",
+      );
+      preservedPackageDocument = documentValue;
+      showMessage("Pacote interoperável salvo com integridade SHA-256.", "ok");
+    }
+
+    async function loadUnifiedPackage() {
+      const packageFile = await readFile(packageFileInput);
+      if (!packageFile) return;
+      const parsed = await WhatSendPackage.parsePackage(packageFile.content);
+      WhatSendCsv.parseCsv(parsed.csvContent);
+      const hasCurrentState = Boolean(templateTextHidden.value.trim() || csvFileInput.files.length || importedPackageCsv);
+      if (hasCurrentState && !window.confirm("Substituir atomicamente o modelo e o CSV atuais pelo pacote validado?")) {
+        packageFileInput.value = "";
+        return;
+      }
+      activeDocument = {
+        ...createEmptyTemplateDocument(),
+        origin: "package",
+        sourceName: parsed.templateName,
+      };
+      setEditorContent(parsed.templateContent, { dirty: false });
+      importedPackageCsv = { content: parsed.csvContent, name: parsed.csvName };
+      preservedPackageDocument = parsed.document;
+      csvFileInput.value = "";
+      packageCsvStatus.textContent = "CSV ativo do pacote: " + parsed.csvName;
+      markTemplateSaved();
+      invalidateCompletionForMaterialChange();
+      showMessage("Pacote íntegro carregado sem alteração parcial.", "ok");
+      packageFileInput.value = "";
+    }
+
+    async function saveUnifiedPackageCsv() {
+      const csvFile = await getCurrentCsvFile();
+      if (!csvFile) throw new Error("Nenhum CSV está disponível para salvar.");
+      WhatSendCsv.parseCsv(csvFile.content);
+      downloadContent(csvFile.name || "clientes.csv", csvFile.content, "text/csv;charset=utf-8");
+      showMessage("CSV desacoplado do pacote e salvo localmente.", "ok");
+    }
+
     function saveTemplateLocally() {
       syncTemplateHidden();
       try {
@@ -4594,6 +4897,7 @@ function renderGuiHtml() {
         sessionId: activeSessionId,
         values,
       });
+      invalidateCompletionForMaterialChange();
       showMessage("Configurações salvas.", "ok");
       closeSettingsPanel();
     }
@@ -4769,7 +5073,7 @@ function renderGuiHtml() {
       const useTemplateFile = shouldUseSelectedTemplateFile(templateFile, templateTextHidden.value);
 
       return {
-        csvFile: await readFile(document.getElementById("csvFile")),
+        csvFile: (await readFile(csvFileInput)) || importedPackageCsv,
         filter: document.getElementById("filter").value,
         forceResend: document.getElementById("forceResend").checked,
         resetSent: document.getElementById("resetSent").checked,
@@ -4872,9 +5176,11 @@ function renderGuiHtml() {
       const ready = Boolean(state.whatsappReady);
       statusPill.textContent = state.busy ? "Executando" : statusLabel(state.status, ready);
       button.disabled = Boolean(state.busy) || !ready;
-      renderTopProgress(state.progress || {});
+      if (state.busy) completionInvalidated = false;
+      renderTopProgress(state);
       renderSessions(state);
       renderUpdateCheck(state.updateCheck || {});
+      lastGuiState = state;
 
       log.innerHTML = "";
       const items = (state.log || []).slice().sort((left, right) => String(left.at || "").localeCompare(String(right.at || "")));
@@ -4939,13 +5245,38 @@ function renderGuiHtml() {
       return labels[status] || "indisponível";
     }
 
-    function renderTopProgress(progress) {
+    function renderTopProgress(state) {
+      const progress = state.progress || {};
       const active = Boolean(progress && progress.active);
       const percent = Number.isFinite(Number(progress.percent))
-        ? Math.max(0, Math.min(100, Number(progress.percent)))
+        ? Math.round(Math.max(0, Math.min(100, Number(progress.percent))))
         : 0;
       topProgress.classList.toggle("active", active);
       topProgressBar.style.width = active ? Math.max(percent, 3) + "%" : "0%";
+      let title = "WhatSend";
+      if (active || state.busy) {
+        const label = state.status === "executando"
+          ? "Enviando"
+          : state.status === "validando"
+            ? "Validando"
+            : "Preparando";
+        title = percent + "% " + label + " — WhatSend";
+      } else if (state.status === "concluido" && !completionInvalidated) {
+        title = "100% Concluído — WhatSend";
+      } else if (state.status === "erro" && state.startedAt) {
+        title = percent + "% Erro — WhatSend";
+      } else if (["desconectado", "falha_autenticacao"].includes(state.status) && state.startedAt && !state.finishedAt) {
+        title = percent + "% Interrompido — WhatSend";
+      }
+      document.title = title;
+    }
+
+    function invalidateCompletionForMaterialChange() {
+      if (!lastGuiState || lastGuiState.busy) return;
+      if (lastGuiState.status === "concluido" || completionInvalidated) {
+        completionInvalidated = true;
+        renderTopProgress(lastGuiState);
+      }
     }
 
     function renderSessions(state) {
@@ -5142,6 +5473,21 @@ function renderGuiHtml() {
           payload.confirmTemplateSyntaxIssues = true;
         }
 
+        const editorialErrors = (validation.editorialIssues || [])
+          .filter((issue) => issue.severity === "error");
+        if (
+          editorialErrors.length &&
+          !window.confirm(
+            "Saudação dependente do horário detectada. O uso correto é $diatarde$.\\n\\n" +
+            "Deseja prosseguir mesmo assim?",
+          )
+        ) {
+          showMessage("Envio abortado para correção da saudação literal.", "error");
+          button.disabled = false;
+          return;
+        }
+        if (editorialErrors.length) payload.confirmEditorialIssues = true;
+
         await postJson("/api/run", payload);
         showMessage(
           "Processamento iniciado. Se áudio ou anexos parecerem lentos, mantenha a aba do WhatsApp Web visível.",
@@ -5189,6 +5535,9 @@ function renderGuiHtml() {
       templateFileInput.value = "";
       templateFileInput.click();
     });
+
+    form.addEventListener("input", invalidateCompletionForMaterialChange, true);
+    form.addEventListener("change", invalidateCompletionForMaterialChange, true);
 
     templateModelsButton.addEventListener("click", (event) => {
       event.stopPropagation();
@@ -5316,6 +5665,29 @@ function renderGuiHtml() {
       if (event.target === localSavesOverlay) closeLocalSavesPanel();
     });
     saveTemplateButton.addEventListener("click", downloadTemplateAsFile);
+    openPackageButton.addEventListener("click", () => {
+      packageFileInput.value = "";
+      packageFileInput.click();
+    });
+    packageFileInput.addEventListener("change", () => {
+      loadUnifiedPackage().catch((err) => {
+        packageFileInput.value = "";
+        showMessage(err.message, "error");
+      });
+    });
+    savePackageButton.addEventListener("click", () => {
+      saveUnifiedPackage().catch((err) => showMessage(err.message, "error"));
+    });
+    savePackageCsvButton.addEventListener("click", () => {
+      saveUnifiedPackageCsv().catch((err) => showMessage(err.message, "error"));
+    });
+    csvFileInput.addEventListener("change", () => {
+      if (csvFileInput.files && csvFileInput.files.length) {
+        importedPackageCsv = null;
+        preservedPackageDocument = null;
+        packageCsvStatus.textContent = "CSV ativo: " + csvFileInput.files[0].name;
+      }
+    });
     logToggleButton.addEventListener("click", () => {
       logExpanded = !logExpanded;
       logToggleButton.setAttribute("aria-expanded", String(logExpanded));

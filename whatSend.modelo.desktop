@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=whatSend
+Exec=gnome-terminal -- bash -i -c "./WhatSend/start.sh; exec bash"
+Path=./WhatSend/
+Icon=./WhatSend/scr/brand/icon.png
+Terminal=false
+GenericName[pt_BR]=Disparador Massificado
+Comment[pt_BR]=Disparador Massificado

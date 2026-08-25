@@ -36,7 +36,9 @@ Principais recursos:
 - Editor textual na GUI com abas `^^^`, toolbar por ícones, hints, menu de emojis, monoespaçado e prévia realista da aba ativa.
 - CLI preservada para automacao.
 - Variaveis `${campo}` insensiveis a maiusculas/minusculas.
-- Apenas `nome` e `telefone` obrigatorios no CSV.
+- `nome` e exatamente um alias telefônico (`telefone` ou `fone`) obrigatórios no CSV, sem diferenciar maiúsculas/minúsculas.
+- Pacote reversível `.whatsend.json` para transportar modelo e CSV sem substituir os arquivos separados.
+- Bundle HTML adicional, autocontido e integralmente offline para preparar modelo e CSV antes da execução.
 - Expressoes matematicas e filtros logicos com funcoes.
 - Anexos por caminho/URL `![](CAMINHO_OU_URL)` e embedded Base64 `![rótulo](@embed:id)`.
 - `.ogg` apenas de audio enviado como mensagem de voz.
@@ -54,7 +56,7 @@ O andamento operacional das FTs fica em [handoff.md](handoff.md), gerado por `np
 - Google Chrome, Chromium ou Microsoft Edge.
 - WhatsApp ativo no celular para autenticar a primeira sessao.
 
-Os inicializadores tentam preparar dependencias e navegador automaticamente. Se nao houver Chrome, Chromium ou Edge, o projeto tenta instalar um Chrome compativel via Puppeteer.
+Os inicializadores tentam preparar dependências e navegador automaticamente. A configuração versionada `.puppeteerrc.cjs` impede o download implícito de Chromium durante `npm install`, `npm ci` e `npm update`. Se não houver Chrome, Chromium ou Edge, a etapa explícita `npm run browser:ensure` tenta instalar um Chrome compatível.
 
 ## Instalacao
 
@@ -72,12 +74,10 @@ cd /caminho/ficticio/WhatSend
 sh ./start.sh
 ```
 
-Instalacao manual:
+Instalação manual:
 
 ```powershell
-$env:PUPPETEER_SKIP_DOWNLOAD="true"
 npm install
-Remove-Item Env:\PUPPETEER_SKIP_DOWNLOAD -ErrorAction SilentlyContinue
 npm run browser:ensure
 npm run check
 ```
@@ -100,12 +100,21 @@ npm run check:test
 
 ## Arquivos de entrada
 
-`clientes.csv` minimo:
+`clientes.csv` mínimo com `telefone`:
 
 ```csv
 nome,telefone
 Pessoa Exemplo,11999999999
 ```
+
+`fone` é um alias equivalente e também pode ser usado:
+
+```csv
+Nome;FONE
+Pessoa Exemplo;11999999999
+```
+
+O cabeçalho exige `nome` e exatamente um dos aliases `telefone` ou `fone`. Usar os dois simultaneamente é erro impeditivo; nenhuma coluna é escolhida ou mesclada de forma arbitrária.
 
 Colunas extras sao opcionais e podem ser usadas em `${campo}`:
 
@@ -159,6 +168,8 @@ Arquivos salvos no Windows, Linux ou macOS podem usar quebras diferentes. O sist
 
 Antes do envio, o sistema alerta sobre possíveis erros de sintaxe no modelo, como `{nome}` sem `$`, `${...}` aberto sem fechamento ou expressão inválida. A GUI pede confirmação e a CLI pergunta `sim`/`não`; o padrão seguro é abortar.
 
+O editor também sinaliza `bom dia`, `boa tarde` e `boa noite` literais, recomendando `$diatarde$`; a GUI exige confirmação explícita antes de processar essa ocorrência. Um nome próprio literal em contexto de vocativo gera recomendação não impeditiva para uso de `${nome}`. Placeholders, código, URLs, anexos e demais marcadores proprietários ficam protegidos da análise.
+
 
 ## GUI
 
@@ -178,6 +189,8 @@ A interface local abre no inicio do fluxo, mostra autenticacao/carregamento do W
 - atualizar o motor do WhatsApp, dependências, software ou reverter a última atualização após confirmação;
 - acompanhar andamento sem inundar a tela.
 
+O título da aba acompanha a mesma fonte de estado do progresso visível: durante uma campanha começa pelo percentual inteiro e pelo estado (`Preparando`, `Validando`, `Enviando`, `Concluído`, `Interrompido` ou `Erro`). `100% Concluído — WhatSend` permanece até uma alteração material invalidar a conclusão. O painel superior `Licença` mantém o aviso textual de que o produto está em desenvolvimento e pode conter erros.
+
 O editor da GUI não salva HTML nem formato rico: a toolbar por ícones apenas insere ou remove texto compatível com WhatsApp, como `*negrito*`, `_itálico_`, `~tachado~`, monoespaçado com três crases, emoji pelo menu suspenso, `![](arquivo.pdf)`, `$diatarde$`, `$postagem$` e `^^^`. Linhas `^^^` viram abas visuais automaticamente; ao salvar ou enviar, as abas são recombinadas com o mesmo separador. A prévia lateral mostra somente a aba ativa, renderiza a marcação básica como resultado visual e mantém rolagem sincronizada com o editor.
 
 Antes do download `.md` e de Abrir, a toolbar oferece Nova edição, Salvar no navegador e Abrir do armazenamento local. O salvamento no navegador usa `localStorage` com nome definitivo, preserva o conjunto completo de guias e mantém `.autosave` apenas para recuperação automática de edição sem nome. Por padrão, até 10 salvamentos nomeados ficam disponíveis por navegador; ajuste com `LOCAL_TEMPLATE_SAVE_LIMIT`.
@@ -187,6 +200,12 @@ O quadro de notações fica recolhido por padrão e não depende de JavaScript. 
 Ao selecionar um `.md`, a GUI carrega o conteúdo no editor, separa abas por `^^^`, atualiza a prévia e analisa anexos locais em segundo plano. Se algum não for localizado, aparece um aviso ao lado do seletor e um campo para informar a pasta de referência dos anexos. Se o arquivo for enviado sem edição, ele continua podendo ser usado como fonte para preservar a resolução relativa de anexos; se houver edição no editor, o texto editado passa a ser a fonte da execução.
 
 A engrenagem da GUI permite ajustar parâmetros operacionais de ENV para a execução atual, globalmente ou apenas para a sessão selecionada. Configurações por sessão são gravadas em JSON local e carregadas automaticamente na próxima abertura dessa sessão, respeitando a hierarquia execução, sessão, global e default.
+
+### Bundle offline e pacote unificado
+
+`npm run build:dist` gera adicionalmente `dist/WhatSend-Modelo-Offline.html`. Esse arquivo único abre diretamente no navegador, sem Node.js, servidor, CDN ou conexão, e contém o painel legal, o editor de modelo e uma grade Tabulator incorporada para CSV. A grade permite importar, criar, editar, ordenar, filtrar, copiar, selecionar, adicionar, remover e renomear estruturas, com exportação canônica em UTF-8 com BOM, `;` e campos entre aspas. Todo estado e processamento permanecem no dispositivo.
+
+A GUI principal e o bundle leem e gravam o mesmo pacote `.whatsend.json`, com versão explícita e hashes SHA-256 independentes para o `.md` e o `.csv`. Abrir um pacote sobre edição existente exige confirmação e aplica modelo e dados atomicamente. Os botões de `.md` e `.csv` continuam disponíveis para desacoplamento e reencapsulamento, e campos adicionais compatíveis do pacote são preservados. Hash detecta corrupção ou alteração acidental; não constitui assinatura de autenticidade.
 
 ## CLI
 

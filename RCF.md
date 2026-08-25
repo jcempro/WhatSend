@@ -295,6 +295,8 @@ A GUI deve oferecer:
 
 Ícones de controles da GUI devem usar Font Awesome Free como padrão visual quando houver ícone correspondente, incorporando somente os SVGs efetivamente usados ao código distribuído, sem CDN e sem duplicar o mesmo ícone em múltiplos formatos. Emojis inseridos no conteúdo da mensagem não devem ser substituídos por ícones.
 
+O painel `Modelo de mensagem` da GUI deve oferecer controle identificado por ícone e hint `Baixar versão offline`, que entregue `WhatSend-Modelo-Offline.html` correspondente à versão instalada, produzido e validado pelo pipeline canônico. A transferência deve preservar o nome determinístico, informar preparação, conclusão e falha e nunca entregar silenciosamente artefato ausente, inválido ou de versão divergente. Essa ação pertence somente à GUI executora e constitui a única exceção de controle à projeção literal do painel no próprio bundle offline.
+
 Todos os controles interativos da GUI devem possuir hint visual centralizado por configuração ou atributo equivalente, sem depender de serviços externos. A documentação resumida de marcações deve ser exibida em painel retrátil HTML sem JavaScript, recolhido por padrão, com link discreto por ícone para o Markdown oficial no GitHub e links de ajuda em vídeo quando definidos.
 
 Configurações operacionais antes controladas por ENV podem ser ajustadas pela GUI nos escopos execução atual, global e sessão. Configurações por sessão devem ser persistidas em JSON local e carregadas automaticamente na próxima execução da sessão correspondente.
@@ -347,9 +349,15 @@ Devem existir scripts de atualização no root para Windows e macOS/Linux.
 
 O backend deve centralizar quatro ações: atualizar somente `whatsapp-web.js`; atualizar todas as dependências, incluindo esse motor; atualizar o software pela origem oficial e sincronizar as dependências declaradas pelo novo `package.json`; e reverter a última atualização válida. GUI e CLI devem apenas selecionar a ação, exigir confirmação explícita e exibir estado, progresso, resultado, erro relevante e recuperação sucinta.
 
+Cada operação deve publicar uma máquina de estados monotônica e observável, no mínimo `preparando`, `salvando snapshot`, `baixando` ou `resolvendo dependências`, `aplicando`, `validando`, `revertendo` quando aplicável e um terminal inequívoco `concluída`, `sem alteração`, `revertida` ou `falhou`. O estado terminal, a ação, o resultado, o erro e a orientação de recuperação devem ser persistidos atomicamente antes de qualquer substituição do processo, continuar consultáveis pela CLI e pela GUI e ser reapresentados pela nova instância até reconhecimento do usuário ou início de outra operação. Perda transitória da conexão da GUI não pode converter execução em sucesso, falha ou estado desconhecido.
+
 Antes de cada atualização ou reversão, o backend deve registrar em `.runtime/updates` o estado do software, `package.json`, lockfile, versões instaladas das dependências afetadas, origem, data, ação e dados suficientes para restaurar a última operação válida. O snapshot não deve conter dados de clientes, sessões, logs, configurações, `.env` ou outros dados operacionais do usuário.
 
 Atualização de software e de dependências deve avisar antes da confirmação que versões novas podem introduzir incompatibilidades e quebrar um ambiente estável. A operação deve validar a instalação e a compatibilidade aplicável, remover dependências órfãs por poda segura e, em falha, interromper sem estado parcial e restaurar automaticamente o snapshot quando possível. Reversão deve restaurar software, dependências e metadados do último snapshot, preservando dados operacionais.
+
+Após uma atualização ou reversão concluída que altere código ou dependências carregados, o atualizador deve reiniciar automaticamente o servidor local e reabrir ou reconectar a GUI na mesma URL efetiva, porta e contexto operacional, sem exigir ação manual. Antes da desconexão, a GUI deve indicar `reiniciando`; durante a troca deve aplicar retentativas limitadas e, após a retomada, exibir o terminal persistido da operação. O protocolo deve usar marcador de retomada de uso único, impedir reinício concorrente, duplicado ou em ciclo por múltiplas abas e preservar sessões, dados e configuração local. Verificação, cancelamento ou resultado `sem alteração` não deve reiniciar processos, salvo necessidade técnica comprovada e registrada.
+
+Falha da atualização deve permanecer apresentada como falha mesmo quando a restauração automática tiver sucesso. Falha ao reiniciar deve ser resultado secundário distinto, não pode apagar nem reclassificar o resultado da atualização ou reversão e deve informar recuperação acionável. Quando uma falha exigir restauração de código ou dependências já carregados, o servidor pode reiniciar apenas depois de o rollback atingir estado terminal persistido. Nenhuma instância deve anunciar conclusão antes de todas as validações mandatórias terminarem.
 
 A atualização não deve depender da existência de `git` nem de diretório local `./.git`.
 
@@ -521,6 +529,91 @@ Default
 ```
 
 O usuário pode informar apenas os parâmetros que deseja alterar. Os demais devem ser herdados automaticamente. Após a resolução, o conjunto aplicável deve ser validado contra as restrições centralizadas antes de ser persistido ou aplicado.
+
+### RN036 - Título Dinâmico da Execução
+
+A GUI deve manter o título do documento derivado da mesma estrutura de estado utilizada pelo indicador de progresso e pelo status visível. A composição deve ficar centralizada e não pode manter contador, percentual ou ciclo de vida paralelo.
+
+Durante preparação, validação ou envio ativo, o título deve começar por um percentual inteiro entre `0%` e `100%`, sem conteúdo anterior, seguido imediatamente de um estado curto e do nome-base `WhatSend`. O percentual material do envio é `concluídos / total elegível`; antes de o total ser conhecido, a preparação válida usa `0%`. O título deve representar determinística e exclusivamente a campanha, que é a operação principal e não admite concorrência equivalente.
+
+Os estados mínimos são `Preparando`, `Validando`, `Enviando`, `Concluído`, `Interrompido` e `Erro`. Conclusão válida deve permanecer como `100% Concluído — WhatSend` até alteração material das entradas. Falha ou interrupção deve preservar o último percentual conhecido e nunca se apresentar como conclusão. Sem campanha ou conclusão válida, o título deve retornar a `WhatSend`.
+
+Alteração explícita em modelo, anexos embedded, arquivo ou conteúdo CSV, filtro, sessão, configurações de envio, reenvio ou reset deve invalidar imediatamente a conclusão e representar nova preparação. Foco, seleção, rolagem, expansão, navegação e outros eventos puramente visuais não invalidam o estado. Restauração só pode apresentar progresso persistido depois de validar que ele corresponde à execução real.
+
+### RN037 - Aviso de Desenvolvimento
+
+O painel superior `Licença` da GUI principal e de toda saída que reutilize esse painel deve conservar integralmente o conteúdo legal existente e acrescentar, como texto real, visível sem interação e associado semanticamente ao painel, o aviso: `Em desenvolvimento: este software pode conter erros.`
+
+O aviso deve ser legível, responsivo, acessível a leitores de tela e não pode depender apenas de cor, ícone, tooltip, modal ou rodapé. A interface atual é pt-BR; qualquer idioma adicional deve fornecer mensagem semanticamente equivalente sem suavizar os dois fatos obrigatórios: produto em desenvolvimento e possibilidade de erros.
+
+### RN038 - Identidade das Colunas de Telefone
+
+O CSV deve conter `nome` e exatamente um dos aliases `telefone` ou `fone`. Os três nomes são reconhecidos sem distinção de caixa. `telefone` e `fone` representam uma única função lógica e recebem as mesmas regras de leitura, validação, normalização, filtragem, mensagem, processamento, log e interoperabilidade.
+
+Cabeçalhos devem ser normalizados antes da validação. Cabeçalho vazio, repetição do mesmo nome normalizado, ou coexistência de `telefone` e `fone` constitui erro impeditivo e acionável. Não é permitido escolher uma coluna arbitrariamente, mesclar valores ou consolidar aliases automaticamente. O cabeçalho original deve ser preservado em importações e exportações que não exijam normalização.
+
+Internamente, consumidores devem resolver a função telefônica por utilitário comum e não por acesso direto exclusivo a `telefone`. Entradas legadas que possuam somente `telefone` permanecem válidas; entradas que possuam somente `fone` passam a ser equivalentes. Colunas adicionais continuam preservadas e disponíveis como variáveis. Mensagens e documentação devem indicar `telefone ou fone`, sem tornar `nome` opcional.
+
+### RN039 - Bundle Offline do Editor
+
+O build deve produzir, além de todas as saídas existentes, `dist/WhatSend-Modelo-Offline.html`: um único arquivo HTML autocontido, abrível diretamente por `file://`, sem servidor, Node.js, internet, CDN, telemetria, API, WebSocket, worker, fonte, script, stylesheet, imagem, manifesto ou outro asset externo obrigatório em runtime.
+
+O bundle é exclusivamente um editor prévio local. Não autentica WhatsApp, não inicia campanha e não substitui nem reduz a GUI executora. Deve conter somente o rodapé legal canônico, o painel `Licença` com o aviso da RN037, o painel `Modelo de mensagem` com os recursos aplicáveis ao contexto offline e um painel adicional de CSV em estilo de planilha.
+
+O painel `Modelo de mensagem` da GUI Node.js é o componente visual e comportamental canônico. O build offline deve projetar da mesma fonte sua estrutura DOM, hierarquia de componentes, classes, regras e tokens CSS, tipografia, dimensões, espaçamentos, abas, ordem e ícones da toolbar, hints, editor com realce, prévia, identidade e estado de salvamento, documentação retrátil, estados de interação, acessibilidade, responsividade e comportamentos executáveis no navegador. Não é permitida uma segunda implementação manual de markup, estilo ou lógica equivalente, nem adaptação estética independente. A única omissão permitida é o controle `Baixar versão offline`, exclusivo da GUI executora para evitar autorreferência; nenhuma outra divergência pode reutilizar essa exceção. O painel CSV adicional deve permanecer segregado e não pode deformar, substituir ou reordenar o painel canônico.
+
+O espelhamento deve ser literalmente idêntico em navegadores e viewports equivalentes até o limite técnico verificável do ambiente `file://`. Capacidade dependente de Node.js ou do backend que seja impossível no modo offline deve usar adaptador que preserve o mesmo controle, aparência, posição, estado e contrato client-side; quando a ação não puder ser realizada localmente, o controle deve permanecer reconhecível, ser desabilitado de modo acessível e apresentar a razão objetiva, sem ser trocado por componente visual divergente. Recurso aplicável ao navegador, inclusive edição, abas, marcação, prévia, persistência, importação, download e pacote interoperável, deve manter comportamento equivalente.
+
+A grade CSV deve usar biblioteca open source mantida, incorporada pelo build com sua licença. Deve importar e editar localmente CSV, preservar colunas e texto, validar a RN038, e exportar UTF-8 com BOM, separador `;`, delimitador `"`, escape por duplicação e extensão `.csv`. Valores permanecem dados textuais e nunca são inseridos como HTML. Conteúdo iniciado por `=`, `+`, `-` ou `@` deve ser neutralizado na exportação para planilhas por prefixo textual seguro, sem execução ou perda silenciosa.
+
+Persistência, quando usada, deve permanecer no dispositivo e ter namespace, versão, limite e ação de limpeza. O build deve incorporar código, estilos, recursos e licenças necessários, gerar hash do artefato, incluí-lo no pacote distribuível e falhar se detectar dependência automática externa, ausência de componente canônico ou divergência de paridade. A validação deve comparar a projeção canônica por estrutura DOM, classes, CSS resolvido, controles, estados e capturas visuais determinísticas nos viewports declarados; diferença deve falhar o build, salvo a ausência exata e rastreável do controle `Baixar versão offline` ou exceção técnica distinta explicitamente autorizada em RCF posterior, justificada e testada no adaptador offline. Links referenciais acionados voluntariamente pelo usuário não são dependências de runtime.
+
+### RN040 - Pacote Interoperável de Modelo e Dados
+
+Os arquivos separados `.md` e `.csv` continuam canônicos, independentes e plenamente suportados. Adicionalmente, GUI principal e bundle offline devem ler, validar, gerar, baixar, desacoplar e reencapsular o contêiner `WhatSend Package`, com extensão determinística `.whatsend.json`, MIME `application/json` e codificação UTF-8.
+
+O contrato de versão `1` é:
+
+```json
+{
+  "schema": "https://jeancarloem.com/whatsend/package/v1",
+  "version": 1,
+  "createdAt": "data ISO 8601",
+  "template": { "name": "arquivo.md", "content": "conteúdo integral" },
+  "csv": { "name": "arquivo.csv", "content": "conteúdo integral" },
+  "integrity": { "algorithm": "SHA-256", "template": "hex", "csv": "hex" }
+}
+```
+
+Campos adicionais são preservados ao reencapsular quando seguros e não conflitantes. `version`, `template.content`, `csv.content` e hashes válidos são obrigatórios na exportação final. O bundle pode manter edição parcial, mas não pode rotulá-la como pacote completo. Tamanho, profundidade, tipos, versão, nomes e integridade devem ser validados antes de alterar o estado da aplicação.
+
+O hash é calculado sobre os bytes UTF-8 exatos de cada conteúdo normalizado somente quanto à remoção do BOM externo; quebras e sintaxe proprietária permanecem intactas. Importação com estado preenchido exige confirmação explícita e aplicação atômica. Falha, versão desconhecida ou integridade divergente não pode produzir estado parcial. O mesmo pacote deve gerar `.md` e `.csv` semanticamente idênticos e o ciclo desacoplar/reencapsular deve ser determinístico, ressalvados `createdAt` e hashes derivados.
+
+Na GUI principal, o CSV do pacote alimenta a mesma validação e execução do CSV separado; o modelo permanece editável. No bundle, ambos são editáveis e nunca são processados como campanha. Parser, serializer, schema, normalização e testes devem derivar de implementação comum apta a ser incorporada ao HTML sem dependência de runtime.
+
+### RN041 - Análise Editorial do Modelo
+
+GUI principal e bundle offline devem analisar continuamente o mesmo conteúdo por mecanismo comum, no carregamento, edição, importação, salvamento, exportação e, na GUI executora, antes do processamento.
+
+As expressões literais `bom dia`, `boa tarde` e `boa noite`, sem distinção de caixa e fora de placeholders, código, URLs, referências de mídia e demais sintaxes proprietárias protegidas, são erro editorial. A orientação obrigatória é `Saudação dependente do horário detectada. Substitua por $diatarde$.` A GUI deve exigir confirmação explícita antes do envio enquanto o erro persistir; salvamento e exportação continuam disponíveis com o alerta visível.
+
+Possível nome próprio literal é aviso não impeditivo e deve recomendar `${nome}` sem afirmar erro absoluto. A heurística deve privilegiar palavras capitalizadas em contexto de vocativo ou saudação e excluir início ordinário de frase, marcadores protegidos, termos técnicos conhecidos e ocorrência que o usuário tenha marcado como intencional para o conteúdo atual.
+
+Cada ocorrência deve informar tipo, severidade, trecho, linha, coluna e orientação. A área de edição deve receber destaque global e uma lista textual navegável; erro e aviso devem ser distinguíveis por texto e sem dependência exclusiva de cor. Atualizações devem ocorrer sem atraso perceptível e produzir resultados semanticamente iguais nas duas aplicações.
+
+### RN042 - Fontes, Marca e Transformações de Build
+
+`src/` contém fontes canônicas, `scripts/` automações e `dist/` somente artefatos gerados ou distribuíveis. Movimentação ou renomeação só ocorre diante de divergência material comprovada e com mapa de origem, destino, referências, rollback e validação; preferência estética não constitui motivo.
+
+`src/brand/` é a origem canônica da identidade visual. O conjunto pequeno e preconstruído de `src/brand/html-favicon/` pode permanecer quando for determinístico, completo e mais simples que adicionar gerador. A adoção de RealFaviconGenerator é opcional, exclusivamente de build, e exige benefício material comprovado, configuração central, licença compatível, cache por hash das entradas e reconstrução limpa. Nenhum gerador remoto ou de runtime é permitido.
+
+Adaptações de favicon, manifesto e referências para local, web, subpath ou bundle devem ocorrer somente no build, sem editar as fontes. Somente campos dependentes do destino podem variar. O build deve validar referências, MIME, paths, base path, hash, idempotência e ausência de fontes canônicas mantidas exclusivamente em `dist/`. Bundle autocontido só incorpora asset de marca com função real.
+
+### RN043 - Instalação Portátil e Dependências
+
+`npm install`, `npm ci` e `npm update` devem funcionar em Windows, Linux e macOS sem depender do download pós-instalação do Chromium feito pelo pacote `puppeteer`. O motor `whatsapp-web.js` fornece a dependência Puppeteer compatível e a aplicação centraliza descoberta/instalação explícita de navegador conforme RN021; portanto, o projeto deve manter configuração oficial versionada com `skipDownload: true`, equivalente a `PUPPETEER_SKIP_DOWNLOAD=true`, preservando o comando explícito `npm run browser:ensure` para provisionamento controlado. Dependência direta redundante de `puppeteer-core` não deve coexistir sem consumidor comprovado.
+
+O lockfile deve ser reproduzível e coerente com o manifesto. Dependência transitiva vulnerável ou obsoleta não pode ser ocultada: deve ser eliminada por atualização compatível, override validado ou substituição controlada. `--force`, `--legacy-peer-deps` e supressão de auditoria não são correções. O fluxo deve testar instalação limpa com cache isolado e confirmar que a execução continua localizando navegador compatível, que `whatsapp-web.js` inicia com `executablePath`/conexão já resolvidos e que dependências de build não entram no manifesto de runtime de `dist`.
 
 ## Requisitos Não Funcionais
 

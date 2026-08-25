@@ -159,6 +159,89 @@ falhas=
 pendencias=
 - Nenhuma.
 
+FT-010|nome=Reinicio pos-atualizacao e espelhamento literal do editor offline|tipo=implementacao_normativa|escopo=Negocio|prioridade=alta|status=concluido
+criado_em=2026-07-31T15:55:57-03:00
+inicio=20260731.1555.57
+ultima_atualizacao=20260731.1601.34
+objetivo=Precisar no RCF o ciclo observavel e fail-safe do atualizador, incluindo reinicio automatico da instancia local e da GUI; tornar literal a paridade visual e funcional do painel Modelo de mensagem entre GUI executora e bundle offline; e normatizar na GUI o download do bundle como unica excecao de espelhamento.
+dependencias=RCF.md RN022 RN027 RN039;FT-009 concluida;imagem de referencia SHA-256 9867143e4ca078289ceca64d76c111b5b0d534291ca4346d758d17c9a254f767
+estado_atual=Etapa 3/3 concluida; RN022, RN027 e RN039 conciliadas e validadas sem reduzir contratos existentes.
+proximo_ponto_executavel=Aguardar autorizacao humana explicita posterior para iniciar a FT-011.
+
+etapas=
+1/3 Conciliacao normativa [concluido]
+  1/3 Mapear contrato e implementacao vigentes do atualizador [concluido]
+  2/3 Mapear divergencias visuais e funcionais do painel offline [concluido]
+  3/3 Resolver precedencia, estados e limites tecnicos [concluido]
+2/3 Implementacao normativa [concluido]
+  1/2 Atualizar RCF com ciclo de reinicio observavel e recuperavel [concluido]
+  2/2 Atualizar RCF com projecao literal e download exclusivo do bundle [concluido]
+3/3 Validacao e autorizacao [concluido]
+  1/2 Validar completude e nao regressao normativa [concluido]
+  2/2 Preparar solicitacao de autorizacao humana explicita posterior para FT-011 [concluido]
+
+decisoes=
+- Status, progresso, resultado e erro ja sao obrigatorios; a lacuna normativa e o reinicio automatico apos terminalidade da mutacao.
+- RN039 exige paridade material, mas precisa declarar que a mesma estrutura, CSS, controles, estados e comportamentos client-side aplicaveis sao projetados da fonte canônica, sem reinterpretacao visual independente.
+- O reinicio somente pode ocorrer depois de resultado terminal persistido e resposta observavel; falha de reinicio nao pode apagar o resultado da atualizacao nem deixar a interface anunciando sucesso falso.
+- O download do bundle pertence somente a GUI executora e e a unica omissao previamente autorizada na projecao offline; toda outra divergencia permanece impeditiva.
+- Validacao: `npm run agent:rcf`, `npm run check` e `git diff --check` concluidos com sucesso em 2026-07-31.
+
+pendencias=
+- Obter nova autorizacao humana explicita antes da implementacao tecnica.
+
+FT-011|nome=Implementar reinicio observavel e painel offline literalmente espelhado|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=em andamento
+criado_em=2026-07-31T15:55:58-03:00
+inicio=20260731.1555.58
+ultima_atualizacao=20260731.1615.00
+objetivo=Corrigir o atualizador para publicar estados terminais e reiniciar servidor e GUI com retomada observavel; gerar o painel Modelo de mensagem offline a partir da mesma fonte visual e comportamental da GUI Node.js; e oferecer na GUI o download validado do bundle, como unica excecao ausente da projecao offline, preservando recursos e compatibilidade existentes.
+dependencias=FT-010 concluida;nova autorizacao humana explicita posterior
+estado_atual=[INTERROMPIDO_POR_SOLICITACAO_HUMANA] Autorizacao recebida; etapa 1/5 parcialmente implementada e ainda nao validada.
+proximo_ponto_executavel=Retomar pela auditoria sintatica e pelo diff dos arquivos parciais; concluir a integracao de startGuiUpdate com estado persistido e handoff de reinicio antes de alterar o painel offline.
+
+etapas=
+1/5 Atualizador e retomada [em andamento]
+  1/4 Persistir estado terminal e token de retomada [em andamento]
+  2/4 Exibir andamento, conclusao e erro ate terminalidade [em andamento]
+  3/4 Reiniciar servidor e reabrir GUI automaticamente [pendente]
+  4/4 Blindar falha, timeout, rollback e multiplas abas [pendente]
+2/5 Componente canônico compartilhado [pendente]
+  1/4 Extrair estrutura e estilos do painel sem alterar a GUI real [pendente]
+  2/4 Compartilhar contratos e comportamentos browser-side [pendente]
+  3/4 Adicionar na GUI download observavel do bundle validado [pendente]
+  4/4 Preservar adaptadores Node.js exclusivamente na GUI executora [pendente]
+3/5 Bundle offline literal [pendente]
+  1/3 Projetar estrutura, controles, estados, layout e responsividade idênticos [pendente]
+  2/3 Integrar CSV e pacote sem deformar o painel canônico [pendente]
+  3/3 Bloquear divergencia futura por paridade estrutural e visual [pendente]
+4/5 Validacao [pendente]
+  1/4 Testar estados e reinicio do atualizador [pendente]
+  2/4 Comparar GUI e bundle por DOM, CSS e screenshot [pendente]
+  3/4 Executar navegacao offline com rede bloqueada [pendente]
+  4/4 Executar regressao, build e dist isolado [pendente]
+5/5 Encerramento [pendente]
+  1/2 Sincronizar README, guia, memoria e handoff [pendente]
+  2/2 Auditar commits, worktree e pendencias [pendente]
+
+restricoes=
+- Nao iniciar codigo antes da autorizacao humana explicita posterior a conclusao da FT-010.
+- Nao duplicar manualmente o painel, CSS ou comportamento em uma segunda implementacao visual.
+- Omitir no bundle somente o controle Baixar versao offline; nao ampliar essa excecao.
+- Nao reiniciar antes de persistir e expor resultado terminal; nao perder rollback, logs, sessoes ou dados locais.
+- Nao transformar o bundle em executor de campanha nem introduzir rede em runtime offline.
+
+trabalho_parcial_nao_validado=
+- `src/update-state.js` criado com estado atomico, terminais, token de reinicio e separacao entre resultado da atualizacao e resultado do reinicio.
+- `scripts/update-project.js` alterado para publicar fases persistidas, terminal de sucesso/sem alteracao/reversao/falha e resultado de rollback.
+- `scripts/restart-gui.js` criado como supervisor destacado que aguarda a instancia anterior encerrar e inicia a GUI na porta e sessao recebidas.
+- `src/gui.js` parcialmente alterado: importa o contrato de estado, hidrata estado persistido, conclui token ao escutar, expoe endpoint de download do bundle e helper de resposta para download.
+- A GUI ainda NAO possui o botao de download; `startGuiUpdate` ainda NAO consome os eventos estruturados nem aciona o supervisor; o bundle offline ainda NAO foi refatorado para a projecao canônica.
+- Nenhum teste, lint, check, build ou execucao manual foi realizado depois dessas alteracoes. O codigo parcial NAO deve ser considerado funcional ate validacao e conclusao.
+- Arquivos atualmente esperados como modificados/novos: `.ia.rules/continue.ia`, `src/update-state.js`, `scripts/update-project.js`, `scripts/restart-gui.js`, `src/gui.js`.
+
+pendencias=
+- Retomar e validar o trabalho parcial; concluir as etapas 1/5 a 5/5.
+
 FT-006|nome=Deteccao assincrona de atualizacoes e reorganizacao da GUI|escopo=Tecnico|prioridade=alta|status=em andamento
 criado_em=2026-07-22T10:13:56-03:00
 inicio=20260722.1013.56
@@ -238,6 +321,101 @@ antirretrabalho=
 - Nao reexecutar git push sem credencial nova ou evidencia de autenticacao.
 - Nao executar atualizacao real de dependencia/software durante teste; usar fixtures e stubs.
 - Alteracoes preexistentes de notice, env-settings, config-restrictions e compliance-notice foram revisadas, testadas e consolidadas no commit 870728d.
+
+FT-008|nome=Equalizacao normativa integral do TODO.ia.md|tipo=implementacao_normativa|escopo=Negocio|prioridade=alta|status=concluido
+criado_em=2026-07-31T00:00:00-03:00
+inicio=20260731.0000.00
+ultima_atualizacao=20260731.0000.02
+conclusao=20260731.0000.02
+objetivo=Conciliar e incorporar ao RCF canônico todos os contratos pendentes de TODO.ia.md, incluindo titulo de progresso, aviso de desenvolvimento, aliases telefone/fone, bundle offline, formato unificado, alertas editoriais, organizacao de build e instalacao portatil, sem regressao.
+dependencias=AGENTS.md;.ia.rules/state/TODO.ia.md;RCF.md;FT-006;FT-007
+estado_atual=Etapa 3/3 concluida; contratos integrados e centralizados em RN036 a RN043.
+proximo_ponto_executavel=FT-009 autorizada pela solicitacao humana explicita pode iniciar a implementacao tecnica.
+
+etapas=
+1/3 Triagem e conciliacao [concluido]
+  1/3 Inventariar todos os itens e criterios do TODO.ia.md [concluido]
+  2/3 Mapear implementacoes e normas preexistentes preservadas [concluido]
+  3/3 Resolver dependencias, precedencias e limites entre itens [concluido]
+2/3 Implementacao normativa [concluido]
+  1/2 Consolidar regras comuns e especializadas no RCF [concluido]
+  2/2 Validar completude, consistencia e nao regressao normativa [concluido]
+3/3 Encerramento normativo [concluido]
+  1/2 Registrar evidencias e vincular FT tecnica [concluido]
+  2/2 Concluir FT normativa sem confundir conclusao com codigo [concluido]
+
+decisoes=
+- A demanda humana iniciou em TODO.ia.md da raiz, permaneceu preservada durante a execucao e convergiu ao path canônico .ia.rules/state/TODO.ia.md somente no encerramento validado.
+- As exigencias sao cumulativas; o bundle offline e estritamente aditivo e a pagina principal continua executora exclusiva de campanhas.
+- telefone e fone sao aliases case-insensitive mutuamente exclusivos, sem consolidacao automatica.
+- A reorganizacao estrutural somente ocorrera diante de divergencia material comprovada.
+
+pendencias=
+- Nenhuma; implementacao pertence exclusivamente a FT-009.
+
+FT-009|nome=Implementacao blindada integral do TODO.ia.md|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=concluido
+criado_em=2026-07-31T00:00:01-03:00
+inicio=20260731.0000.01
+ultima_atualizacao=20260731.1534.42
+conclusao=20260731.1534.42
+objetivo=Implementar e validar de forma integrada todos os contratos equalizados pela FT-008, preservando GUI, CLI, campanhas, formatos legados, build, distribuicao e atualizacao existentes.
+dependencias=FT-008 concluida;autorizacao humana explicita registrada na solicitacao atual
+estado_atual=Etapa 6/6 concluida; implementacao, documentacao, bundle, instalacao e distribuicao validados sem regressao detectada.
+proximo_ponto_executavel=Nenhum; observar retencao regulamentar da FT concluida e publicar somente mediante autorizacao humana explicita.
+
+etapas=
+1/6 Componentes comuns [concluido]
+  1/4 Centralizar aliases e validacao CSV [concluido]
+  2/4 Centralizar formato unificado e integridade [concluido]
+  3/4 Centralizar deteccao editorial do modelo [concluido]
+  4/4 Cobrir componentes comuns por testes [concluido]
+2/6 Pagina principal [concluido]
+  1/4 Integrar titulo derivado do estado real [concluido]
+  2/4 Integrar aviso de desenvolvimento [concluido]
+  3/4 Integrar importacao e exportacao unificadas [concluido]
+  4/4 Integrar alertas editoriais e bloqueio de saudacao [concluido]
+3/6 Bundle offline adicional [concluido]
+  1/4 Gerar HTML unico autocontido e estritamente local [concluido]
+  2/4 Incorporar painel canônico, grade CSV e formato unificado [concluido]
+  3/4 Incorporar dependencias e licencas de build [concluido]
+  4/4 Validar autocontencao, paridade e ausencia de rede [concluido]
+4/6 Estrutura, marca e dependencias [concluido]
+  1/3 Auditar src, scripts, dist e assets de marca [concluido]
+  2/3 Adaptar favicons exclusivamente no build se necessario [concluido]
+  3/3 Corrigir instalacao npm e seguranca sem quebrar navegador [concluido]
+5/6 Integracao e documentacao [concluido]
+  1/3 Atualizar build, distribuicao, README e guia [concluido]
+  2/3 Atualizar testes normativos, funcionais e de seguranca [concluido]
+  3/3 Atualizar TODO, memoria e handoff [concluido]
+6/6 Blindagem final [concluido]
+  1/4 Executar checks estaticos e suite completa [concluido]
+  2/4 Executar build limpo e validar dist [concluido]
+  3/4 Auditar diff, artefatos e regressao [concluido]
+  4/4 Consolidar commits e pendencias [concluido]
+
+restricoes=
+- Nao substituir nem reduzir a pagina principal, CLI, campanhas, formatos separados ou artefatos existentes.
+- Nao executar rede, servidor ou Node.js no runtime do bundle offline.
+- Nao alterar fonte canonica de marca durante o build.
+- Nao mascarar vulnerabilidade, erro de instalacao, falha de teste ou criterio nao atendido.
+
+pendencias=
+- Nenhuma no escopo da FT.
+
+decisoes=
+- src, scripts e dist ja atendem ao contrato arquitetural; nenhuma movimentacao estetica foi realizada.
+- O conjunto preconstruido em src/brand/html-favicon e completo, deterministico e menor que o custo de uma nova cadeia RealFaviconGenerator; todos os assets aplicaveis foram preservados e servidos pela GUI, e o SVG canônico foi incorporado ao bundle.
+- Tabulator 6.5.2, licença MIT, foi incorporado integralmente no HTML; o runtime offline nao depende de CDN, servidor, Node.js ou arquivo auxiliar.
+- whatsapp-web.js 1.34.7 permanece motor canônico e fornece Puppeteer 24.38.0; skipDownload oficial evita download implicito e overrides transitivos eliminam o glob vulneravel sem alterar a API do archiver.
+
+resultados=
+- Titulo deriva do mesmo estado de progresso, preserva conclusao valida e retorna a WhatSend apos alteracao material sem processo ativo.
+- GUI e bundle compartilham contratos UMD para aliases CSV, pacote .whatsend.json v1 com SHA-256 e deteccao editorial.
+- Bundle gerado em dist/WhatSend-Modelo-Offline.html, acompanhado de SHA-256, manifesto de paridade de fontes, CSP connect-src none e licenca incorporada.
+- Navegador headless carregou o arquivo por file:// com rede bloqueada desde a primeira requisicao, zero requisicoes HTTP(S), zero erros de pagina, Tabulator ativo, alerta editorial, emoji e preview formatado funcionais.
+- node --test concluiu 141/141; npm test, npm run check, npm run build:dist e npm run validate:dist concluiram; npm audit registrou zero vulnerabilidades; npm update --dry-run concluiu fora do sandbox.
+- Os avisos, erros e vulnerabilidades reproduzidos no TODO foram eliminados. A instalacao limpa ainda informa deprecacao upstream de fluent-ffmpeg 2.1.3, dependencia fixa da versao atual de whatsapp-web.js, sem vulnerabilidade auditada ou falha funcional; substituicao especulativa foi recusada para preservar compatibilidade.
+- TODO.ia.md foi migrado para .ia.rules/state/TODO.ia.md e seus 277 criterios foram marcados como concluidos apos a validacao final.
 
 FT-007|nome=Persistencia nomeada e encerramento fail-safe da GUI|escopo=Tecnico|prioridade=alta|status=em andamento
 criado_em=2026-07-22T00:00:00-03:00
