@@ -89,71 +89,140 @@ Este marcador encerra a seção de governança e inicia exclusivamente as TO-DOs
   - [ ] **Validação:** testar início, conclusão, falha, interrupção, cliques e chamadas duplicadas, recarregamento e fechamento da GUI, reconexão, troca ou abertura de sessão por todos os meios disponíveis, tentativa de segundo envio na mesma sessão, comportamento com múltiplas sessões quando preexistente, confirmação do aviso de risco, encerramento forçado do servidor, ausência de órfãos, restauração dos painéis e execução com aba ou navegador sem foco.
   - [ ] **Critério de aceite:** considerar concluído somente quando o RCF definir servidor autoritativo, bloqueio automático, restauração de estado, exclusividade por sessão, preservação sem ampliação da capacidade multiprocessos preexistente, proibição de implementá-la quando ausente, aviso de alto risco com confirmação, interrupção confirmada, proteção contra reentrância, ciclo de vida dos processos, recuperação após reconexão e evolução contínua para envio em segundo plano; e quando GUI e servidor implementarem e validarem integralmente esses contratos.
 
-* [ ] Implementar contexto isolado de conversa, condicionais/funções e suporte correspondente no editor - nunca regredir recursos ou normas criadas a ideia é evoluir e adicionar features e não reduzir ou minimizar.
+- [ ] Implementar contexto isolado de conversa, condicionais/funções, alternância de envio, delay e suporte correspondente nos editores — evoluir e adicionar recursos sem reduzir, substituir ou regredir normas, features ou comportamentos válidos existentes.
 
-  * Inspecionar previamente sintaxe, funções, constantes, parser/runtime, editor e contratos existentes. Reutilizar/estender o que já existir; NÃO duplicar funcionalidades, inventar arquitetura nem romper a notação/function syntax e diretrizes `TypeScript-like` já normatizadas.  
+  - Inspecionar previamente sintaxe, funções, constantes, parser/runtime, fluxo de envio, estado por destinatário, GUI, editores e contratos existentes. Reutilizar/estender o que já existir; NÃO duplicar funcionalidades, inventar arquitetura nem romper a notação/function syntax, diretrizes `TypeScript-like`, isolamento ou demais normas vigentes.
 
-  * Criar a constante imutável `ultimaconversa`, utilizável em `${}`, contendo o timestamp da última postagem/mensagem preexistente da conversa **de/para o destinatário específico**.
+  - **Contexto imutável da conversa**
+    - Criar a constante imutável `ultimaconversa`, utilizável em `${}`, contendo o timestamp da última postagem/mensagem preexistente da conversa **de/para o destinatário específico**.
+    - DEVE ser determinada **uma única vez no início do fluxo de envio para aquele destinatário**, não a cada mensagem/postagem do mesmo fluxo.
+    - Um fluxo com múltiplas mensagens para o mesmo destinatário DEVE conservar o mesmo valor, inclusive quando seu processamento for interrompido/intercalado temporariamente para envio a outros destinatários.
+    - Mensagens/postagens automatizadas pertencentes ao próprio fluxo corrente NÃO PODEM alterar nem participar do cálculo.
+    - O valor/contexto DEVE ser independente entre destinatários e isolado entre conversas.
 
-    * DEVE ser determinada **uma única vez no início do fluxo de envio para aquele destinatário**, não a cada mensagem/postagem do mesmo fluxo.
-    * Um fluxo com múltiplas mensagens para o mesmo destinatário DEVE conservar o mesmo valor.
-    * Mensagens/postagens automatizadas pertencentes ao próprio fluxo corrente NÃO PODEM alterar nem participar do cálculo.
-    * O valor/contexto DEVE ser independente entre destinatários e isolado entre conversas.
+  - **Função `emconversa(int?)`**
+    - Criar, caso inexistente, a função global `emconversa(int?)`, compatível com a sintaxe de funções vigente e utilizável dentro de `${}`.
+    - Retorno: booleano.
+    - Objetivo: informar se existe conversa recente **com o destinatário corrente**.
+    - DEVE usar `ultimaconversa`, ignorando integralmente mensagens automatizadas do fluxo atual.
+    - Sem argumento, considerar os últimos **15 minutos**, cujo valor padrão DEVE ser configurável em ponto central adequado à arquitetura existente.
+    - Com argumento inteiro, usar esse valor em minutos como lapso substitutivo apenas daquela avaliação.
+    - A avaliação e todos os dados intermediários DEVEM permanecer estritamente vinculados ao destinatário corrente.
 
-  * Criar, caso inexistente, a função global `emconversa(int?)`, compatível com a sintaxe de funções vigente e utilizável dentro de `${}`.
+  - **Funções condicionais/lógicas**
+    - Implementar, somente se inexistentes ou insuficientes, funções compatíveis com a notação funcional já definida:
+      - `IF(CONDIÇÃO, VERDADE, FALSO)`;
+      - `AND(...)`;
+      - `OR(...)`;
+      - `XOR(...)`.
+    - `AND`, `OR` e `XOR` DEVEM aceitar quantidade ilimitada de parâmetros tecnicamente suportável pelo parser/runtime, sem limite arbitrário.
+    - Todas DEVEM admitir aninhamento entre si e múltiplos `IF`.
+    - `IF` DEVE aceitar `\r?\n` entre parâmetros, inclusive dentro de funções aninhadas fornecidas como parâmetros.
+    - `VERDADE` e `FALSO` PODEM ser valor literal, texto puro, número ou resultado de função.
+    - Texto puro multiline DEVE tolerar `\r?\n` sem corromper parsing ou conteúdo.
+    - Resultado textual ou numérico de função DEVE ser inserido como valor textual de saída no ponto de avaliação; números literais DEVEM igualmente poder ser emitidos diretamente.
+    - Ajustes sintáticos estritamente necessários PODEM ser realizados para manter coerência simultânea com a notação `TypeScript-like` e os contratos vigentes.
 
-    * Retorno: booleano.
-    * Objetivo: informar se existe conversa recente **com o destinatário corrente**.
-    * DEVE usar `ultimaconversa`, ignorando integralmente mensagens automatizadas do fluxo atual.
-    * Sem argumento, considerar os últimos **15 minutos**, cujo valor padrão DEVE ser configurável em ponto central já adequado à arquitetura existente.
-    * Com argumento inteiro, usar esse valor em minutos como lapso substitutivo para aquela avaliação.
-    * A avaliação e todos os dados intermediários DEVEM permanecer estritamente vinculados ao destinatário corrente.
+  - **Funções matemáticas/utilitárias**
+    - Implementar, caso ainda não existam, funções matemáticas básicas e utilitárias pertinentes, incluindo **mas não limitadas a** `min`, `max` e média, respeitando nomenclatura, semântica, validação e sintaxe já estabelecidas no projeto.
+    - NÃO recriar funções equivalentes já existentes.
 
-  * Implementar, somente se inexistentes ou insuficientes, funções compatíveis com a notação funcional já definida:
+  - **Construção `if/else`**
+    - Adicionar, caso inexistente, construção condicional `if/else` compatível simultaneamente com:
+      - a notação `TypeScript-like` normatizada;
+      - a sintaxe real já definida pelo projeto;
+      - codificação independente de linha, inclusive multiline.
+    - `if/else` e `IF()` DEVEM coexistir conforme seus respectivos usos, sem conflito semântico ou sintático.
 
-    * `IF(CONDIÇÃO, VERDADE, FALSO)`;
-    * `AND(...)`;
-    * `OR(...)`;
-    * `XOR(...)`.
-    * `AND`, `OR` e `XOR` DEVEM aceitar quantidade ilimitada de parâmetros tecnicamente suportável pelo parser/runtime, sem limite arbitrário.
-    * Todas DEVEM admitir aninhamento entre si e de múltiplos `IF`.
-    * `IF` DEVE aceitar `\r?\n` entre parâmetros (incluindo eventualmente a existência deles em funções fornecidas como parametros aninhados).
-    * `VERDADE` e `FALSO` PODEM ser valor literal, texto puro, número ou resultado de função.
-    * Texto puro multiline DEVE tolerar `\r?\n` sem corromper parsing ou conteúdo.
-    * Resultado textual ou numérico de função DEVE ser inserido como valor textual de saída no ponto de avaliação; números literais DEVEM igualmente poder ser emitidos diretamente.
-    * Ajustes sintáticos estritamente necessários PODEM ser feitos para manter coerência simultânea com a notação `TypeScript-like` e os contratos vigentes.
+  - **Isolamento obrigatório por destinatário/conversa**
+    - Todo estado de execução DEVE ser isolado por destinatário/conversa, inclusive durante alternância, pausa, retomada ou processamento concorrente/intercalado.
+    - É PROIBIDO qualquer transbordamento, compartilhamento ou confusão entre chats distintos de:
+      - constantes;
+      - variáveis;
+      - timestamps;
+      - argumentos;
+      - retornos de funções;
+      - resultados intermediários;
+      - status;
+      - posição/progresso no fluxo;
+      - timers/delays;
+      - contexto de avaliação;
+      - quaisquer outros dados derivados da execução.
 
-  * Implementar, caso ainda não existam, funções matemáticas básicas e utilitárias pertinentes, incluindo **mas não limitadas a** `min`, `max` e média, respeitando nomenclatura, semântica, validação e sintaxe já estabelecidas no projeto. NÃO recriar funções equivalentes já existentes.
+  - **Alternância/intercalação de envio entre destinatários**
+    - Fluxos contendo múltiplas postagens/mensagens para múltiplos destinatários DEVEM poder, opcionalmente, intercalar o processamento entre destinatários, preservando integralmente contexto, estado, posição, valores e dados de cada conversa.
+    - Quando habilitada, a alternância NÃO DEVE concluir necessariamente todo o fluxo de um destinatário antes de iniciar o seguinte: cada destinatário cede temporariamente o processamento após atingir o ponto de alternância aplicável, retomando posteriormente exatamente de onde parou.
+    - O ponto preferencial de alternância DEVE poder ser explicitado no conteúdo por marcador apropriado — por exemplo, `$pause$`, caso compatível com a sintaxe/arquitetura vigente.
+      - Se já existir mecanismo semanticamente equivalente, reutilizá-lo/adequá-lo em vez de criar duplicação.
+      - Se necessário criar o marcador, sua semântica DEVE ser documentada e integrada às regras/sintaxe vigentes.
+      - Quando a alternância estiver **desabilitada**, esse marcador DEVE ser automaticamente ignorado para fins de escalonamento e NÃO PODE alterar indevidamente o conteúdo ou comportamento normal do fluxo.
+    - Na ausência de marcador aplicável, a alternância DEVE ocorrer após uma quantidade padrão configurável de mensagens/postagens por destinatário.
+      - valor padrão inicial: **1**;
+      - configurável pela GUI principal;
+      - NÃO impor limite arbitrário adicional sem fundamento normativo/técnico.
+    - A GUI principal DEVE permitir habilitar/desabilitar a alternância.
+    - A GUI principal DEVE permitir definir quantos destinatários participam simultaneamente de cada grupo de alternância:
+      - mínimo: **2**;
+      - máximo inicial: **25**;
+      - o teto máximo DEVE ser configurável em local centralizado apropriado do repositório.
+    - O processamento DEVE alternar entre os destinatários do grupo ativo, segundo os marcadores/padrão aplicáveis, até a conclusão de todos os respectivos fluxos; somente então DEVE avançar para o próximo grupo de até o máximo configurado de destinatários.
+    - Destinatários cujo fluxo terminar antes dos demais DEVEM sair naturalmente da alternância sem impedir a continuidade dos restantes.
+    - Alternância NÃO PODE modificar a ordem interna das mensagens de um mesmo destinatário, salvo comportamento explicitamente previsto por norma existente.
 
-  * Adicionar, caso inexistente, construção condicional `if/else` compatível simultaneamente com:
+  - **Delay entre mensagens do mesmo destinatário**
+    - Adicionar recurso opcional de intervalo entre o envio de uma postagem/mensagem e a seguinte **para o mesmo destinatário**.
+    - O delay DEVE ser configurável em milissegundos.
+    - Sua medição DEVE ser individual por destinatário/conversa, de forma que o intervalo de um destinatário NÃO seja indevidamente satisfeito, reiniciado ou contaminado pelo estado de outro.
+    - O requisito aplica-se tanto a fluxos sequenciais quanto a fluxos com alternância habilitada.
+    - A implementação DEVE garantir que duas mensagens consecutivas do mesmo destinatário respeitem o intervalo configurado, ainda que entre elas tenham ocorrido envios para outros destinatários.
+    - A GUI principal DEVE permitir:
+      - habilitar/desabilitar o delay;
+      - configurar seu valor em milissegundos.
+    - NÃO definir mecanismo interno específico de contador/timer antes de inspecionar a arquitetura; adotar o meio tecnicamente adequado que garanta determinismo e isolamento.
 
-    * a notação `TypeScript-like` normatizada;
-    * a sintaxe real já definida pelo projeto;
-    * codificação independente de linha, inclusive multiline.
-    * `if/else` e `IF()` DEVEM coexistir conforme seus respectivos usos sem conflito semântico ou sintático.
+  - **GUI e experiência de uso**
+    - Controles de alternância, quantidade de destinatários, quantidade padrão de mensagens por turno e delay DEVEM integrar-se à GUI principal com o mesmo padrão visual, hierarquia, acabamento e comportamento dos controles existentes.
+    - A adição DEVE preservar estética, clareza, organização, responsividade e aparência profissional, sem poluição visual nem regressão de funcionalidades.
+    - Estados habilitado/desabilitado e valores configurados DEVEM ser inequívocos ao usuário.
 
-  * Todo estado de execução DEVE ser isolado por destinatário/conversa. É PROIBIDO qualquer transbordamento, compartilhamento ou confusão entre chats distintos de:
+  - **Integração aos editores**
+    - Integrar às barras de ferramentas controles de inserção para `${}`, constantes, funções novas **e preexistentes** pertinentes e, quando aplicável, marcador(es) de controle do fluxo.
+    - Botões DEVEM:
+      - usar somente ícone quando compatível com o padrão vigente;
+      - possuir `hint`/ajuda inequívoca;
+      - ser agrupados e separados por escopo, categoria e tipo funcional;
+      - preservar organização e padrão visual existentes.
+    - PODE ser criada barra adicional imediatamente abaixo das atuais somente se isso resultar em organização superior e permanecer aderente ao layout vigente.
+    - NÃO adicionar controles redundantes nem misturar funções/recursos de escopos distintos sem separação visual/semântica.
+    - Ambos os editores existentes DEVEM permanecer visual e funcionalmente espelhados quanto aos recursos comuns, sendo o editor principal — vinculado/dependente do Node — a fonte primária a ser seguida, sem eliminar especializações legítimas de qualquer deles.
 
-    * constantes;
-    * variáveis;
-    * timestamps;
-    * argumentos;
-    * retornos de funções;
-    * resultados intermediários;
-    * status;
-    * contexto de avaliação;
-    * quaisquer outros dados derivados da execução.
+  - **Documentação**
+    - Documentar sintaxe, semântica, escopo, isolamento, defaults, multiline, aninhamento, `${}`, `ultimaconversa`, `emconversa`, `IF`, `if/else`, funções lógicas/matemáticas, alternância, marcador aplicável, agrupamento de destinatários, quantidade padrão por turno, delay e controles dos editores/GUI.
+    - Preservar mecanismos e precedências documentais/normativas existentes; NÃO criar documentação paralela conflitante.
 
-  * Integrar às barras de ferramentas do editor controles de inserção para `${}`, constantes e funções novas **e preexistentes** pertinentes:
-
-    * botões somente com ícone, com `hint`/ajuda inequívoca;
-    * agrupamento e separadores por escopo, categoria e tipo funcional;
-    * organização consistente com o padrão visual existente;
-    * PODE ser criada barra adicional imediatamente abaixo das atuais somente se isso resultar em organização superior e permanecer aderente ao layout vigente.
-    * NÃO adicionar controles redundantes nem misturar funções de escopos distintos sem separação visual/semântica.
-
-  * Documentar sintaxe, semântica, escopo, isolamento, defaults, multiline, aninhamento, `${}`, `ultimaconversa`, `emconversa`, `IF`, `if/else`, funções lógicas/matemáticas e uso dos controles do editor, preservando os mecanismos/documentação normativos já existentes.
-
-  * Validar, no mínimo: múltiplas mensagens no mesmo fluxo; fluxos sucessivos; destinatários concorrentes; ausência de conversa anterior; limiar padrão e customizado de `emconversa`; exclusão das mensagens automatizadas correntes; nesting profundo válido; multiline; textos/números/funções nos ramos de `IF`; combinação entre `IF`, `AND`, `OR`, `XOR` e `if/else`; funções matemáticas; inserção via editor; e inexistência de vazamento de contexto entre destinatários.
-
-  * Ambos os editores existentes devem ser devidamente espelahados visualmente, sendo o editor principal (aquele dependente do node) a fonte primária.
+  - **Validação mínima**
+    - Validar:
+      - múltiplas mensagens no mesmo fluxo;
+      - múltiplos destinatários;
+      - fluxos sucessivos;
+      - destinatários concorrentes/intercalados;
+      - grupos menores, iguais e maiores que o limite simultâneo configurado;
+      - término antecipado de um destinatário dentro do grupo;
+      - alternância habilitada/desabilitada;
+      - presença/ausência do marcador de pausa;
+      - fallback para quantidade padrão de mensagens;
+      - preservação da ordem por destinatário;
+      - pausa e retomada sem perda de contexto;
+      - delay habilitado/desabilitado, com e sem alternância;
+      - respeito ao delay por destinatário apesar de envios intermediários para outros;
+      - ausência de conversa anterior;
+      - limiar padrão e customizado de `emconversa`;
+      - exclusão das mensagens automatizadas correntes de `ultimaconversa`/`emconversa`;
+      - nesting profundo válido;
+      - multiline;
+      - textos/números/funções nos ramos de `IF`;
+      - combinações entre `IF`, `AND`, `OR`, `XOR` e `if/else`;
+      - funções matemáticas;
+      - inserção via editores;
+      - paridade funcional/visual entre os dois editores nos recursos comuns;
+      - inexistência de qualquer vazamento, troca ou contaminação de contexto entre destinatários.
