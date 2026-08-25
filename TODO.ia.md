@@ -155,3 +155,5 @@ Este marcador encerra a seção de governança e inicia exclusivamente as TO-DOs
   * Documentar sintaxe, semântica, escopo, isolamento, defaults, multiline, aninhamento, `${}`, `ultimaconversa`, `emconversa`, `IF`, `if/else`, funções lógicas/matemáticas e uso dos controles do editor, preservando os mecanismos/documentação normativos já existentes.
 
   * Validar, no mínimo: múltiplas mensagens no mesmo fluxo; fluxos sucessivos; destinatários concorrentes; ausência de conversa anterior; limiar padrão e customizado de `emconversa`; exclusão das mensagens automatizadas correntes; nesting profundo válido; multiline; textos/números/funções nos ramos de `IF`; combinação entre `IF`, `AND`, `OR`, `XOR` e `if/else`; funções matemáticas; inserção via editor; e inexistência de vazamento de contexto entre destinatários.
+
+  * Ambos os editores existentes devem ser devidamente espelahados visualmente, sendo o editor principal (aquele dependente do node) a fonte primária.
