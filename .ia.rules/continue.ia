@@ -6,34 +6,45 @@ MACHINE_ID=JEAN-DESKTOP
 DATA_REF=202607101735
 POLITICA=90IA/10HUMANO;1FT_POR_SOLICITACAO;DEV_BRANCH;COMMIT_PUSH_POR_ETAPA_SE_POSSIVEL
 
-FT-012|nome=Estado transacional autoritativo de campanhas na GUI|tipo=implementacao_normativa|escopo=Negocio|prioridade=alta|status=em andamento
+FT-012|nome=Estado transacional autoritativo de campanhas na GUI|tipo=implementacao_normativa|escopo=Negocio|prioridade=alta|status=concluido
 criado_em=2026-08-25T17:36:46-03:00
+ultima_atualizacao=2026-08-25T17:43:13-03:00
+conclusao=2026-08-25T17:43:13-03:00
 origem=TODO.ia.md@39b47a4;sha256=318506e15446d9ec0bdea229d9ddfb938fa8ff819c25022efe52c89814501afa;item=bloqueio transacional da GUI durante envios automaticos
 objetivo=Equalizar e normatizar estado autoritativo por sessao, exclusividade, bloqueio conservador da GUI, interrupcao confirmada, protecao contra reentrancia, ciclo de vida sem orfaos, reconexao, recuperacao e reducao da dependencia de foco, preservando os mecanismos existentes.
 dependencias=RCF.md RN012 RN021 RN022 RN024 RN032 RN036;FT-007 preservada;arquitetura atual de uma campanha e uma sessao ativa por instancia
 aceite=RCF determina estados, transicoes, persistencia, API, bloqueios, interrupcao, recuperacao, limites de sessao, seguranca, UX e validacao sem autorizar concorrencia multiprocessos inexistente.
-estado_atual=Etapa 1/3 em andamento; demanda lida, arquitetura inspecionada e sobreposicoes conciliadas.
-proximo_ponto_executavel=Consolidar o contrato em RCF.md e validar a normatizacao antes de concluir a FT.
+estado_atual=Etapa 3/3 concluida; RN044 consolidou autoridade, persistencia, exclusividade, bloqueio, interrupcao, ciclo de vida, reconciliacao e limites sem introduzir concorrencia entre sessoes.
+proximo_ponto_executavel=Aguardar nova autorizacao humana explicita e a conciliacao/conclusao da FT-011 antes de iniciar a FT-013.
 
 etapas=
-1/3 Equalizacao [em andamento]
+1/3 Equalizacao [concluido]
   1/3 Mapear estado, endpoints, sessao, campanha, processos e GUI vigentes [concluido]
   2/3 Conciliar FT-007, FT-011, RN022, RN024 e RN032 sem duplicacao [concluido]
-  3/3 Fixar limites, estados, transicoes e criterios deterministas [em andamento]
-2/3 Implementacao normativa [pendente]
-  1/2 Atualizar RCF com autoridade, persistencia, bloqueio e interrupcao [pendente]
-  2/2 Atualizar RCF com sessao, ciclo de vida, segundo plano e validacao [pendente]
-3/3 Validacao e encerramento [pendente]
-  1/2 Validar completude, referencias e nao regressao [pendente]
-  2/2 Concluir FT e manter FT-013 bloqueada por autorizacao posterior [pendente]
+  3/3 Fixar limites, estados, transicoes e criterios deterministas [concluido]
+2/3 Implementacao normativa [concluido]
+  1/2 Atualizar RCF com autoridade, persistencia, bloqueio e interrupcao [concluido]
+  2/2 Atualizar RCF com sessao, ciclo de vida, segundo plano e validacao [concluido]
+3/3 Validacao e encerramento [concluido]
+  1/2 Validar completude, referencias e nao regressao [concluido]
+  2/2 Concluir FT e manter FT-013 bloqueada por autorizacao posterior [concluido]
 
 decisoes=
+- CONTRADIÇÃO DETECTADA: `.ia.rules/continue.ia` `POLITICA=1FT_POR_SOLICITACAO` vs `AGENTS.md` §§4-5 — Aplicando a regra de maior precedência: cada TO-DO comportamental possui FT normativa e FT de código distintas.
 - A instancia atual executa um unico client e uma unica campanha; sessoes persistidas nao constituem capacidade de campanhas simultaneas. A norma deve bloquear troca ou abertura durante envio e nao introduzir multiprocessamento.
 - O estado transitorio `busy` e o registro de operacoes da FT-007 sao base preservada, mas ainda nao comprovam persistencia, reconciliacao ou interrupcao autoritativa integral.
 - O aviso de altissimo risco permanece contrato condicional para eventual capacidade futura explicitamente autorizada; nao habilita nem simula essa capacidade no estado atual.
+- RN044 fixa uma campanha ativa por instancia, estados monotônicos, registro persistido por sessao, reconciliacao fail-safe e bloqueio integral das entradas materiais.
+
+verificacoes_concluidas=
+- `npm run agent:rcf`: concluido em modo `RCF_DEGRADED`, com leitura do RCF de 76238 bytes.
+- `node --test test/rcf.test.js`: 111/111 testes aprovados por `to-ia`, artefato SHA-256 0502852c0de4339c7ccf1898a243c617981fb8158ad8940003bfc6354e4cc499.
+- Verificacao contratual focada: 16/16 marcadores normativos presentes.
+- `git diff --check`: aprovado; somente aviso de conversao LF/CRLF do Git.
+- `npm run check`: bloqueado antes da validacao do projeto por paridade preexistente divergente em `.ia.rules/core/runtime/scripts/archive.js`, arquivo ausente do diff.
 
 pendencias=
-- Concluir somente a normatizacao; codigo pertence exclusivamente a FT-013 apos nova autorizacao humana explicita.
+- Nenhuma normativa; codigo pertence exclusivamente a FT-013 apos nova autorizacao humana explicita e dependencia declarada.
 
 FT-013|nome=Implementar estado transacional autoritativo de campanhas|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=pendente
 criado_em=2026-08-25T17:36:47-03:00
@@ -41,8 +52,8 @@ origem=TODO.ia.md@39b47a4;sha256=318506e15446d9ec0bdea229d9ddfb938fa8ff819c25022
 objetivo=Implementar e validar o contrato equalizado pela FT-012 no servidor, GUI, sessao, campanha e ciclo de vida, sem perda de estado, concorrencia indevida, comandos duplicados, descendentes orfaos ou regressao de CLI.
 dependencias=FT-012 concluida;nova autorizacao humana explicita posterior;FT-011 concluida ou conciliacao de arquivos sobrepostos validada
 aceite=Implementacao e testes comprovam autoridade do servidor, exclusividade atomica, bloqueio conservador, interrupcao terminal, recuperacao, idempotencia, ausencia de orfaos e operacao segura sem foco quando suportada.
-estado_atual=Aguardando conclusao da FT-012 e autorizacao humana explicita posterior.
-proximo_ponto_executavel=Nao iniciar codigo; aguardar os bloqueios declarados.
+estado_atual=FT-012 concluida; aguardando autorizacao humana explicita posterior e FT-011 concluida ou conciliacao validada dos arquivos sobrepostos.
+proximo_ponto_executavel=Nao iniciar codigo; solicitar autorizacao somente apos apresentar dependencias, ordem e bloqueios.
 
 etapas=
 1/5 Estado e persistencia [pendente]
@@ -59,35 +70,45 @@ restricoes=
 pendencias=
 - Toda a implementacao tecnica.
 
-FT-014|nome=Contexto isolado, expressoes e escalonamento de destinatarios|tipo=implementacao_normativa|escopo=Negocio|prioridade=alta|status=pendente
+FT-014|nome=Contexto isolado, expressoes e escalonamento de destinatarios|tipo=implementacao_normativa|escopo=Negocio|prioridade=alta|status=concluido
 criado_em=2026-08-25T17:36:48-03:00
+ultima_atualizacao=2026-08-25T17:43:13-03:00
+conclusao=2026-08-25T17:43:13-03:00
 origem=TODO.ia.md@39b47a4;sha256=318506e15446d9ec0bdea229d9ddfb938fa8ff819c25022efe52c89814501afa;item=contexto isolado, condicionais, alternancia, delay e editores
 objetivo=Equalizar e normatizar contexto imutavel por conversa, `ultimaconversa`, `emconversa`, funcoes condicionais/logicas/matematicas, `if/else`, alternancia opt-in, grupos, turnos, marcador de controle, delay intraconversa, GUI, CLI, editores e validacao integrada.
 dependencias=RCF.md RN003 RN014 RN022 RN025 RN026 RN032 RN033 RN035 RN039;FT-011 preservada;FT-012 para ordem normativa da solicitacao
 aceite=RCF define sintaxe, tipos, escopo, isolamento, defaults, ordem, configuracao, semantica de turnos/delay, paridade aplicavel e testes sem duplicar operadores, funcoes, postagens ou editores existentes.
-estado_atual=Aguardando conclusao normativa da FT-012; demanda e implementacao vigente ja foram inventariadas.
-proximo_ponto_executavel=Apos FT-012, consolidar o contrato no RCF e validar antes de concluir.
+estado_atual=Etapa 3/3 concluida; RN045 a RN047 consolidaram contexto, linguagem, alternancia, delay, configuracao, GUI, CLI e paridade aplicavel dos editores.
+proximo_ponto_executavel=Aguardar nova autorizacao humana explicita e conclusao das FTs 011 e 013 antes de iniciar a FT-015.
 
 etapas=
-1/3 Equalizacao [pendente]
+1/3 Equalizacao [concluido]
   1/3 Conciliar parser, template, plano de envio e configuracao vigentes [concluido]
-  2/3 Definir sintaxe, contexto, funcoes e isolamento [pendente]
-  3/3 Definir escalonamento, delay, GUI, CLI e editores [pendente]
-2/3 Implementacao normativa [pendente]
-  1/2 Atualizar RCF com contexto e linguagem de expressoes [pendente]
-  2/2 Atualizar RCF com alternancia, delay e superficies de uso [pendente]
-3/3 Validacao e encerramento [pendente]
-  1/2 Validar completude, referencias e nao regressao [pendente]
-  2/2 Concluir FT e manter FT-015 bloqueada por autorizacao posterior [pendente]
+  2/3 Definir sintaxe, contexto, funcoes e isolamento [concluido]
+  3/3 Definir escalonamento, delay, GUI, CLI e editores [concluido]
+2/3 Implementacao normativa [concluido]
+  1/2 Atualizar RCF com contexto e linguagem de expressoes [concluido]
+  2/2 Atualizar RCF com alternancia, delay e superficies de uso [concluido]
+3/3 Validacao e encerramento [concluido]
+  1/2 Validar completude, referencias e nao regressao [concluido]
+  2/2 Concluir FT e manter FT-015 bloqueada por autorizacao posterior [concluido]
 
 decisoes=
 - O namespace funcional canônico existente e `$.`; novas funcoes devem amplia-lo de modo case-insensitive, preservando os operadores `&&`, `||` e `^^`.
 - `$postagem$` continua separador de mensagens. O marcador de alternancia deve ser controle adicional, nunca substituir a divisao ou ser enviado como texto.
 - O delay intraconversa e distinto do intervalo RN014 entre destinatarios e dos backoffs de retentativa.
 - Controles comuns de sintaxe devem seguir a GUI Node como fonte primaria e projetar-se no bundle offline; configuracao de campanha permanece exclusiva das superficies executoras.
+- `$.if`, `$.and`, `$.or`, `$.xor`, `$.min`, `$.max`, `$.media`, `$.emconversa` e `if/else` ampliam a gramatica existente sem substituir operadores ou funcoes atuais.
+- A alternancia e cooperativa, desabilitada por padrao e sequencial na rede; `$pause$` somente cede em fronteira valida e nunca substitui `$postagem$`.
+- O delay usa instante elegivel por conversa; tempo real de outros destinatarios apenas abate o restante, sem compartilhar relogio ou estado.
+
+verificacoes_concluidas=
+- RN045 a RN047 foram verificadas pelos mesmos 111/111 testes do RCF, 16/16 marcadores focados e `git diff --check` aprovado.
+- Suite integrada focada: 117/118; unico bloqueio foi `node_modules/tabulator-tables/dist/js/tabulator.min.js` ausente ao construir o bundle, sem relacao com o diff normativo.
+- TODO raiz permanece como demanda manual em andamento e convergira ao path canônico somente apos conclusao tecnica, preservando o precedente da FT-008/FT-009.
 
 pendencias=
-- Concluir somente a normatizacao; codigo pertence exclusivamente a FT-015 apos nova autorizacao humana explicita.
+- Nenhuma normativa; codigo pertence exclusivamente a FT-015 apos nova autorizacao humana explicita e dependencias declaradas.
 
 FT-015|nome=Implementar contexto, expressoes e alternancia de destinatarios|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=pendente
 criado_em=2026-08-25T17:36:49-03:00
@@ -95,8 +116,8 @@ origem=TODO.ia.md@39b47a4;sha256=318506e15446d9ec0bdea229d9ddfb938fa8ff819c25022
 objetivo=Implementar e validar o contrato equalizado pela FT-014 no parser, template, contexto de conversa, campanha, configuracao, GUI, CLI, editor principal e projecao offline, preservando ordem, isolamento e compatibilidade.
 dependencias=FT-014 concluida;nova autorizacao humana explicita posterior;FT-013 concluida;FT-011 concluida
 aceite=Suite comprova contexto imutavel, funcoes e condicionais, multiline CRLF/LF, alternancia determinista, grupos, turnos, marcador, delay por conversa, paridade dos editores e ausencia de vazamento ou regressao.
-estado_atual=Aguardando conclusao da FT-014 e demais dependencias, alem de autorizacao humana explicita posterior.
-proximo_ponto_executavel=Nao iniciar codigo; aguardar os bloqueios declarados.
+estado_atual=FT-014 concluida; aguardando autorizacao humana explicita posterior e conclusao das FTs 011 e 013.
+proximo_ponto_executavel=Nao iniciar codigo; solicitar autorizacao somente apos apresentar dependencias, ordem e bloqueios.
 
 etapas=
 1/6 Contexto e historico de conversa [pendente]

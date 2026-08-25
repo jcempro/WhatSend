@@ -615,6 +615,88 @@ Adaptações de favicon, manifesto e referências para local, web, subpath ou bu
 
 O lockfile deve ser reproduzível e coerente com o manifesto. Dependência transitiva vulnerável ou obsoleta não pode ser ocultada: deve ser eliminada por atualização compatível, override validado ou substituição controlada. `--force`, `--legacy-peer-deps` e supressão de auditoria não são correções. O fluxo deve testar instalação limpa com cache isolado e confirmar que a execução continua localizando navegador compatível, que `whatsapp-web.js` inicia com `executablePath`/conexão já resolvidos e que dependências de build não entram no manifesto de runtime de `dist`.
 
+### RN044 - Estado Transacional Autoritativo de Campanha
+
+O servidor local DEVE ser a única autoridade sobre cada campanha. Para cada sessão, DEVE manter registro versionado e atomicamente persistido com, no mínimo, identificador imutável da operação, sessão, estado, proprietário/processo, início, última atualização, progresso, pedido de interrupção, término, resultado e erro. A GUI, a CLI e qualquer cliente local DEVEM apenas projetar esse estado; memória de componente, aba aberta, foco, conexão anterior ou estado visual NÃO DEVEM constituir autoridade paralela.
+
+Os estados canônicos DEVEM ser `ocioso`, `preparando`, `validando`, `executando`, `interrupcao_solicitada`, `interrompendo`, `interrompido`, `concluido` e `falhou`. Toda transição DEVE ser validada, idempotente, datada e monotônica até um estado terminal. `concluido`, `interrompido` e `falhou` são terminais; uma nova execução material DEVE receber novo identificador e NÃO DEVE reabrir o registro anterior. O progresso e o título de RN036 DEVEM derivar desse mesmo registro.
+
+A arquitetura vigente possui um único cliente e uma única sessão ativa por instância servidora; portanto, cada instância DEVE admitir no máximo uma campanha ativa, o que também garante o limite absoluto de uma campanha por sessão. A presença de múltiplas sessões persistidas NÃO constitui suporte a campanhas simultâneas. Troca, criação, renomeação, remoção, abertura ou início de outra sessão por GUI, CLI, URL, API ou nova instância local DEVE ser rejeitado enquanto existir campanha ativa ou estado ainda não reconciliado. A implementação NÃO DEVE introduzir multiprocessamento entre sessões.
+
+O início da campanha DEVE adquirir exclusividade atomicamente antes de qualquer envio. Repetição, clique rápido, chamada direta, retransmissão ou corrida DEVE retornar o mesmo resultado idempotente quando possuir a mesma chave de operação ou conflito impeditivo quando representar operação distinta. A validação apenas visual NÃO substitui a rejeição no servidor.
+
+Ao iniciar, recarregar ou reconectar a GUI, restaurar sessão, abrir painel afetado ou antes de habilitar comando material, a interface DEVE consultar o servidor e reconstruir o estado real. Falha de comunicação, timeout, resposta inválida ou autoridade indeterminada DEVE manter conservadoramente bloqueados os controles capazes de alterar a campanha até reconciliação válida. Reinício do servidor DEVE comparar o registro persistido com processo e recursos reais; operação sem proprietário vivo DEVE terminar como `interrompido`, nunca reaparecer como ativa ou concluída.
+
+Durante `preparando`, `validando`, `executando`, `interrupcao_solicitada` ou `interrompendo`, a GUI DEVE bloquear integralmente edição de modelo, filtros, CSV, configuração, sessão e demais entradas capazes de modificar o plano ou seu resultado. Cada painel afetado DEVE ocultar automaticamente o conteúdo, preservar título e exibir indisponibilidade por campanha ativa, sem oferecer retração manual nesse período. O bloqueio DEVE alcançar mouse, toque, teclado, atalho e chamada client-side, manter acessibilidade e NÃO DEVE apagar valor, desmontar estado necessário, redefinir configuração ou impedir leitura de progresso, logs e ação de interrupção. Confirmação autoritativa de estado terminal DEVE restaurar imediatamente a condição anterior dos painéis.
+
+Toda ação assíncrona da GUI DEVE impedir reentrância após o primeiro acionamento válido, expor estado transitório inequívoco e permanecer indisponível até resposta terminal ou reconciliação. A ação `Interromper envio` DEVE permanecer acessível durante campanha ativa e solicitar cancelamento ao servidor. O pedido DEVE transicionar para `interrupcao_solicitada`, tornar-se `interrompendo` quando acolhido e somente liberar controles após `interrompido`, `concluido` ou `falhou`. Repetições DEVEM ser idempotentes. Operação indivisível já entregue à biblioteca externa PODE terminar antes da interrupção, mas nenhum novo item DEVE começar depois que o cancelamento for observado.
+
+Processo, subprocesso, worker, thread, navegador ou recurso descendente adotado por uma campanha DEVE ser registrado sob sua operação e encerrado com ela. Encerramento normal, sinal, falha irrecuperável ou morte do servidor NÃO DEVEM deixar descendente órfão; onde o sistema operacional não oferecer grupo de processos equivalente, DEVE existir supervisão explícita e fallback verificável. Registro persistido NÃO DEVE fingir que recurso morto continua executando.
+
+O navegador controlado DEVE continuar ativando a superfície do WhatsApp no início como proteção compatível, sem transformar foco, visibilidade ou primeiro plano em fonte de correção. A execução DEVE reduzir continuamente dependência de foco por opções suportadas do navegador, estado no servidor e processamento resiliente. Restrição externa inevitável DEVE ser detectada, registrada e tratada por fallback seguro; contrato, segurança ou mecanismo antiautomação da plataforma NÃO DEVE ser burlado e garantia inexistente NÃO DEVE ser anunciada.
+
+Se uma capacidade futura de campanhas simultâneas entre sessões for criada por RCF e autorização humana específicas, cada tentativa material DEVE exigir confirmação inequívoca do texto: **“ALTO RISCO: envios simultâneos podem bloquear ou causar a perda das contas e números envolvidos. Não recomendado. Confirme que leu e deseja prosseguir.”** Essa regra condicional NÃO autoriza, habilita nem simula a capacidade no produto vigente.
+
+A validação DEVE cobrir início, exclusividade, conclusão, falha, pedido e confirmação de interrupção, reentrância, chamadas diretas duplicadas, recarga, fechamento e reconexão da GUI, indisponibilidade do servidor, restauração dos painéis, tentativa de gerir outra sessão, nova instância, encerramento forçado, ausência de órfãos, reconciliação após reinício e operação com aba, janela ou navegador sem foco.
+
+### RN045 - Contexto Isolado de Conversa e Linguagem de Expressões
+
+Cada campanha DEVE manter contexto isolado por conversa, identificado pelo destinatário normalizado. Antes do primeiro item elegível daquela conversa, o servidor DEVE consultar uma única vez a última mensagem preexistente enviada ou recebida, congelar o instante de referência e reutilizá-lo em todo o fluxo, inclusive pausa, alternância, retry e retomada. Mensagem automatizada pertencente à campanha corrente NÃO DEVE participar do cálculo nem alterar o contexto. Conversas distintas NÃO DEVEM compartilhar constante, variável, argumento, retorno, resultado intermediário, status, cursor, timer ou dado derivado.
+
+A constante reservada e imutável `ultimaconversa` DEVE estar disponível em `${ultimaconversa}`. Seu valor textual DEVE ser o instante ISO 8601 UTC da mensagem preexistente; ausência de mensagem DEVE produzir valor vazio. Coluna homônima de entrada NÃO DEVE sobrescrever a constante reservada. O instante interno e o instante de captura DEVEM permanecer disponíveis ao avaliador sem conversão por texto intermediário.
+
+A função global `emconversa(int?)` DEVE ser exposta no namespace funcional canônico como `$.emconversa()` e `$.emconversa(minutos)`, sem distinção de caixa. Ela DEVE comparar `ultimaconversa` ao instante congelado de captura do contexto, retornar booleano e permanecer estável durante o fluxo. Sem argumento, DEVE usar `RECENT_CONVERSATION_MINUTES`, padrão `15`; com argumento, DEVE aceitar inteiro não negativo somente para aquela avaliação. Ausência de conversa retorna `false`; argumento inválido DEVE produzir erro de validação antes do envio.
+
+O namespace `$.` e as funções existentes de RN026 DEVEM ser preservados. O avaliador DEVE acrescentar, sem distinção de caixa:
+
+- `$.if(condicao, verdade, falso)`, com exatamente três argumentos e avaliação preguiçosa somente do ramo escolhido;
+- `$.and(...)`, `$.or(...)` e `$.xor(...)`, com um ou mais argumentos e sem limite arbitrário além dos recursos do parser; `xor` DEVE retornar verdadeiro quando a quantidade de argumentos verdadeiros for ímpar, preservando a semântica encadeada de `^^`;
+- `$.min(...)`, `$.max(...)` e `$.media(...)`, com um ou mais argumentos numéricos e erro explícito quando nenhum valor numérico válido existir.
+
+Os operadores `&&`, `||`, `^^` e `!` DEVEM continuar disponíveis. Os operadores matemáticos documentados `+`, `-`, `*`, `/`, `%` e `**` DEVEM ser aceitos com precedência determinística; divisão ou módulo por zero e resultado numérico não finito DEVEM falhar antes do envio. Função existente equivalente NÃO DEVE ser recriada sob implementação paralela.
+
+A construção de expressão `if (condicao) { verdade } else { falso }` DEVE coexistir com `$.if(...)` dentro de `${...}`, admitir aninhamento e avaliar somente o ramo selecionado. Ela NÃO DEVE executar declaração, mutação, acesso global ou efeito colateral. Argumentos, funções aninhadas e ramos DEVEM aceitar espaços e quebras `LF` ou `CRLF`; texto ou número resultante DEVE usar a mesma projeção textual de RN026. Texto que contenha delimitador estrutural DEVE usar literal citado ou escape documentado, sem heurística ambígua.
+
+Parser, prévia, validação, GUI, bundle offline e envio DEVE usar a mesma gramática e o mesmo avaliador. Erro sintático, aridade inválida, função desconhecida, contexto ausente ou valor inválido DEVE ser informado antes do envio, com posição útil e sem executar parcialmente outro destinatário. A validação DEVE cobrir ausência e presença de conversa, limiar padrão e customizado, exclusão das mensagens correntes, estabilidade durante alternância, destinatários distintos, caixa, aridade, avaliação preguiçosa, aninhamento profundo válido, multiline `LF`/`CRLF`, ramos textuais/numéricos/funcionais, operadores, funções matemáticas e ausência de vazamento.
+
+### RN046 - Alternância de Destinatários e Intervalo Intraconversa
+
+A alternância DEVE ser opcional, desabilitada por padrão e cooperativa: somente um item de envio PODE ser entregue à biblioteca por vez, sem concorrência de rede entre destinatários. Quando desabilitada, RN032 permanece integralmente aplicável. Quando habilitada, o planejador PODE suspender um destinatário apenas em fronteira válida de item, preservar ordem e cursor internos e continuar com o próximo destinatário do grupo.
+
+A configuração central de RN035 DEVE declarar:
+
+```text
+RECIPIENT_INTERLEAVING_ENABLED=false
+RECIPIENT_INTERLEAVING_GROUP_SIZE=2
+RECIPIENT_INTERLEAVING_MAX_GROUP_SIZE=25
+RECIPIENT_MESSAGES_PER_TURN=1
+RECIPIENT_MESSAGE_DELAY_ENABLED=false
+RECIPIENT_MESSAGE_DELAY_MS=0
+RECENT_CONVERSATION_MINUTES=15
+```
+
+O grupo efetivo DEVE conter entre `2` e `RECIPIENT_INTERLEAVING_MAX_GROUP_SIZE` destinatários, respeitar a ordem original dos elegíveis e operar em round-robin determinístico. O teto padrão DEVE ser `25` e permanecer configurável centralmente; quantidade por turno DEVE ser inteiro positivo, padrão `1`, sem limite arbitrário adicional. Somente depois de todos os destinatários do grupo atingirem estado terminal o planejador DEVE criar o próximo grupo. Destinatário concluído, pulado ou definitivamente falho DEVE sair do round-robin sem bloquear os restantes.
+
+O marcador literal `$pause$`, sozinho em linha própria e posicionado em fronteira entre itens do plano, DEVE forçar cessão após o item anterior quando a alternância estiver habilitada. Ele DEVE ser removido como controle e NUNCA ser enviado ao WhatsApp, criar item vazio, substituir `$postagem$` ou alterar `^^^`. Ocorrência fora de fronteira válida DEVE gerar erro de validação. Com alternância desabilitada, o marcador DEVE ser removido sem efeito de escalonamento e sem alterar as postagens ou o conteúdo restante. Na ausência de `$pause$`, a cessão DEVE ocorrer após `RECIPIENT_MESSAGES_PER_TURN` itens confirmados ou falha terminal.
+
+Cada destinatário DEVE possuir estado próprio com plano, cursor, contexto de RN045, quantidade do turno, último envio confirmado e próximo instante elegível. Pausa, retomada, retry, falha ou término de outro destinatário NÃO DEVE alterar esse estado. A alternância NÃO DEVE inverter itens, misturar legenda/anexo, contornar confirmação de RN032, antecipar registro em `enviados.csv` ou permitir mais de uma operação para o mesmo chat.
+
+O intervalo intraconversa DEVE ser distinto do intervalo RN014 entre destinatários e dos backoffs de RN032. Quando habilitado, antes de iniciar cada item posterior ao primeiro da mesma conversa, o planejador DEVE garantir que tenham transcorrido `RECIPIENT_MESSAGE_DELAY_MS` milissegundos desde a confirmação do item anterior. Tempo real consumido por outros destinatários PODE abater o intervalo; se ainda faltar tempo, somente o restante DEVE ser aguardado. Evento de outro destinatário NÃO DEVE satisfazer, reiniciar ou contaminar o relógio. Valor DEVE ser inteiro não negativo; desabilitado, NÃO DEVE introduzir espera adicional.
+
+GUI e CLI DEVEM resolver as mesmas configurações. A CLI DEVE oferecer equivalentes explícitos para habilitar/desabilitar alternância, tamanho do grupo, itens por turno e delay intraconversa; a GUI DEVE expor controles equivalentes nos escopos de RN035, limitar dinamicamente o grupo ao teto vigente e tornar estado/valor inequívocos. Configuração inválida DEVE bloquear antes de persistir ou enviar.
+
+A validação DEVE cobrir grupos menores, iguais e maiores que o teto; último grupo parcial; ordem original; round-robin; término antecipado; falha isolada; alternância ligada/desligada; quantidade por turno; `$pause$` válido, ausente e inválido; `$postagem$`, `^^^`, texto, anexos e áudio; pausa/retomada; delay ligado/desligado; tempo intermediário menor, igual e maior que o intervalo; retry; progresso; logs; histórico inteligente; e inexistência de contaminação entre conversas.
+
+### RN047 - Superfícies de Composição e Paridade dos Editores
+
+A GUI executora DEVE integrar os controles de RN044 e RN046 ao padrão visual existente, preservando hierarquia, responsividade, contraste, teclado, foco, redução de movimento e aparência profissional. Configuração de campanha e ação de interrupção pertencem somente às superfícies executoras e NÃO DEVEM transformar o bundle offline em executor.
+
+A toolbar do editor principal DEVE oferecer inserção agrupada e não redundante de `${}`, `ultimaconversa`, `$.emconversa()`, funções condicionais/lógicas/matemáticas novas e preexistentes, construção `if/else` e `$pause$`. Controle por ícone DEVE usar a biblioteca já incorporada, possuir `hint` e nome acessível inequívocos, preservar seleção, cursor, foco, rolagem e IME e manter separadores visuais entre formatação, variáveis, decisão, matemática e controle de fluxo. Barra adicional PODE existir somente quando melhorar objetivamente a organização sem poluir o layout.
+
+O editor da GUI Node DEVE permanecer fonte primária da estrutura, estilos, gramática, controles e comportamentos comuns. A projeção offline de RN039 DEVE receber os mesmos controles de composição aplicáveis, a mesma prévia e o mesmo avaliador, omitindo somente operações que exigem servidor, WhatsApp ou campanha. Especialização legítima de dados do bundle e a exceção de download definida em RN022/RN039 DEVEM ser preservadas.
+
+README, guia avançado, ajuda contextual e exemplos DEVEM documentar sintaxe, caixa, tipos, escopo, defaults, multiline, aninhamento, `ultimaconversa`, `$.emconversa`, funções, `if/else`, `$pause$`, grupos, turnos, delay, CLI e GUI antes de declarar a implementação disponível. Testes DEVEM comparar gramática, botões, hints, ordem, grupos, DOM/CSS e comportamento comum entre os dois editores, além de validar que o bundle permanece autocontido, sem rede e sem capacidade de envio.
+
 ## Requisitos Não Funcionais
 
 ### RNF001 - Plataforma
