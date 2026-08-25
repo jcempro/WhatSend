@@ -89,9 +89,9 @@ Este marcador encerra a seção de governança e inicia exclusivamente as TO-DOs
   - [ ] **Validação:** testar início, conclusão, falha, interrupção, cliques e chamadas duplicadas, recarregamento e fechamento da GUI, reconexão, troca ou abertura de sessão por todos os meios disponíveis, tentativa de segundo envio na mesma sessão, comportamento com múltiplas sessões quando preexistente, confirmação do aviso de risco, encerramento forçado do servidor, ausência de órfãos, restauração dos painéis e execução com aba ou navegador sem foco.
   - [ ] **Critério de aceite:** considerar concluído somente quando o RCF definir servidor autoritativo, bloqueio automático, restauração de estado, exclusividade por sessão, preservação sem ampliação da capacidade multiprocessos preexistente, proibição de implementá-la quando ausente, aviso de alto risco com confirmação, interrupção confirmada, proteção contra reentrância, ciclo de vida dos processos, recuperação após reconexão e evolução contínua para envio em segundo plano; e quando GUI e servidor implementarem e validarem integralmente esses contratos.
 
-* [ ] Implementar contexto isolado de conversa, condicionais/funções e suporte correspondente no editor
+* [ ] Implementar contexto isolado de conversa, condicionais/funções e suporte correspondente no editor - nunca regredir recursos ou normas criadas a ideia é evoluir e adicionar features e não reduzir ou minimizar.
 
-  * Inspecionar previamente sintaxe, funções, constantes, parser/runtime, editor e contratos existentes. Reutilizar/estender o que já existir; NÃO duplicar funcionalidades, inventar arquitetura nem romper a notação/function syntax e diretrizes `TypeScript-like` já normatizadas.
+  * Inspecionar previamente sintaxe, funções, constantes, parser/runtime, editor e contratos existentes. Reutilizar/estender o que já existir; NÃO duplicar funcionalidades, inventar arquitetura nem romper a notação/function syntax e diretrizes `TypeScript-like` já normatizadas.  
 
   * Criar a constante imutável `ultimaconversa`, utilizável em `${}`, contendo o timestamp da última postagem/mensagem preexistente da conversa **de/para o destinatário específico**.
 
