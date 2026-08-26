@@ -90,7 +90,6 @@ Este marcador encerra a seção de governança e inicia exclusivamente as TO-DOs
   - [ ] **Critério de aceite:** considerar concluído somente quando o RCF definir servidor autoritativo, bloqueio automático, restauração de estado, exclusividade por sessão, preservação sem ampliação da capacidade multiprocessos preexistente, proibição de implementá-la quando ausente, aviso de alto risco com confirmação, interrupção confirmada, proteção contra reentrância, ciclo de vida dos processos, recuperação após reconexão e evolução contínua para envio em segundo plano; e quando GUI e servidor implementarem e validarem integralmente esses contratos.
 
 - [x] Implementar contexto isolado de conversa, condicionais/funções, alternância de envio, delay e suporte correspondente nos editores — evoluir e adicionar recursos sem reduzir, substituir ou regredir normas, features ou comportamentos válidos existentes.
-
   - Inspecionar previamente sintaxe, funções, constantes, parser/runtime, fluxo de envio, estado por destinatário, GUI, editores e contratos existentes. Reutilizar/estender o que já existir; NÃO duplicar funcionalidades, inventar arquitetura nem romper a notação/function syntax, diretrizes `TypeScript-like`, isolamento ou demais normas vigentes.
 
   - **Contexto imutável da conversa**
@@ -226,3 +225,12 @@ Este marcador encerra a seção de governança e inicia exclusivamente as TO-DOs
       - inserção via editores;
       - paridade funcional/visual entre os dois editores nos recursos comuns;
       - inexistência de qualquer vazamento, troca ou contaminação de contexto entre destinatários.
+
+* [ ] Adicionar opção de aleatorização da ordem dos modelos exclusivamente no envio
+  - Adicionar configuração na GUI, **habilitada por padrão**, para aleatorizar a ordem dos modelos de mensagens **somente quando houver múltiplos modelos**.
+  - Quando habilitada, a aleatorização DEVE ocorrer **apenas no início do envio**, gerando uma ordem temporária usada durante aquele fluxo para envio e, quando aplicável, alternância dos modelos.
+  - A reordenação DEVE existir **somente em memória**: NÃO PODE alterar, persistir, regravar ou reorganizar a ordem original no editor, arquivo, configuração ou qualquer fonte permanente.
+  - Quando desabilitada, DEVE ser preservada integralmente a ordem original definida no editor/arquivo.
+  - Com apenas um modelo, o recurso NÃO DEVE produzir efeito colateral nem processamento desnecessário.
+  - A ordem aleatória definida para o fluxo iniciado DEVE permanecer estável durante sua execução; NÃO reembaralhar a cada mensagem, destinatário, pausa, alternância ou retomada do mesmo fluxo.
+  - Integrar a opção ao padrão visual e funcional vigente, sem regredir isolamento por destinatário, alternância, delays, contexto, estados ou demais recursos já normatizados.
