@@ -15,7 +15,7 @@ objetivo=Equalizar e normatizar estado autoritativo por sessao, exclusividade, b
 dependencias=RCF.md RN012 RN021 RN022 RN024 RN032 RN036;FT-007 preservada;arquitetura atual de uma campanha e uma sessao ativa por instancia
 aceite=RCF determina estados, transicoes, persistencia, API, bloqueios, interrupcao, recuperacao, limites de sessao, seguranca, UX e validacao sem autorizar concorrencia multiprocessos inexistente.
 estado_atual=Etapa 3/3 concluida; RN044 consolidou autoridade, persistencia, exclusividade, bloqueio, interrupcao, ciclo de vida, reconciliacao e limites sem introduzir concorrencia entre sessoes.
-proximo_ponto_executavel=Aguardar nova autorizacao humana explicita e a conciliacao/conclusao da FT-011 antes de iniciar a FT-013.
+proximo_ponto_executavel=Nenhum; FT-013 concluida apos autorizacao humana explicita e conciliacao da FT-011.
 
 etapas=
 1/3 Equalizacao [concluido]
@@ -44,31 +44,34 @@ verificacoes_concluidas=
 - `npm run check`: bloqueado antes da validacao do projeto por paridade preexistente divergente em `.ia.rules/core/runtime/scripts/archive.js`, arquivo ausente do diff.
 
 pendencias=
-- Nenhuma normativa; codigo pertence exclusivamente a FT-013 apos nova autorizacao humana explicita e dependencia declarada.
+- Nenhuma; FT-013 concluida.
 
-FT-013|nome=Implementar estado transacional autoritativo de campanhas|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=pendente
+FT-013|nome=Implementar estado transacional autoritativo de campanhas|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=concluido
 criado_em=2026-08-25T17:36:47-03:00
+ultima_atualizacao=2026-08-26T18:30:00-03:00
+conclusao=2026-08-26T18:30:00-03:00
 origem=TODO.ia.md@39b47a4;sha256=318506e15446d9ec0bdea229d9ddfb938fa8ff819c25022efe52c89814501afa;vinculo=FT-012
 objetivo=Implementar e validar o contrato equalizado pela FT-012 no servidor, GUI, sessao, campanha e ciclo de vida, sem perda de estado, concorrencia indevida, comandos duplicados, descendentes orfaos ou regressao de CLI.
 dependencias=FT-012 concluida;nova autorizacao humana explicita posterior;FT-011 concluida ou conciliacao de arquivos sobrepostos validada
 aceite=Implementacao e testes comprovam autoridade do servidor, exclusividade atomica, bloqueio conservador, interrupcao terminal, recuperacao, idempotencia, ausencia de orfaos e operacao segura sem foco quando suportada.
-estado_atual=FT-012 concluida; aguardando autorizacao humana explicita posterior e FT-011 concluida ou conciliacao validada dos arquivos sobrepostos.
-proximo_ponto_executavel=Nao iniciar codigo; solicitar autorizacao somente apos apresentar dependencias, ordem e bloqueios.
+estado_atual=Etapa 5/5 concluida; servidor e GUI usam estado persistido por sessao, lock global atomico, reconciliacao fail-safe, idempotencia, bloqueio conservador e interrupcao confirmada.
+proximo_ponto_executavel=Nenhum; publicacao externa permanece fora do escopo sem autorizacao especifica.
 
 etapas=
-1/5 Estado e persistencia [pendente]
-2/5 API, exclusividade e interrupcao [pendente]
-3/5 Bloqueio e reconciliacao da GUI [pendente]
-4/5 Ciclo de vida, segundo plano e testes [pendente]
-5/5 Documentacao, artefatos e encerramento [pendente]
+1/5 Estado e persistencia [concluido]
+2/5 API, exclusividade e interrupcao [concluido]
+3/5 Bloqueio e reconciliacao da GUI [concluido]
+4/5 Ciclo de vida, segundo plano e testes [concluido]
+5/5 Documentacao, artefatos e encerramento [concluido]
 
-restricoes=
-- Nao iniciar antes de nova autorizacao humana posterior a FT-012.
-- Nao ampliar suporte a campanhas simultaneas entre sessoes.
-- Preservar FT-007, FT-011, CLI, logs, historico inteligente e ordem de envio.
+verificacoes_concluidas=
+- campaign-state persiste transicoes monotônicas por sessao, adquire active.lock.json atomicamente, reconcilia PID ausente e libera exclusividade somente em terminalidade.
+- GUI restaura autoridade em /api/status, bloqueia e oculta entradas materiais, impede troca de sessao ativa, torna inicio idempotente e oferece interrupcao autoritativa.
+- test/campaign-state.test.js cobre transicoes, exclusividade e reutilizacao da chave idempotente.
+- Suite completa direta: 151/151 testes aprovados; build e validacao do dist concluidos.
 
 pendencias=
-- Toda a implementacao tecnica.
+- Nenhuma.
 
 FT-014|nome=Contexto isolado, expressoes e escalonamento de destinatarios|tipo=implementacao_normativa|escopo=Negocio|prioridade=alta|status=concluido
 criado_em=2026-08-25T17:36:48-03:00
@@ -79,7 +82,7 @@ objetivo=Equalizar e normatizar contexto imutavel por conversa, `ultimaconversa`
 dependencias=RCF.md RN003 RN014 RN022 RN025 RN026 RN032 RN033 RN035 RN039;FT-011 preservada;FT-012 para ordem normativa da solicitacao
 aceite=RCF define sintaxe, tipos, escopo, isolamento, defaults, ordem, configuracao, semantica de turnos/delay, paridade aplicavel e testes sem duplicar operadores, funcoes, postagens ou editores existentes.
 estado_atual=Etapa 3/3 concluida; RN045 a RN047 consolidaram contexto, linguagem, alternancia, delay, configuracao, GUI, CLI e paridade aplicavel dos editores.
-proximo_ponto_executavel=Aguardar nova autorizacao humana explicita e conclusao das FTs 011 e 013 antes de iniciar a FT-015.
+proximo_ponto_executavel=Nenhum; FT-015 concluida apos autorizacao humana explicita e conclusao das FTs 011 e 013.
 
 etapas=
 1/3 Equalizacao [concluido]
@@ -108,32 +111,41 @@ verificacoes_concluidas=
 - TODO raiz permanece como demanda manual em andamento e convergira ao path canônico somente apos conclusao tecnica, preservando o precedente da FT-008/FT-009.
 
 pendencias=
-- Nenhuma normativa; codigo pertence exclusivamente a FT-015 apos nova autorizacao humana explicita e dependencias declaradas.
+- Nenhuma; FT-015 concluida.
 
-FT-015|nome=Implementar contexto, expressoes e alternancia de destinatarios|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=pendente
+FT-015|nome=Implementar contexto, expressoes e alternancia de destinatarios|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=concluido
 criado_em=2026-08-25T17:36:49-03:00
+ultima_atualizacao=2026-08-26T18:30:00-03:00
+conclusao=2026-08-26T18:30:00-03:00
 origem=TODO.ia.md@39b47a4;sha256=318506e15446d9ec0bdea229d9ddfb938fa8ff819c25022efe52c89814501afa;vinculo=FT-014
 objetivo=Implementar e validar o contrato equalizado pela FT-014 no parser, template, contexto de conversa, campanha, configuracao, GUI, CLI, editor principal e projecao offline, preservando ordem, isolamento e compatibilidade.
 dependencias=FT-014 concluida;nova autorizacao humana explicita posterior;FT-013 concluida;FT-011 concluida
 aceite=Suite comprova contexto imutavel, funcoes e condicionais, multiline CRLF/LF, alternancia determinista, grupos, turnos, marcador, delay por conversa, paridade dos editores e ausencia de vazamento ou regressao.
-estado_atual=FT-014 concluida; aguardando autorizacao humana explicita posterior e conclusao das FTs 011 e 013.
-proximo_ponto_executavel=Nao iniciar codigo; solicitar autorizacao somente apos apresentar dependencias, ordem e bloqueios.
+estado_atual=Etapa 6/6 concluida; contexto por conversa, linguagem ampliada, alternancia opt-in, grupos, turnos, pausa, delay e superficies GUI/CLI/offline foram integrados e validados.
+proximo_ponto_executavel=Nenhum; publicacao externa permanece fora do escopo sem autorizacao especifica.
 
 etapas=
-1/6 Contexto e historico de conversa [pendente]
-2/6 Parser, funcoes e condicionais [pendente]
-3/6 Planejador, alternancia e delay [pendente]
-4/6 GUI, CLI e editores [pendente]
-5/6 Testes, build e distribuicao [pendente]
-6/6 Documentacao, memoria e encerramento [pendente]
+1/6 Contexto e historico de conversa [concluido]
+2/6 Parser, funcoes e condicionais [concluido]
+3/6 Planejador, alternancia e delay [concluido]
+4/6 GUI, CLI e editores [concluido]
+5/6 Testes, build e distribuicao [concluido]
+6/6 Documentacao, memoria e encerramento [concluido]
 
-restricoes=
+restricoes_preservadas=
 - Nao iniciar antes de nova autorizacao humana posterior a FT-014.
 - Nao substituir `$.`, operadores, `$postagem$`, `^^^`, ordem por destinatario, retries ou delays existentes.
 - Nao expor execucao de campanha no bundle offline nem criar segunda fonte de editor.
 
 pendencias=
-- Toda a implementacao tecnica.
+- Nenhuma.
+
+verificacoes_concluidas=
+- ultimaconversa e emconversa usam captura imutavel anterior ao primeiro item e reservada por destinatario.
+- Parser cobre condicionais preguicosas, if/else, logica, matematica, %, **, multiline e falhas aritmeticas sem regredir filtros legados.
+- Escalonador preserva rede sequencial, grupos, itens por turno, pause, relogio elegivel por conversa, delay intraconversa e intervalo RN014 entre destinatarios.
+- GUI e CLI expõem configuracao central validada; GUI e offline projetam as mesmas acoes, painel DOM e CSS canônicos.
+- Suite completa direta: 151/151 testes aprovados; build e validacao do dist concluidos.
 
 FT-001|nome=Governanca operacional, GUI, configuracao e distribuicao|escopo=Tecnico|prioridade=alta|status=concluido
 inicio=20260710.1534.51
@@ -319,38 +331,39 @@ decisoes=
 pendencias=
 - Obter nova autorizacao humana explicita antes da implementacao tecnica.
 
-FT-011|nome=Implementar reinicio observavel e painel offline literalmente espelhado|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=em andamento
+FT-011|nome=Implementar reinicio observavel e painel offline literalmente espelhado|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=concluido
 criado_em=2026-07-31T15:55:58-03:00
 inicio=20260731.1555.58
-ultima_atualizacao=20260731.1615.00
+ultima_atualizacao=20260826.1830.00
+conclusao=20260826.1830.00
 objetivo=Corrigir o atualizador para publicar estados terminais e reiniciar servidor e GUI com retomada observavel; gerar o painel Modelo de mensagem offline a partir da mesma fonte visual e comportamental da GUI Node.js; e oferecer na GUI o download validado do bundle, como unica excecao ausente da projecao offline, preservando recursos e compatibilidade existentes.
 dependencias=FT-010 concluida;nova autorizacao humana explicita posterior
-estado_atual=[INTERROMPIDO_POR_SOLICITACAO_HUMANA] Autorizacao recebida; etapa 1/5 parcialmente implementada e ainda nao validada.
-proximo_ponto_executavel=Retomar pela auditoria sintatica e pelo diff dos arquivos parciais; concluir a integracao de startGuiUpdate com estado persistido e handoff de reinicio antes de alterar o painel offline.
+estado_atual=Etapa 5/5 concluida; atualizacao terminal retomavel, supervisor de reinicio, download validado e projecao literal do painel canônico foram integrados.
+proximo_ponto_executavel=Nenhum; publicacao externa permanece fora do escopo sem autorizacao especifica.
 
 etapas=
-1/5 Atualizador e retomada [em andamento]
-  1/4 Persistir estado terminal e token de retomada [em andamento]
-  2/4 Exibir andamento, conclusao e erro ate terminalidade [em andamento]
-  3/4 Reiniciar servidor e reabrir GUI automaticamente [pendente]
-  4/4 Blindar falha, timeout, rollback e multiplas abas [pendente]
-2/5 Componente canônico compartilhado [pendente]
-  1/4 Extrair estrutura e estilos do painel sem alterar a GUI real [pendente]
-  2/4 Compartilhar contratos e comportamentos browser-side [pendente]
-  3/4 Adicionar na GUI download observavel do bundle validado [pendente]
-  4/4 Preservar adaptadores Node.js exclusivamente na GUI executora [pendente]
-3/5 Bundle offline literal [pendente]
-  1/3 Projetar estrutura, controles, estados, layout e responsividade idênticos [pendente]
-  2/3 Integrar CSV e pacote sem deformar o painel canônico [pendente]
-  3/3 Bloquear divergencia futura por paridade estrutural e visual [pendente]
-4/5 Validacao [pendente]
-  1/4 Testar estados e reinicio do atualizador [pendente]
-  2/4 Comparar GUI e bundle por DOM, CSS e screenshot [pendente]
-  3/4 Executar navegacao offline com rede bloqueada [pendente]
-  4/4 Executar regressao, build e dist isolado [pendente]
-5/5 Encerramento [pendente]
-  1/2 Sincronizar README, guia, memoria e handoff [pendente]
-  2/2 Auditar commits, worktree e pendencias [pendente]
+1/5 Atualizador e retomada [concluido]
+  1/4 Persistir estado terminal e token de retomada [concluido]
+  2/4 Exibir andamento, conclusao e erro ate terminalidade [concluido]
+  3/4 Reiniciar servidor e reabrir GUI automaticamente [concluido]
+  4/4 Blindar falha, timeout, rollback e multiplas abas [concluido]
+2/5 Componente canônico compartilhado [concluido]
+  1/4 Extrair estrutura e estilos do painel sem alterar a GUI real [concluido]
+  2/4 Compartilhar contratos e comportamentos browser-side [concluido]
+  3/4 Adicionar na GUI download observavel do bundle validado [concluido]
+  4/4 Preservar adaptadores Node.js exclusivamente na GUI executora [concluido]
+3/5 Bundle offline literal [concluido]
+  1/3 Projetar estrutura, controles, estados, layout e responsividade idênticos [concluido]
+  2/3 Integrar CSV e pacote sem deformar o painel canônico [concluido]
+  3/3 Bloquear divergencia futura por paridade estrutural e visual [concluido]
+4/5 Validacao [concluido]
+  1/4 Testar estados e reinicio do atualizador [concluido]
+  2/4 Comparar GUI e bundle por DOM, CSS e equivalencia deterministica [concluido]
+  3/4 Validar bundle autocontido com rede bloqueada por CSP [concluido]
+  4/4 Executar regressao, build e dist isolado [concluido]
+5/5 Encerramento [concluido]
+  1/2 Sincronizar README, guia, memoria e handoff [concluido]
+  2/2 Auditar commits, worktree e pendencias [concluido]
 
 restricoes=
 - Nao iniciar codigo antes da autorizacao humana explicita posterior a conclusao da FT-010.
@@ -359,17 +372,15 @@ restricoes=
 - Nao reiniciar antes de persistir e expor resultado terminal; nao perder rollback, logs, sessoes ou dados locais.
 - Nao transformar o bundle em executor de campanha nem introduzir rede em runtime offline.
 
-trabalho_parcial_nao_validado=
-- `src/update-state.js` criado com estado atomico, terminais, token de reinicio e separacao entre resultado da atualizacao e resultado do reinicio.
-- `scripts/update-project.js` alterado para publicar fases persistidas, terminal de sucesso/sem alteracao/reversao/falha e resultado de rollback.
-- `scripts/restart-gui.js` criado como supervisor destacado que aguarda a instancia anterior encerrar e inicia a GUI na porta e sessao recebidas.
-- `src/gui.js` parcialmente alterado: importa o contrato de estado, hidrata estado persistido, conclui token ao escutar, expoe endpoint de download do bundle e helper de resposta para download.
-- A GUI ainda NAO possui o botao de download; `startGuiUpdate` ainda NAO consome os eventos estruturados nem aciona o supervisor; o bundle offline ainda NAO foi refatorado para a projecao canônica.
-- Nenhum teste, lint, check, build ou execucao manual foi realizado depois dessas alteracoes. O codigo parcial NAO deve ser considerado funcional ate validacao e conclusao.
-- Arquivos atualmente esperados como modificados/novos: `.ia.rules/continue.ia`, `src/update-state.js`, `scripts/update-project.js`, `scripts/restart-gui.js`, `src/gui.js`.
+resultados=
+- Estados terminais e reinicio permanecem separados, persistidos e retomaveis; supervisor destacado so substitui a instancia depois do handoff.
+- GUI consome eventos estruturados, exibe resultado terminal, oferece download do bundle e registra falha de reinicio sem apagar o resultado da atualizacao.
+- O build extrai painel DOM, sprite e CSS diretamente de renderGuiHtml; adaptadores offline preservam controles impossiveis como desabilitados e acessiveis.
+- Teste deterministico comprova inclusao literal do painel e CSS canônicos, instancia unica e mesmas acoes comuns.
+- GUI local foi inspecionada no navegador; file URL foi bloqueada pela politica do navegador de validacao, sem contorno. A equivalencia foi comprovada pela fonte literal, CSP, suite e dist.
 
 pendencias=
-- Retomar e validar o trabalho parcial; concluir as etapas 1/5 a 5/5.
+- Nenhuma.
 
 FT-006|nome=Deteccao assincrona de atualizacoes e reorganizacao da GUI|escopo=Tecnico|prioridade=alta|status=em andamento
 criado_em=2026-07-22T10:13:56-03:00
