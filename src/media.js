@@ -18,6 +18,7 @@ const {
   isEmbeddedMediaReference,
   parseEmbeddedTemplate,
   parseTemplateParts,
+  normalizeMessagePosting,
   splitMessagePostings,
   validateEmbeddedReferences,
 } = require("./template");
@@ -472,59 +473,79 @@ async function sendRenderedTemplate(client, chatId, renderedTemplate, paths = PA
 }
 
 async function sendRenderedTemplateInOrder(client, chatId, renderedTemplate, paths = PATHS, progressOptions = {}) {
-  const postings = splitMessagePostings(renderedTemplate);
-  const downloadCache = new Map();
-  const embeddedAttachments = progressOptions.embeddedAttachments || new Map();
-
-  for (const posting of postings) {
-    const parts = buildSendPlan(parseTemplateParts(posting), embeddedAttachments);
-
-    for (const part of parts) {
-      if (part.type === "text") {
-        await sendTextMessageWithRetry(client, chatId, part.value, progressOptions);
-        continue;
-      }
-
-      const embedded = isEmbeddedMediaReference(part.source)
-        ? embeddedAttachments.get(part.source.slice("@embed:".length))
-        : null;
-      const filePath = embedded ? null : await resolveMediaPath(part.source, paths, downloadCache);
-      const filename = embedded ? embedded.name : path.basename(filePath);
-
-      if (!embedded && isOggAudioOnly(filePath)) {
-        emitMediaProgress(progressOptions, {
-          message: `Enviando áudio ${filename}.`,
-          type: "current",
-        });
-        await sendOggVoiceMessage(client, chatId, filePath, part, progressOptions);
-        continue;
-      }
-
-      const media = embedded
-        ? new MessageMedia(embedded.mime, embedded.data, embedded.name, embedded.bytes.length)
-        : createMessageMediaFromFile(filePath);
-      emitMediaProgress(progressOptions, {
-        message: `Enviando anexo ${filename}.`,
-        type: "current",
-      });
-
-      const sendOptions = {
-        sendMediaAsDocument: shouldSendAsDocument(media),
-        waitUntilMsgSent: true,
-      };
-
-      if (part.caption) {
-        sendOptions.caption = part.caption;
-      }
-
-      await sendMediaMessageWithRetry(client, chatId, () => embedded
-        ? new MessageMedia(embedded.mime, embedded.data, embedded.name, embedded.bytes.length)
-        : createMessageMediaFromFile(filePath), sendOptions, {
-        label: filename,
-        onProgress: progressOptions.onProgress,
-      });
+  const cursor = createRenderedSendCursor(renderedTemplate, progressOptions.embeddedAttachments);
+  while (!cursor.done) {
+    if (typeof progressOptions.shouldInterrupt === "function" && progressOptions.shouldInterrupt()) {
+      return { interrupted: true };
     }
+    await sendNextRenderedItem(client, chatId, cursor, paths, progressOptions);
   }
+  return { interrupted: false };
+}
+
+function createRenderedSendCursor(renderedTemplate, embeddedAttachments = new Map()) {
+  const items = [];
+  for (const posting of splitMessagePostings(renderedTemplate)) {
+    const segments = String(posting).split(/\$pause\$/giu);
+    segments.forEach((segment, segmentIndex) => {
+      const planned = buildSendPlan(parseTemplateParts(normalizeMessagePosting(segment)), embeddedAttachments);
+      planned.forEach((part, partIndex) => {
+        const item = {
+          ...part,
+          pauseAfter: segmentIndex < segments.length - 1 && partIndex === planned.length - 1,
+        };
+        if (part[CAPTION_POSITION]) {
+          Object.defineProperty(item, CAPTION_POSITION, { value: part[CAPTION_POSITION] });
+        }
+        items.push(item);
+      });
+    });
+  }
+  return {
+    done: items.length === 0,
+    downloadCache: new Map(),
+    embeddedAttachments,
+    index: 0,
+    items,
+  };
+}
+
+async function sendNextRenderedItem(client, chatId, cursor, paths = PATHS, progressOptions = {}) {
+  if (!cursor || cursor.done) return { done: true, pauseAfter: false };
+  const part = cursor.items[cursor.index];
+  await sendPlannedPart(client, chatId, part, paths, cursor, progressOptions);
+  cursor.index += 1;
+  cursor.done = cursor.index >= cursor.items.length;
+  return { done: cursor.done, pauseAfter: Boolean(part.pauseAfter) };
+}
+
+async function sendPlannedPart(client, chatId, part, paths, cursor, progressOptions) {
+  if (part.type === "text") {
+    await sendTextMessageWithRetry(client, chatId, part.value, progressOptions);
+    return;
+  }
+  const embedded = isEmbeddedMediaReference(part.source)
+    ? cursor.embeddedAttachments.get(part.source.slice("@embed:".length))
+    : null;
+  const filePath = embedded ? null : await resolveMediaPath(part.source, paths, cursor.downloadCache);
+  const filename = embedded ? embedded.name : path.basename(filePath);
+  if (!embedded && isOggAudioOnly(filePath)) {
+    emitMediaProgress(progressOptions, { message: `Enviando áudio ${filename}.`, type: "current" });
+    await sendOggVoiceMessage(client, chatId, filePath, part, progressOptions);
+    return;
+  }
+  const media = embedded
+    ? new MessageMedia(embedded.mime, embedded.data, embedded.name, embedded.bytes.length)
+    : createMessageMediaFromFile(filePath);
+  emitMediaProgress(progressOptions, { message: `Enviando anexo ${filename}.`, type: "current" });
+  const sendOptions = { sendMediaAsDocument: shouldSendAsDocument(media), waitUntilMsgSent: true };
+  if (part.caption) sendOptions.caption = part.caption;
+  await sendMediaMessageWithRetry(client, chatId, () => embedded
+    ? new MessageMedia(embedded.mime, embedded.data, embedded.name, embedded.bytes.length)
+    : createMessageMediaFromFile(filePath), sendOptions, {
+    label: filename,
+    onProgress: progressOptions.onProgress,
+  });
 }
 
 async function sendOggVoiceMessage(client, chatId, filePath, part, progressOptions = {}) {
@@ -812,6 +833,7 @@ module.exports = {
   createMessageMediaFromFile,
   buildSendPlan,
   createOggVoiceMedia,
+  createRenderedSendCursor,
   downloadMediaUrl,
   getMediaFallbackDirs,
   inferMediaMimeType,
@@ -825,6 +847,7 @@ module.exports = {
   sendTextMessageWithRetry,
   sendConfirmedMessageWithRetry,
   sendMediaMessageWithRetry,
+  sendNextRenderedItem,
   focusWhatsAppPage,
   isTransientSendError,
   waitForWhatsAppMediaContext,

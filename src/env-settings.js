@@ -87,6 +87,14 @@ function validateEnvValues(values) {
     }
 
     const restriction = CONFIG_RESTRICTIONS.env[name] || {};
+    if (restriction.type === "boolean") {
+      const normalized = text.toLocaleLowerCase("pt-BR");
+      if (!["0", "1", "false", "true", "nao", "não", "sim", "off", "on"].includes(normalized)) {
+        throw new Error(`Valor inválido para ${name}: use true ou false.`);
+      }
+      result[name] = ["1", "true", "sim", "on"].includes(normalized) ? "true" : "false";
+      continue;
+    }
     const number = Number(text);
     if (!Number.isFinite(number)) {
       throw new Error(`Valor inválido para ${name}: use número.`);

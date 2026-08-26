@@ -20,6 +20,65 @@
       "minDifference": 1000,
       "type": "integer"
     },
+    "RECENT_CONVERSATION_MINUTES": {
+      "default": 15,
+      "group": "Conversa e alternância",
+      "groupOrder": 15,
+      "label": "Janela de conversa recente (minutos)",
+      "max": 10080,
+      "min": 0,
+      "type": "integer"
+    },
+    "RECIPIENT_INTERLEAVING_ENABLED": {
+      "default": false,
+      "group": "Conversa e alternância",
+      "groupOrder": 15,
+      "label": "Alternar destinatários",
+      "type": "boolean"
+    },
+    "RECIPIENT_INTERLEAVING_GROUP_SIZE": {
+      "default": 2,
+      "group": "Conversa e alternância",
+      "groupOrder": 15,
+      "label": "Destinatários por grupo",
+      "max": 25,
+      "min": 1,
+      "type": "integer"
+    },
+    "RECIPIENT_INTERLEAVING_MAX_GROUP_SIZE": {
+      "default": 25,
+      "group": "Conversa e alternância",
+      "groupOrder": 15,
+      "label": "Teto de destinatários por grupo",
+      "max": 100,
+      "min": 1,
+      "type": "integer"
+    },
+    "RECIPIENT_MESSAGES_PER_TURN": {
+      "default": 1,
+      "group": "Conversa e alternância",
+      "groupOrder": 15,
+      "label": "Itens por turno",
+      "max": 100,
+      "min": 1,
+      "type": "integer"
+    },
+    "RECIPIENT_MESSAGE_DELAY_ENABLED": {
+      "default": false,
+      "group": "Conversa e alternância",
+      "groupOrder": 15,
+      "label": "Intervalo intraconversa ativo",
+      "type": "boolean"
+    },
+    "RECIPIENT_MESSAGE_DELAY_MS": {
+      "default": 0,
+      "group": "Conversa e alternância",
+      "groupOrder": 15,
+      "label": "Intervalo intraconversa (ms)",
+      "max": 3600000,
+      "min": 0,
+      "type": "integer"
+    },
     "MEDIA_CONTEXT_READY_TIMEOUT_MS": {
       "default": 15000,
       "group": "Mídia e OGG",

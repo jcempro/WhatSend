@@ -90,6 +90,11 @@ function applyTemplate(template, data, options = {}) {
 
       if (isSimpleIdentifierExpression(ast)) {
         const normalizedKey = normalizeFieldName(key.replace(/^\$/, ""));
+        const reservedMap = buildCaseInsensitiveDataMap(options.reserved || {});
+        const reserved = reservedMap.get(normalizedKey);
+        if (reserved) {
+          return decodeHtmlEntities(reserved.value ?? "");
+        }
         const record = dataMap.get(normalizedKey);
 
         if (!record) {
@@ -103,9 +108,12 @@ function applyTemplate(template, data, options = {}) {
 
       try {
         const result = evaluateExpression(ast, data, {
+          conversation: options.conversation,
           identifierMode: "field",
           onMissingField: (field) =>
             notifyMissingTemplateVariable(field, missingVariables, options),
+          recentConversationMinutes: options.recentConversationMinutes,
+          reserved: options.reserved,
         });
 
         return expressionResultToString(result.value);

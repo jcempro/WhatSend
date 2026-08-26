@@ -42,7 +42,7 @@ const FALSE_WORDS = new Set([
 
 const COMPARISON_OPERATORS = new Set(["=", "!=", "<", "<=", ">", ">="]);
 const LOGICAL_OPERATORS = new Set(["||", "&&", "^^"]);
-const MATH_OPERATORS = new Set(["+", "-", "*", "/"]);
+const MATH_OPERATORS = new Set(["+", "-", "*", "/", "%", "**"]);
 
 function parseExpression(source) {
   const tokens = tokenizeExpression(source);
@@ -54,10 +54,13 @@ function evaluateExpression(sourceOrAst, data = {}, options = {}) {
   const ast =
     typeof sourceOrAst === "string" ? parseExpression(sourceOrAst) : sourceOrAst;
   const context = {
+    conversation: options.conversation || {},
     data,
     identifierMode: options.identifierMode || "auto",
     missingFields: new Set(),
     onMissingField: options.onMissingField,
+    recentConversationMinutes: options.recentConversationMinutes ?? 15,
+    reserved: options.reserved || {},
   };
 
   const result = evaluateAst(ast, context);
@@ -68,16 +71,24 @@ function evaluateExpression(sourceOrAst, data = {}, options = {}) {
 }
 
 function evaluateFilterExpression(sourceOrAst, data = {}) {
-  const { value } = evaluateExpression(sourceOrAst, data, {
-    identifierMode: "auto",
-  });
-
-  return toBoolean(value);
+  try {
+    const { value } = evaluateExpression(sourceOrAst, data, {
+      identifierMode: "auto",
+    });
+    return toBoolean(value);
+  } catch (error) {
+    if (
+      error instanceof ExpressionError &&
+      /Divisão por zero|Módulo por zero|Resultado numérico não finito/u.test(error.message)
+    ) return false;
+    throw error;
+  }
 }
 
 function tokenizeExpression(source) {
   const input = String(source || "");
   const tokens = [];
+  const parenthesisStack = [];
   let index = 0;
 
   while (index < input.length) {
@@ -90,7 +101,7 @@ function tokenizeExpression(source) {
 
     const two = input.slice(index, index + 2);
 
-    if (["||", "&&", "^^", "!=", "<=", ">="].includes(two)) {
+    if (["||", "&&", "^^", "!=", "<=", ">=", "**"].includes(two)) {
       tokens.push({ type: "operator", value: two });
       index += 2;
       continue;
@@ -102,7 +113,7 @@ function tokenizeExpression(source) {
       continue;
     }
 
-    if ("=<>+-*/!".includes(char)) {
+    if ("=<>+-*/%!".includes(char)) {
       tokens.push({ type: "operator", value: char });
       index += 1;
       continue;
@@ -122,13 +133,26 @@ function tokenizeExpression(source) {
     }
 
     if (isNumberStart(input, index)) {
-      const result = readNumberToken(input, index);
+      const result = readNumberToken(input, index, {
+        allowDecimalComma: !parenthesisStack.includes("function"),
+      });
       tokens.push({ type: "number", value: result.value });
       index = result.nextIndex;
       continue;
     }
 
-    if ("(),".includes(char)) {
+    if ("(),{}".includes(char)) {
+      if (char === "(") {
+        const previous = tokens[tokens.length - 1];
+        const beforePrevious = tokens[tokens.length - 2];
+        parenthesisStack.push(
+          previous && previous.type === "identifier" && beforePrevious && beforePrevious.type === "dollarDot"
+            ? "function"
+            : "group",
+        );
+      } else if (char === ")") {
+        parenthesisStack.pop();
+      }
       tokens.push({ type: char, value: char });
       index += 1;
       continue;
@@ -177,10 +201,10 @@ function isNumberStart(input, index) {
   const char = input[index];
   const next = input[index + 1];
 
-  return /\d/u.test(char) || ([".", ","].includes(char) && /\d/u.test(next));
+  return /\d/u.test(char) || (char === "." && /\d/u.test(next));
 }
 
-function readNumberToken(input, start) {
+function readNumberToken(input, start, options = {}) {
   let index = start;
   let value = "";
 
@@ -194,7 +218,7 @@ function readNumberToken(input, start) {
       continue;
     }
 
-    if ([".", ","].includes(char) && /\d/u.test(next)) {
+    if ((char === "." || (char === "," && options.allowDecimalComma)) && /\d/u.test(next)) {
       value += char;
       index += 1;
       continue;
@@ -216,8 +240,8 @@ function readIdentifier(input, start) {
 
     if (
       /\s/u.test(char) ||
-      ["||", "&&", "^^", "!=", "<=", ">=", "$."].includes(two) ||
-      "=<>+-*/!$(),".includes(char) ||
+      ["||", "&&", "^^", "!=", "<=", ">=", "**", "$."].includes(two) ||
+      "=<>+-*/%!$(),{}".includes(char) ||
       char === "'" ||
       char === '"'
     ) {
@@ -272,7 +296,16 @@ class Parser {
   }
 
   parseMultiplicative() {
-    return this.parseBinary(() => this.parseUnary(), ["*", "/"]);
+    return this.parseBinary(() => this.parsePower(), ["*", "/", "%"]);
+  }
+
+  parsePower() {
+    const left = this.parseUnary();
+    if (this.current().type === "operator" && this.current().value === "**") {
+      this.advance();
+      return { left, operator: "**", right: this.parsePower(), type: "BinaryExpression" };
+    }
+    return left;
   }
 
   parseBinary(readOperand, operators) {
@@ -317,6 +350,23 @@ class Parser {
     }
 
     if (token.type === "identifier") {
+      if (normalizeText(token.value) === "if" && this.tokens[this.position + 1].type === "(") {
+        this.advance();
+        this.expect("(");
+        const test = this.parseOr();
+        this.expect(")");
+        this.expect("{");
+        const consequent = this.parseOr();
+        this.expect("}");
+        const otherwise = this.expect("identifier");
+        if (normalizeText(otherwise.value) !== "else") {
+          throw new ExpressionError(`Esperado "else", recebido "${otherwise.value}".`);
+        }
+        this.expect("{");
+        const alternate = this.parseOr();
+        this.expect("}");
+        return { alternate, consequent, test, type: "ConditionalExpression" };
+      }
       this.advance();
       return { name: token.value, type: "Identifier" };
     }
@@ -399,12 +449,18 @@ function evaluateAst(node, context) {
       return evaluateBinary(node, context);
     case "FunctionCall":
       return evaluateFunction(node, context);
+    case "ConditionalExpression":
+      return toBoolean(evaluateAst(node.test, context).value)
+        ? evaluateAst(node.consequent, context)
+        : evaluateAst(node.alternate, context);
     default:
       throw new ExpressionError(`Tipo de expressão não suportado: ${node.type}`);
   }
 }
 
 function evaluateIdentifier(name, context) {
+  const reserved = getDataField(context.reserved, name);
+  if (reserved.found) return { value: reserved.value };
   const field = getDataField(context.data, name);
 
   if (field.found) {
@@ -420,6 +476,8 @@ function evaluateIdentifier(name, context) {
 }
 
 function evaluateFieldIdentifier(name, context) {
+  const reserved = getDataField(context.reserved, name);
+  if (reserved.found) return { value: reserved.value };
   const field = getDataField(context.data, name);
 
   if (!field.found) {
@@ -493,6 +551,49 @@ function evaluateLogicalBinary(node, context) {
 
 function evaluateFunction(node, context) {
   const functionName = normalizeText(node.name);
+  const requireArity = (minimum, maximum = minimum) => {
+    if (node.args.length < minimum || node.args.length > maximum) {
+      throw new ExpressionError(`$.${node.name}() exige ${minimum === maximum ? minimum : `${minimum} a ${maximum}`} argumento(s).`);
+    }
+  };
+
+  if (functionName === "if") {
+    requireArity(3);
+    return toBoolean(evaluateAst(node.args[0], context).value)
+      ? evaluateAst(node.args[1], context)
+      : evaluateAst(node.args[2], context);
+  }
+  if (["and", "or", "xor"].includes(functionName)) {
+    requireArity(2);
+    const left = toBoolean(evaluateAst(node.args[0], context).value);
+    if (functionName === "and") return { value: left && toBoolean(evaluateAst(node.args[1], context).value) };
+    if (functionName === "or") return { value: left || toBoolean(evaluateAst(node.args[1], context).value) };
+    return { value: left !== toBoolean(evaluateAst(node.args[1], context).value) };
+  }
+  if (["min", "max", "media"].includes(functionName)) {
+    requireArity(1, Number.MAX_SAFE_INTEGER);
+    const numbers = node.args.map((argument) => toMathNumber(evaluateAst(argument, context).value));
+    if (numbers.some((number) => !Number.isFinite(number))) {
+      throw new ExpressionError(`$.${node.name}() recebeu valor não numérico.`);
+    }
+    if (functionName === "min") return { value: Math.min(...numbers) };
+    if (functionName === "max") return { value: Math.max(...numbers) };
+    return { value: numbers.reduce((sum, number) => sum + number, 0) / numbers.length };
+  }
+  if (functionName === "emconversa") {
+    requireArity(0, 1);
+    const minutes = node.args.length
+      ? toMathNumber(evaluateAst(node.args[0], context).value)
+      : Number(context.recentConversationMinutes);
+    if (!Number.isInteger(minutes) || minutes < 0) {
+      throw new ExpressionError("$.emconversa() exige minutos inteiros não negativos.");
+    }
+    const last = Date.parse(String(context.conversation.lastMessageAt || ""));
+    const captured = Date.parse(String(context.conversation.capturedAt || ""));
+    return { value: Number.isFinite(last) && Number.isFinite(captured) && captured - last <= minutes * 60000 && captured >= last };
+  }
+
+  requireArity(1);
   const value = readFunctionValue(node.args[0], context);
 
   switch (functionName) {
@@ -622,10 +723,17 @@ function calculateValues(left, right, operator) {
       return leftNumber * rightNumber;
     case "/":
       if (rightNumber === 0) {
-        return Number.NaN;
+        throw new ExpressionError("Divisão por zero.");
       }
-
       return leftNumber / rightNumber;
+    case "%":
+      if (rightNumber === 0) throw new ExpressionError("Módulo por zero.");
+      return leftNumber % rightNumber;
+    case "**": {
+      const result = leftNumber ** rightNumber;
+      if (!Number.isFinite(result)) throw new ExpressionError("Resultado numérico não finito.");
+      return result;
+    }
     default:
       throw new ExpressionError(`Operador matemático não suportado: ${operator}`);
   }

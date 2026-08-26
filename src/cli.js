@@ -51,7 +51,12 @@ function parseExecutionOptions(argv = process.argv.slice(2)) {
     forceResend: false,
     gui: false,
     help: false,
+    interleavingEnabled: undefined,
+    interleavingGroupSize: undefined,
     listArg: undefined,
+    messageDelayEnabled: undefined,
+    messageDelayMs: undefined,
+    messagesPerTurn: undefined,
     newSessionName: undefined,
     removeSession: undefined,
     resetSent: false,
@@ -103,6 +108,43 @@ function parseExecutionOptions(argv = process.argv.slice(2)) {
 
     if (["--force-resend", "--reenviar", "--no-skip-sent"].includes(arg)) {
       options.forceResend = true;
+      continue;
+    }
+
+    if (["--interleaving", "--alternar-destinatarios"].includes(arg)) {
+      options.interleavingEnabled = true;
+      continue;
+    }
+
+    if (["--no-interleaving", "--sem-alternancia"].includes(arg)) {
+      options.interleavingEnabled = false;
+      continue;
+    }
+
+    if (["--interleaving-group-size", "--grupo-destinatarios"].includes(arg)) {
+      const result = readOptionValue(argv, index);
+      options.interleavingGroupSize = readPositiveInteger(result.value, arg);
+      index = result.nextIndex;
+      continue;
+    }
+
+    if (["--messages-per-turn", "--mensagens-por-turno"].includes(arg)) {
+      const result = readOptionValue(argv, index);
+      options.messagesPerTurn = readPositiveInteger(result.value, arg);
+      index = result.nextIndex;
+      continue;
+    }
+
+    if (["--message-delay", "--delay-mensagem"].includes(arg)) {
+      const result = readOptionValue(argv, index);
+      options.messageDelayMs = readNonNegativeInteger(result.value, arg);
+      options.messageDelayEnabled = true;
+      index = result.nextIndex;
+      continue;
+    }
+
+    if (["--no-message-delay", "--sem-delay-mensagem"].includes(arg)) {
+      options.messageDelayEnabled = false;
       continue;
     }
 
@@ -245,6 +287,20 @@ function applyPositionalExecutionArgs(options, positionalArgs) {
   }
 }
 
+function readPositiveInteger(value, option) {
+  const number = readNonNegativeInteger(value, option);
+  if (number < 1) throw new Error(`${option} exige inteiro maior que zero.`);
+  return number;
+}
+
+function readNonNegativeInteger(value, option) {
+  const number = Number(value);
+  if (!Number.isInteger(number) || number < 0) {
+    throw new Error(`${option} exige inteiro não negativo.`);
+  }
+  return number;
+}
+
 function printHelp() {
   console.log(`Uso:
   npm start
@@ -257,6 +313,16 @@ Opções:
                       Usa um Markdown específico somente na validação --check.
   --gui               Abre a interface gráfica local após autenticar.
   --force-resend      Ignora logs/enviados.csv nesta execução e reenvia.
+  --alternar-destinatarios
+                      Ativa alternância cooperativa nesta execução.
+  --grupo-destinatarios N
+                      Limita destinatários de cada grupo (máximo configurado: 25).
+  --mensagens-por-turno N
+                      Define itens enviados por conversa antes de alternar.
+  --delay-mensagem MS Ativa intervalo intraconversa por destinatário.
+  --sem-alternancia   Força o fluxo sequencial compatível.
+  --sem-delay-mensagem
+                      Desativa o intervalo intraconversa.
   --session VALOR     Usa uma sessão pelo nome, id ou últimos dígitos do telefone.
   --new-session NOME  Cria uma nova sessão e força nova autenticação.
   --rename-session ANTIGO NOVO
