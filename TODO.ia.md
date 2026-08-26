@@ -226,7 +226,7 @@ Este marcador encerra a seção de governança e inicia exclusivamente as TO-DOs
       - paridade funcional/visual entre os dois editores nos recursos comuns;
       - inexistência de qualquer vazamento, troca ou contaminação de contexto entre destinatários.
 
-* [ ] Adicionar opção de aleatorização da ordem dos modelos exclusivamente no envio
+- [x] Adicionar opção de aleatorização da ordem dos modelos exclusivamente no envio
   - Adicionar configuração na GUI, **habilitada por padrão**, para aleatorizar a ordem dos modelos de mensagens **somente quando houver múltiplos modelos**.
   - Quando habilitada, a aleatorização DEVE ocorrer **apenas no início do envio**, gerando uma ordem temporária usada durante aquele fluxo para envio e, quando aplicável, alternância dos modelos.
   - A reordenação DEVE existir **somente em memória**: NÃO PODE alterar, persistir, regravar ou reorganizar a ordem original no editor, arquivo, configuração ou qualquer fonte permanente.

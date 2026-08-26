@@ -697,6 +697,18 @@ O editor da GUI Node DEVE permanecer fonte primária da estrutura, estilos, gram
 
 README, guia avançado, ajuda contextual e exemplos DEVEM documentar sintaxe, caixa, tipos, escopo, defaults, multiline, aninhamento, `ultimaconversa`, `$.emconversa`, funções, `if/else`, `$pause$`, grupos, turnos, delay, CLI e GUI antes de declarar a implementação disponível. Testes DEVEM comparar gramática, botões, hints, ordem, grupos, DOM/CSS e comportamento comum entre os dois editores, além de validar que o bundle permanece autocontido, sem rede e sem capacidade de envio.
 
+### RN048 - Aleatorização Efêmera da Ordem dos Modelos
+
+A configuração central de RN035 DEVE declarar `TEMPLATE_VARIANT_RANDOMIZATION_ENABLED=true`. A opção DEVE ser habilitada por padrão, resolvida pela hierarquia Execução → Sessão → Global → Default e aplicada exclusivamente por superfícies executoras. A GUI DEVE expor controle inequívoco para habilitar ou desabilitar a aleatorização; a CLI DEVE oferecer equivalentes explícitos. O bundle offline de RN039 NÃO DEVE receber configuração nem capacidade de campanha.
+
+Depois de validar e separar os modelos de RN025, o início de cada nova campanha material DEVE criar, somente quando a opção estiver habilitada e houver mais de um modelo válido, uma única permutação temporária da lista. A permutação DEVE conter cada modelo exatamente uma vez, sem perda, duplicação ou alteração de conteúdo; resultado aleatório igual à ordem original permanece válido. A distribuição circular de RN025 e a alternância de RN046 DEVEM usar essa mesma ordem durante toda a campanha.
+
+A ordem temporária DEVE existir somente na memória da operação viva. Ela NÃO DEVE alterar, regravar, reordenar nem ser persistida no editor, arquivo `.md`, configuração, sessão, registro de campanha, pacote, autosave ou qualquer outra fonte permanente. Pausa, continuação, alternância, troca de grupo, destinatário, item, retry ou reconexão da GUI à mesma operação viva DEVEM reutilizar a permutação já definida e NÃO DEVEM consumir novo sorteio. Perda do processo continua sujeita à reconciliação terminal de RN044; nova tentativa após interrupção constitui nova campanha material e PODE criar nova permutação.
+
+Quando a opção estiver desabilitada, a ordem original DEVE ser preservada integralmente. Com zero ou um modelo válido, o sistema NÃO DEVE invocar o mecanismo de aleatorização nem introduzir efeito colateral. A criação da permutação NÃO DEVE alterar isolamento, contexto, cursores, delays, confirmação, histórico, progresso, interrupção ou ordem interna dos itens de cada modelo.
+
+A implementação DEVE permitir injetar uma fonte determinística de aleatoriedade em teste sem transformar seed em configuração pública nem fixá-la em produção. A validação DEVE cobrir default habilitado, opção desabilitada, zero, um e múltiplos modelos, cardinalidade e identidade da permutação, ausência de mutação da entrada, estabilidade durante toda a operação viva, retomada por pausa e reconexão, retry, alternância ligada e desligada, nova campanha, ausência de persistência e paridade de configuração entre GUI e CLI.
+
 ## Requisitos Não Funcionais
 
 ### RNF001 - Plataforma

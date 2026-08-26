@@ -6,38 +6,45 @@ MACHINE_ID=JEAN-DESKTOP
 DATA_REF=202607101735
 POLITICA=90IA/10HUMANO;1FT_POR_SOLICITACAO;DEV_BRANCH;COMMIT_PUSH_POR_ETAPA_SE_POSSIVEL
 
-FT-016|nome=Aleatorizacao efemera da ordem dos modelos|tipo=implementacao_normativa|escopo=Negocio|prioridade=alta|status=pendente
+FT-016|nome=Aleatorizacao efemera da ordem dos modelos|tipo=implementacao_normativa|escopo=Negocio|prioridade=alta|status=concluido
 criado_em=2026-08-26T18:55:55-03:00
-ultima_atualizacao=2026-08-26T18:55:55-03:00
+ultima_atualizacao=2026-08-26T20:05:55-03:00
+conclusao=2026-08-26T20:05:55-03:00
 origem=TODO.ia.md@ea87253;sha256=8a27272e12d10c315645b4f645c68c8088a7b86547147e53acd648e62221f2d4;item=aleatorizacao da ordem dos modelos exclusivamente no envio
 objetivo=Equalizar e normatizar configuracao habilitada por padrao, embaralhamento unico e efemero no inicio da execucao, estabilidade durante o fluxo e preservacao integral da ordem persistida, sem regressao de alternancia, contexto, delays ou editores.
 dependencias=RCF.md RN025 RN035 RN044 RN046 RN047;FT-015 concluida
 aceite=RCF determina escopo, default, ciclo de vida da ordem temporaria, retomada, caso unitario, integracao GUI/CLI quando aplicavel e validacao deterministica sem persistir a reordenacao.
-estado_atual=Nova TODO verificada e classificada como mudanca comportamental ainda nao normatizada.
-proximo_ponto_executavel=Aguardar autorizacao humana explicita para executar a implementacao normativa.
+estado_atual=Etapa 3/3 concluida; RN048 normatiza configuracao, permutacao efemera unica, estabilidade, retomada viva, nao persistencia, GUI, CLI e testes.
+proximo_ponto_executavel=Nenhum; FT-017 aguarda nova autorizacao humana explicita posterior a esta conclusao.
 
 etapas=
 1/3 Triagem e conciliacao [concluido]
   1/3 Verificar origem, integridade e novidade da demanda [concluido]
   2/3 Mapear contratos preexistentes e ausencia de cobertura integral [concluido]
   3/3 Segregar FTs normativa e tecnica [concluido]
-2/3 Implementacao normativa [pendente]
-  1/2 Integrar contrato ao RCF sem duplicar RN025, RN035, RN044, RN046 e RN047 [pendente]
-  2/2 Validar criterios e sincronizar documentacao aplicavel [pendente]
-3/3 Encerramento normativo [pendente]
-  1/2 Validar RCF e rastreabilidade [pendente]
-  2/2 Concluir FT e solicitar nova autorizacao para FT-017 [pendente]
+2/3 Implementacao normativa [concluido]
+  1/2 Integrar contrato ao RCF sem duplicar RN025, RN035, RN044, RN046 e RN047 [concluido]
+  2/2 Validar criterios e sincronizar documentacao aplicavel [concluido]
+3/3 Encerramento normativo [concluido]
+  1/2 Validar RCF e rastreabilidade [concluido]
+  2/2 Concluir FT e solicitar nova autorizacao para FT-017 [concluido]
 
 decisoes=
 - A demanda exige norma e codigo em FTs distintas; esta verificacao nao autoriza normatizacao nem implementacao.
 - A ordem temporaria pertence a execucao de campanha e nao altera editor, arquivo, configuracao ou modelo persistido.
+- Retomada abrange pausa, continuacao e reconexao da GUI a operacao viva; perda do processo encerra a campanha conforme RN044, e nova tentativa constitui nova campanha.
+- Uma permutacao aleatoria pode coincidir com a ordem original; integridade, ausencia de mutacao e sorteio unico sao os contratos verificaveis.
 
 verificacoes_concluidas=
 - Commit ea87253 adicionou somente a demanda de aleatorizacao em TODO.ia.md.
 - RN025 cobre multiplos modelos e distribuicao circular, mas nao define embaralhamento efemero, default habilitado ou estabilidade da ordem por execucao.
+- RN048 define default habilitado, hierarquia de configuracao, GUI/CLI, permutacao unica em memoria, estabilidade na operacao viva, interacao com RN025/RN046 e validacao deterministica.
+- `npm run agent:rcf`: concluido em modo `RCF_DEGRADED`, com leitura do RCF de 78892 bytes.
+- `node --test test/rcf.test.js`: 111/111 testes aprovados.
+- `git diff --check`: aprovado; somente avisos de conversao LF/CRLF do Git.
 
 pendencias=
-- Implementacao normativa da FT-016.
+- Nenhuma; FT-017 permanece separadamente bloqueada por autorizacao posterior.
 
 FT-017|nome=Implementar aleatorizacao efemera dos modelos|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=pendente
 criado_em=2026-08-26T18:55:56-03:00
@@ -46,8 +53,8 @@ origem=TODO.ia.md@ea87253;sha256=8a27272e12d10c315645b4f645c68c8088a7b86547147e5
 objetivo=Implementar e validar o contrato que vier a ser equalizado pela FT-016 no carregamento da campanha, configuracao, GUI, CLI e testes, sem alterar a ordem persistida dos modelos.
 dependencias=FT-016 concluida;nova autorizacao humana explicita posterior
 aceite=Implementacao, testes, documentacao e distribuicao comprovam embaralhamento unico por nova execucao, estabilidade em retomada e ausencia de efeito com um modelo ou opcao desabilitada.
-estado_atual=Bloqueada pela FT-016 pendente e pela autorizacao humana posterior obrigatoria.
-proximo_ponto_executavel=Nenhum enquanto a FT-016 estiver pendente.
+estado_atual=FT-016 concluida; permanece bloqueada somente pela autorizacao humana explicita posterior obrigatoria.
+proximo_ponto_executavel=Aguardar nova autorizacao humana explicita posterior a conclusao e publicacao da FT-016.
 
 etapas=
 1/3 Preparacao tecnica [pendente]
@@ -64,7 +71,7 @@ decisoes=
 - Nao iniciar codigo antes da conclusao normativa e de nova autorizacao humana explicita.
 
 verificacoes_concluidas=
-- Nenhuma implementacao iniciada nesta triagem.
+- RN048 concluida sem inicio de implementacao tecnica.
 
 pendencias=
 - Toda a FT-017.
