@@ -17,7 +17,9 @@ const {
   RECIPIENT_MESSAGE_DELAY_ENABLED,
   RECIPIENT_MESSAGE_DELAY_MS,
   ROOT_DIR,
+  TEMPLATE_VARIANT_RANDOMIZATION_ENABLED,
   isTruthyEnv,
+  readBooleanEnv,
   readIntegerEnv,
 } = require("./config");
 const { loadClientes, loadTemplate } = require("./data");
@@ -176,7 +178,8 @@ async function processCampaignExecution(client, paths = PATHS, options = {}) {
   const forceResend = Boolean(options.forceResend);
   const sentRecords = loadSentRecords(paths.sent);
   const templateDocument = parseEmbeddedTemplate(loadTemplate(paths.template));
-  const templateVariants = splitTemplateVariants(templateDocument.content);
+  const originalTemplateVariants = splitTemplateVariants(templateDocument.content);
+  const templateVariants = createCampaignTemplateVariants(originalTemplateVariants, options);
   const messageContexts = templateVariants.map((variant) =>
     registerTemplateInCache(variant, paths),
   );
@@ -431,6 +434,38 @@ async function processCampaignExecution(client, paths = PATHS, options = {}) {
   return { interrupted: false };
 }
 
+function createCampaignTemplateVariants(templateVariants, options = {}) {
+  if (!Array.isArray(templateVariants)) {
+    throw new TypeError("A lista de modelos da campanha deve ser um array.");
+  }
+
+  const randomizationEnabled = options.templateVariantRandomizationEnabled ?? readBooleanEnv(
+    "TEMPLATE_VARIANT_RANDOMIZATION_ENABLED",
+    TEMPLATE_VARIANT_RANDOMIZATION_ENABLED,
+  );
+
+  if (!randomizationEnabled || templateVariants.length < 2) {
+    return templateVariants;
+  }
+
+  const randomized = [...templateVariants];
+  const random = typeof options.templateVariantRandom === "function"
+    ? options.templateVariantRandom
+    : Math.random;
+
+  for (let index = randomized.length - 1; index > 0; index -= 1) {
+    const sample = Number(random());
+    // PROTECAO: rejeita fonte injetada fora do intervalo para impedir permutação incompleta.
+    if (!Number.isFinite(sample) || sample < 0 || sample >= 1) {
+      throw new Error("Fonte de aleatoriedade inválida: esperado valor entre 0 e 1.");
+    }
+    const targetIndex = Math.floor(sample * (index + 1));
+    [randomized[index], randomized[targetIndex]] = [randomized[targetIndex], randomized[index]];
+  }
+
+  return randomized;
+}
+
 async function processInterleavedRecipients(context) {
   const {
     client, clientes, forceResend, messageContexts, options, paths,
@@ -590,6 +625,7 @@ function emitProgress(options, event) {
 
 module.exports = {
   captureConversationContext,
+  createCampaignTemplateVariants,
   processCampaign,
   validateRuntimeFiles,
 };

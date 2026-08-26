@@ -153,6 +153,8 @@ Cada conversa recebe contexto imutável antes do primeiro item. `${ultimaconvers
 
 A alternância de destinatários é opt-in e permanece sequencial na rede. Quando ativada, processa grupos em round-robin, preserva a ordem interna de cada conversa e aceita `$pause$` como cessão antecipada de turno. O intervalo intraconversa é independente do intervalo entre destinatários.
 
+Quando houver múltiplos modelos separados por `^^^`, a ordem é aleatorizada uma única vez no início de cada campanha por padrão. Essa ordem temporária permanece estável durante envio, alternância, pausas e retentativas e nunca altera o editor nem o arquivo `.md`. Desative pela engrenagem da GUI ou use `--sem-aleatorizacao-modelos` na CLI para preservar a ordem original.
+
 Anexos em `![](arquivo.pdf)` ou `![](./arquivo.pdf)` são buscados primeiro a partir da pasta do modelo `.md` em uso; se não forem encontrados ali, o sistema tenta a raiz do projeto. Caminhos absolutos e URLs `http/https` também são aceitos.
 
 O clipe da GUI incorpora formatos suportados pelo backend (até 8 MiB), insere `![arquivo](@embed:id)` no cursor e mantém a definição no rodapé global `@@embedded`, usando `data:MIME;base64,...`. O caminho manual continua compatível. Integridade, MIME/extensão, IDs, referências e definições sem uso são validados antes do envio.
@@ -236,6 +238,8 @@ Comandos principais:
 | `node main.js --lista "valor>=100 && status=ativo"` | Usa filtro composto com comparacao e logica. |
 | `node main.js --alternar-destinatarios --grupo-destinatarios 2 --mensagens-por-turno 1` | Ativa round-robin cooperativo. |
 | `node main.js --alternar-destinatarios --delay-mensagem 1500` | Ativa atraso intraconversa em milissegundos. |
+| `node main.js --aleatorizar-modelos` | Força a aleatorização efêmera dos modelos nesta campanha. |
+| `node main.js --sem-aleatorizacao-modelos` | Preserva a ordem original dos modelos nesta campanha. |
 | `npm run start:force` | Ignora historico de enviados nesta execucao. |
 | `npm run start:clear` | Limpa `logs/enviados.csv` antes de iniciar. |
 | `npm run sent:clear` | Alias para limpar enviados. |

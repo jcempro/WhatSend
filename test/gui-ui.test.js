@@ -96,6 +96,11 @@ test("configurações ENV persistem por escopo global e sessão", () => {
   const snapshot = getEnvSettingsSnapshot(root, "campanha-teste");
   assert.equal(snapshot.scopes.global.MIN_DELAY_MS, "10");
   assert.equal(snapshot.scopes.session.MAX_DELAY_MS, "20");
+  const randomization = snapshot.definitions.find(
+    (definition) => definition.name === "TEMPLATE_VARIANT_RANDOMIZATION_ENABLED",
+  );
+  assert.equal(randomization.fallback, "true");
+  assert.equal(randomization.group, "Modelo");
 
   delete process.env.MAX_DELAY_MS;
   applyStartupEnvSettings(root, ["--session", "campanha teste"]);

@@ -327,6 +327,7 @@ function ensureEnvExample() {
       "RESEND_AFTER_HOURS=48",
       "MIN_DELAY_MS=8000",
       "MAX_DELAY_MS=20000",
+      "TEMPLATE_VARIANT_RANDOMIZATION_ENABLED=true",
       "",
     ].join("\n"),
     "utf8",

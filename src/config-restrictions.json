@@ -188,6 +188,13 @@
       "max": 10000,
       "min": 1,
       "type": "integer"
+    },
+    "TEMPLATE_VARIANT_RANDOMIZATION_ENABLED": {
+      "default": true,
+      "group": "Modelo",
+      "groupOrder": 60,
+      "label": "Aleatorizar modelos no início do envio",
+      "type": "boolean"
     }
   }
 }

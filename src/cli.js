@@ -63,6 +63,7 @@ function parseExecutionOptions(argv = process.argv.slice(2)) {
     renameSession: undefined,
     session: undefined,
     templateName: undefined,
+    templateVariantRandomizationEnabled: undefined,
   };
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -108,6 +109,16 @@ function parseExecutionOptions(argv = process.argv.slice(2)) {
 
     if (["--force-resend", "--reenviar", "--no-skip-sent"].includes(arg)) {
       options.forceResend = true;
+      continue;
+    }
+
+    if (["--randomize-models", "--aleatorizar-modelos"].includes(arg)) {
+      options.templateVariantRandomizationEnabled = true;
+      continue;
+    }
+
+    if (["--no-randomize-models", "--sem-aleatorizacao-modelos"].includes(arg)) {
+      options.templateVariantRandomizationEnabled = false;
       continue;
     }
 
@@ -313,6 +324,10 @@ Opções:
                       Usa um Markdown específico somente na validação --check.
   --gui               Abre a interface gráfica local após autenticar.
   --force-resend      Ignora logs/enviados.csv nesta execução e reenvia.
+  --aleatorizar-modelos
+                      Aleatoriza uma vez a ordem dos modelos nesta execução.
+  --sem-aleatorizacao-modelos
+                      Preserva a ordem original dos modelos nesta execução.
   --alternar-destinatarios
                       Ativa alternância cooperativa nesta execução.
   --grupo-destinatarios N

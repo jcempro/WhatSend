@@ -30,6 +30,7 @@ const {
   buildSendPlan,
   buildPuppeteerConfig,
   createMessageMediaFromFile,
+  createCampaignTemplateVariants,
   createRuntimeScriptSnapshot,
   createStatusReporter,
   destroyWhatsAppClient,
@@ -1496,6 +1497,119 @@ test("divisão de postagens é subordinada ao separador de múltiplos modelos", 
   assert.equal(variants.length, 2);
   assert.deepEqual(splitMessagePostings(variants[0]), ["A".repeat(96), "B".repeat(96)]);
   assert.deepEqual(splitMessagePostings(variants[1]), ["C".repeat(96), "D".repeat(96)]);
+});
+
+test("aleatorização de modelos cria permutação única sem alterar a origem", () => {
+  const original = ["modelo-a", "modelo-b", "modelo-c"];
+  const empty = [];
+  let randomCalls = 0;
+  const randomized = createCampaignTemplateVariants(original, {
+    templateVariantRandom: () => {
+      randomCalls += 1;
+      return 0;
+    },
+    templateVariantRandomizationEnabled: true,
+  });
+
+  assert.deepEqual(randomized, ["modelo-b", "modelo-c", "modelo-a"]);
+  assert.deepEqual(original, ["modelo-a", "modelo-b", "modelo-c"]);
+  assert.equal(randomCalls, 2);
+  assert.deepEqual(
+    withEnv({ TEMPLATE_VARIANT_RANDOMIZATION_ENABLED: undefined }, () =>
+      createCampaignTemplateVariants(original, { templateVariantRandom: () => 0 })),
+    ["modelo-b", "modelo-c", "modelo-a"],
+  );
+  assert.strictEqual(
+    createCampaignTemplateVariants(empty, {
+      templateVariantRandom: () => { throw new Error("não deveria sortear"); },
+      templateVariantRandomizationEnabled: true,
+    }),
+    empty,
+  );
+  assert.strictEqual(
+    createCampaignTemplateVariants(original, {
+      templateVariantRandom: () => { throw new Error("não deveria sortear"); },
+      templateVariantRandomizationEnabled: false,
+    }),
+    original,
+  );
+  assert.strictEqual(
+    createCampaignTemplateVariants(["único"], {
+      templateVariantRandom: () => { throw new Error("não deveria sortear"); },
+      templateVariantRandomizationEnabled: true,
+    })[0],
+    "único",
+  );
+  assert.throws(
+    () => createCampaignTemplateVariants(original, {
+      templateVariantRandom: () => 1,
+      templateVariantRandomizationEnabled: true,
+    }),
+    /Fonte de aleatoriedade inválida/,
+  );
+});
+
+test("CLI controla a aleatorização efêmera dos modelos", () => {
+  assert.equal(
+    parseExecutionOptions(["--aleatorizar-modelos"]).templateVariantRandomizationEnabled,
+    true,
+  );
+  assert.equal(
+    parseExecutionOptions(["--sem-aleatorizacao-modelos"]).templateVariantRandomizationEnabled,
+    false,
+  );
+});
+
+test("campanha alternada reutiliza uma única ordem efêmera sem persistir a reordenação", async () => {
+  const blockA = `Modelo A para \${nome}. ${"A".repeat(96)}`;
+  const blockB = `Modelo B para \${nome}. ${"B".repeat(96)}`;
+  const template = `${blockA}\n^^^\n${blockB}`;
+  const { paths } = createFixture({
+    csv: [
+      "nome,telefone",
+      "Maria,(19) 99824-0000",
+      "João,(11) 91234-5678",
+      "Ana,(21) 99876-5432",
+      "",
+    ].join("\n"),
+    template,
+  });
+  const messages = [];
+  let randomCalls = 0;
+  const client = {
+    async getNumberId(phone) {
+      return { _serialized: `${phone}@c.us` };
+    },
+    async sendMessage(_to, content) {
+      if (typeof content === "string") messages.push(content);
+    },
+  };
+
+  await processCampaign(client, paths, {
+    forceResend: true,
+    interleavingEnabled: true,
+    interleavingGroupSize: 2,
+    messageDelayEnabled: false,
+    messagesPerTurn: 1,
+    templateVariantRandom: () => {
+      randomCalls += 1;
+      return 0;
+    },
+    templateVariantRandomizationEnabled: true,
+  });
+
+  assert.equal(randomCalls, 1);
+  assert.deepEqual(messages, [
+    blockB.replace("${nome}", "Maria"),
+    blockA.replace("${nome}", "João"),
+    blockB.replace("${nome}", "Ana"),
+  ]);
+  assert.equal(fs.readFileSync(paths.template, "utf8"), template);
+  const campaignState = fs.readFileSync(
+    path.join(paths.root, ".runtime", "campaigns", "default.json"),
+    "utf8",
+  );
+  assert.doesNotMatch(campaignState, /Modelo [AB] para/u);
 });
 
 test("resolve sessão por nome ou últimos dígitos e rejeita ambiguidade", () => {

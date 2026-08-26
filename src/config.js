@@ -39,6 +39,18 @@ function readNumberEnv(name, fallback) {
   return value;
 }
 
+function readBooleanEnv(name, fallback) {
+  const restriction = getEnvRestriction(name);
+  const defaultValue = fallback ?? restriction.default ?? false;
+  const rawValue = process.env[name];
+
+  if (rawValue === undefined || String(rawValue).trim() === "") {
+    return Boolean(defaultValue);
+  }
+
+  return isTruthyEnv(rawValue);
+}
+
 function getEnvRestriction(name) {
   return (CONFIG_RESTRICTIONS.env && CONFIG_RESTRICTIONS.env[name]) || {
     default: undefined,
@@ -134,16 +146,17 @@ const MIN_DELAY_MS = readIntegerEnv("MIN_DELAY_MS", 8000);
 const MAX_DELAY_MS = readIntegerEnv("MAX_DELAY_MS", 20000);
 const MESSAGE_DIFF_THRESHOLD_PERCENT = readNumberEnv("MESSAGE_DIFF_THRESHOLD_PERCENT", 10);
 const TEMPLATE_VARIANT_MIN_LENGTH = readIntegerEnv("TEMPLATE_VARIANT_MIN_LENGTH", 96);
+const TEMPLATE_VARIANT_RANDOMIZATION_ENABLED = readBooleanEnv("TEMPLATE_VARIANT_RANDOMIZATION_ENABLED", true);
 const RESEND_AFTER_HOURS = readNumberEnv("RESEND_AFTER_HOURS", 48);
 const RECENT_CONVERSATION_MINUTES = readIntegerEnv("RECENT_CONVERSATION_MINUTES", 15);
-const RECIPIENT_INTERLEAVING_ENABLED = isTruthyEnv(process.env.RECIPIENT_INTERLEAVING_ENABLED);
+const RECIPIENT_INTERLEAVING_ENABLED = readBooleanEnv("RECIPIENT_INTERLEAVING_ENABLED", false);
 const RECIPIENT_INTERLEAVING_MAX_GROUP_SIZE = readIntegerEnv("RECIPIENT_INTERLEAVING_MAX_GROUP_SIZE", 25);
 const RECIPIENT_INTERLEAVING_GROUP_SIZE = Math.min(
   readIntegerEnv("RECIPIENT_INTERLEAVING_GROUP_SIZE", 2),
   RECIPIENT_INTERLEAVING_MAX_GROUP_SIZE,
 );
 const RECIPIENT_MESSAGES_PER_TURN = readIntegerEnv("RECIPIENT_MESSAGES_PER_TURN", 1);
-const RECIPIENT_MESSAGE_DELAY_ENABLED = isTruthyEnv(process.env.RECIPIENT_MESSAGE_DELAY_ENABLED);
+const RECIPIENT_MESSAGE_DELAY_ENABLED = readBooleanEnv("RECIPIENT_MESSAGE_DELAY_ENABLED", false);
 const RECIPIENT_MESSAGE_DELAY_MS = readIntegerEnv("RECIPIENT_MESSAGE_DELAY_MS", 0);
 
 validateEnvRelations({
@@ -159,6 +172,7 @@ validateEnvRelations({
   RECIPIENT_MESSAGE_DELAY_ENABLED,
   RECIPIENT_MESSAGE_DELAY_MS,
   TEMPLATE_VARIANT_MIN_LENGTH,
+  TEMPLATE_VARIANT_RANDOMIZATION_ENABLED,
 });
 
 const COLORS = Object.freeze({
@@ -180,11 +194,20 @@ module.exports = {
   MESSAGE_DIFF_THRESHOLD_PERCENT,
   MIN_DELAY_MS,
   PATHS,
+  RECENT_CONVERSATION_MINUTES,
+  RECIPIENT_INTERLEAVING_ENABLED,
+  RECIPIENT_INTERLEAVING_GROUP_SIZE,
+  RECIPIENT_INTERLEAVING_MAX_GROUP_SIZE,
+  RECIPIENT_MESSAGES_PER_TURN,
+  RECIPIENT_MESSAGE_DELAY_ENABLED,
+  RECIPIENT_MESSAGE_DELAY_MS,
   REQUIRED_COLUMNS,
   RESEND_AFTER_HOURS,
   ROOT_DIR,
   TEMPLATE_VARIANT_MIN_LENGTH,
+  TEMPLATE_VARIANT_RANDOMIZATION_ENABLED,
   isTruthyEnv,
+  readBooleanEnv,
   readFirstEnv,
   readIntegerEnv,
   readNumberEnv,
