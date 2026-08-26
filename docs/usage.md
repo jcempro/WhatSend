@@ -50,6 +50,14 @@ O quadro de notações da GUI é retrátil e recolhido por padrão. Ao adicionar
 
 Cada postagem gerada por `$postagem$` é normalizada individualmente antes da prévia e do envio: sobras no início/fim e caracteres não imprimíveis excedentes são removidos, enquanto recuos intencionais de pelo menos quatro espaços em linha de conteúdo são preservados.
 
+### Contexto, decisões e alternância
+
+Antes do primeiro item, cada destinatário recebe uma captura isolada da última mensagem preexistente. `${ultimaconversa}` é reservada e imutável; `$.emconversa()` usa `RECENT_CONVERSATION_MINUTES=15`, e `$.emconversa(30)` especializa somente aquela avaliação. Ausência de histórico retorna `false`.
+
+O namespace `$.` acrescenta `if`, `and`, `or`, `xor`, `min`, `max` e `media`. A construção `if (condição) { valor } else { valor }` aceita aninhamento e quebras LF/CRLF. Os ramos condicionais são preguiçosos. Matemática aceita `+`, `-`, `*`, `/`, `%` e `**`; divisor/módulo zero e resultado não finito são inválidos.
+
+Por padrão, o envio continua sequencial. Com `RECIPIENT_INTERLEAVING_ENABLED=true`, grupos são percorridos em round-robin sem chamadas de rede concorrentes. `$pause$` cede o turno e nunca é enviado. O atraso de `RECIPIENT_MESSAGE_DELAY_MS` pertence à conversa, e o tempo gasto com outros destinatários abate somente o restante daquele relógio.
+
 ## Emojis profissionais
 
 Lista complementar de 60 emojis sugeridos para uso moderado em mensagens profissionais:
@@ -226,6 +234,13 @@ RESEND_AFTER_HOURS=48
 TEMPLATE_VARIANT_MIN_LENGTH=96
 GUI_PORT=3137
 WA_CLIENT_ID=campanha_teste
+RECENT_CONVERSATION_MINUTES=15
+RECIPIENT_INTERLEAVING_ENABLED=false
+RECIPIENT_INTERLEAVING_GROUP_SIZE=2
+RECIPIENT_INTERLEAVING_MAX_GROUP_SIZE=25
+RECIPIENT_MESSAGES_PER_TURN=1
+RECIPIENT_MESSAGE_DELAY_ENABLED=false
+RECIPIENT_MESSAGE_DELAY_MS=0
 ```
 
 Se `GUI_PORT` estiver ocupada, a interface tenta automaticamente portas próximas, como `3138` e `3139`, e informa a URL efetiva no console.
@@ -248,7 +263,7 @@ Antes de baixar o pacote remoto, o atualizador compara os metadados da API com `
 
 Durante a copia, arquivos operacionais locais sao preservados, incluindo `clientes.csv`, `texto.md`, `.env`, `logs/`, `.wwebjs_auth/`, `.runtime/` e `node_modules/`. Depois disso, o script roda `npm install` com download automatico do Puppeteer desativado, valida o navegador com `scripts/ensure-browser.js` e so entao grava o novo `whatsend-version.json`.
 
-O botão Atualizar da GUI abre painel visual para atualizar somente `whatsapp-web.js`, todas as dependências, o software oficial ou reverter a última atualização. A seleção e confirmação são obrigatórias porque versões novas podem quebrar o ambiente estável. O backend registra um snapshot em `.runtime/updates`, poda dependências órfãs e tenta restaurar automaticamente software, dependências e metadados se uma operação falhar; sessões, configurações, dados e logs não entram no snapshot nem são alterados.
+O botão Atualizar da GUI abre painel visual para atualizar somente `whatsapp-web.js`, todas as dependências, o software oficial ou reverter a última atualização. A seleção e confirmação são obrigatórias porque versões novas podem quebrar o ambiente estável. O backend registra um snapshot em `.runtime/updates`, poda dependências órfãs e tenta restaurar automaticamente software, dependências e metadados se uma operação falhar; sessões, configurações, dados e logs não entram no snapshot nem são alterados. Estado terminal e reinício são observáveis separadamente, e o supervisor reinicia automaticamente a GUI quando a operação exige recarga dos scripts.
 
 ## Bundle offline e formato unificado
 

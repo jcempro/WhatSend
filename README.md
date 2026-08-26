@@ -149,6 +149,10 @@ Segunda postagem, enviada somente após confirmação da primeira.
 
 O marcador `$postagem$` é removido do texto enviado. Quando estiver sozinho em uma linha, a própria linha do marcador funciona como separador. Se o template também usar múltiplos modelos com `^^^`, o sistema primeiro seleciona a variante por `^^^` e só depois divide a variante escolhida por `$postagem$`.
 
+Cada conversa recebe contexto imutável antes do primeiro item. `${ultimaconversa}` contém o instante UTC ISO 8601 da última mensagem preexistente, ou vazio; `$.emconversa()` testa a janela padrão de 15 minutos. O avaliador também oferece `$.if`, `$.and`, `$.or`, `$.xor`, `$.min`, `$.max`, `$.media`, `if (condição) { valor } else { valor }`, `%` e `**`, com argumentos e ramos multiline.
+
+A alternância de destinatários é opt-in e permanece sequencial na rede. Quando ativada, processa grupos em round-robin, preserva a ordem interna de cada conversa e aceita `$pause$` como cessão antecipada de turno. O intervalo intraconversa é independente do intervalo entre destinatários.
+
 Anexos em `![](arquivo.pdf)` ou `![](./arquivo.pdf)` são buscados primeiro a partir da pasta do modelo `.md` em uso; se não forem encontrados ali, o sistema tenta a raiz do projeto. Caminhos absolutos e URLs `http/https` também são aceitos.
 
 O clipe da GUI incorpora formatos suportados pelo backend (até 8 MiB), insere `![arquivo](@embed:id)` no cursor e mantém a definição no rodapé global `@@embedded`, usando `data:MIME;base64,...`. O caminho manual continua compatível. Integridade, MIME/extensão, IDs, referências e definições sem uso são validados antes do envio.
@@ -191,7 +195,7 @@ A interface local abre no inicio do fluxo, mostra autenticacao/carregamento do W
 
 O título da aba acompanha a mesma fonte de estado do progresso visível: durante uma campanha começa pelo percentual inteiro e pelo estado (`Preparando`, `Validando`, `Enviando`, `Concluído`, `Interrompido` ou `Erro`). `100% Concluído — WhatSend` permanece até uma alteração material invalidar a conclusão. O painel superior `Licença` mantém o aviso textual de que o produto está em desenvolvimento e pode conter erros.
 
-O editor da GUI não salva HTML nem formato rico: a toolbar por ícones apenas insere ou remove texto compatível com WhatsApp, como `*negrito*`, `_itálico_`, `~tachado~`, monoespaçado com três crases, emoji pelo menu suspenso, `![](arquivo.pdf)`, `$diatarde$`, `$postagem$` e `^^^`. Linhas `^^^` viram abas visuais automaticamente; ao salvar ou enviar, as abas são recombinadas com o mesmo separador. A prévia lateral mostra somente a aba ativa, renderiza a marcação básica como resultado visual e mantém rolagem sincronizada com o editor.
+O editor da GUI não salva HTML nem formato rico: a toolbar por ícones apenas insere ou remove texto compatível com WhatsApp, incluindo formatação, `${}`, `ultimaconversa`, funções condicionais/lógicas/matemáticas, `if/else`, `$pause$`, `$diatarde$`, `$postagem$` e `^^^`. Linhas `^^^` viram abas visuais automaticamente; ao salvar ou enviar, as abas são recombinadas com o mesmo separador. A prévia lateral mostra somente a aba ativa, usa o mesmo avaliador do envio e mantém rolagem sincronizada com o editor.
 
 Antes do download `.md` e de Abrir, a toolbar oferece Nova edição, Salvar no navegador e Abrir do armazenamento local. O salvamento no navegador usa `localStorage` com nome definitivo, preserva o conjunto completo de guias e mantém `.autosave` apenas para recuperação automática de edição sem nome. Por padrão, até 10 salvamentos nomeados ficam disponíveis por navegador; ajuste com `LOCAL_TEMPLATE_SAVE_LIMIT`.
 
@@ -200,6 +204,8 @@ O quadro de notações fica recolhido por padrão e não depende de JavaScript. 
 Ao selecionar um `.md`, a GUI carrega o conteúdo no editor, separa abas por `^^^`, atualiza a prévia e analisa anexos locais em segundo plano. Se algum não for localizado, aparece um aviso ao lado do seletor e um campo para informar a pasta de referência dos anexos. Se o arquivo for enviado sem edição, ele continua podendo ser usado como fonte para preservar a resolução relativa de anexos; se houver edição no editor, o texto editado passa a ser a fonte da execução.
 
 A engrenagem da GUI permite ajustar parâmetros operacionais de ENV para a execução atual, globalmente ou apenas para a sessão selecionada. Configurações por sessão são gravadas em JSON local e carregadas automaticamente na próxima abertura dessa sessão, respeitando a hierarquia execução, sessão, global e default.
+
+Durante campanha ativa, o servidor persiste o estado autoritativo em `.runtime/campaigns`, rejeita nova campanha ou gestão de sessão e a GUI recolhe os painéis materiais. Progresso e logs continuam visíveis, e `Interromper envio` solicita parada cooperativa após o item indivisível atual.
 
 ### Bundle offline e pacote unificado
 
@@ -228,6 +234,8 @@ Comandos principais:
 | `node main.js faturamento base_exemplo` | Usa modelo e lista nomeados. |
 | `node main.js --lista "status=ativo"` | Filtra `clientes.csv` por coluna. |
 | `node main.js --lista "valor>=100 && status=ativo"` | Usa filtro composto com comparacao e logica. |
+| `node main.js --alternar-destinatarios --grupo-destinatarios 2 --mensagens-por-turno 1` | Ativa round-robin cooperativo. |
+| `node main.js --alternar-destinatarios --delay-mensagem 1500` | Ativa atraso intraconversa em milissegundos. |
 | `npm run start:force` | Ignora historico de enviados nesta execucao. |
 | `npm run start:clear` | Limpa `logs/enviados.csv` antes de iniciar. |
 | `npm run sent:clear` | Alias para limpar enviados. |
@@ -295,7 +303,7 @@ Os scripts `.\atualizar.cmd` e `sh ./atualizar.sh` nao dependem de Git nem de um
 
 Quando a Release Latest possuir asset `WhatSend-v<versao>[-<canal>].zip`, o atualizador baixa esse pacote distribuivel. Antes de baixar o pacote, ele compara a versao remota com `whatsend-version.json`, arquivo operacional pequeno mantido no root e tambem publicado na release. Quando o identificador local corresponde ao `tag`/commit da Release ou ao commit da `main`, o download e a reinstalacao de dependencias sao pulados.
 
-Na GUI, o ícone Atualizar verifica em segundo plano o aplicativo e `whatsapp-web.js`, com cache, timeout, retentativa limitada e estados independentes. Quando houver atualização disponível, o ícone muda de cor e pulsa por CSS, respeitando redução de movimento. O painel visual mostra qual componente está atualizado, disponível, em verificação, inconclusivo ou em falha temporária, e mantém as quatro ações: somente `whatsapp-web.js`, todas as dependências, software oficial e reversão da última atualização. Cada ação exige seleção e confirmação explícitas, alerta que versões novas podem quebrar um ambiente estável e mostra o progresso no registro. Antes da alteração, o sistema cria um snapshot local mínimo em `.runtime/updates`; em falha tenta restaurá-lo, preservando sessões, configurações, dados de clientes e logs. Ao concluir, reinicie o WhatSend para carregar as versões instaladas.
+Na GUI, o ícone Atualizar verifica em segundo plano o aplicativo e `whatsapp-web.js`, com cache, timeout, retentativa limitada e estados independentes. Quando houver atualização disponível, o ícone muda de cor e pulsa por CSS, respeitando redução de movimento. O painel visual mostra qual componente está atualizado, disponível, em verificação, inconclusivo ou em falha temporária, e mantém as quatro ações: somente `whatsapp-web.js`, todas as dependências, software oficial e reversão da última atualização. Cada ação exige seleção e confirmação explícitas, alerta que versões novas podem quebrar um ambiente estável e mostra o progresso no registro. Antes da alteração, o sistema cria um snapshot local mínimo em `.runtime/updates`; em falha tenta restaurá-lo, preservando sessões, configurações, dados de clientes e logs. Resultado terminal e reinício são persistidos separadamente; quando necessário, um supervisor reinicia servidor e GUI automaticamente.
 
 A GUI lista modelos Markdown válidos de `modelos/` pelo backend local. O botão com ícone Font Awesome `folder-open` (`f07c`) fica na toolbar do editor logo após Salvar localmente; a seleção é opcional, não escolhe automaticamente o primeiro item e pede confirmação antes de substituir edição não salva. O card Modelo de mensagem ocupa a largura total do grid, e o card Andamento fica próximo ao progresso global, retraído por padrão com até dois registros recentes e expansão manual para o histórico completo.
 
