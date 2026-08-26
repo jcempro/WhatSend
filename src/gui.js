@@ -12,6 +12,7 @@ const os = require("os");
 const path = require("path");
 
 const { PATHS, ROOT_DIR, readIntegerEnv } = require("./config");
+const { COMMON_EDITOR_ACTIONS } = require("./editor-actions");
 const { renderGuiIcon, renderGuiIconSprite } = require("./gui-icons");
 const {
   AUTHOR,
@@ -26,6 +27,13 @@ const { loadCsv, normalizeTextContent } = require("./data");
 const { analyzeTemplate } = require("./template-advisory");
 const { initLogFiles, resetSentLog } = require("./logs");
 const { processCampaign, validateRuntimeFiles } = require("./campaign");
+const {
+  ACTIVE_CAMPAIGN_STATES,
+  acquireCampaign,
+  readCampaignState,
+  reconcileCampaignState,
+  requestCampaignInterrupt,
+} = require("./campaign-state");
 const { buildSendPlan, isOggSource, isUrl, validateTemplateMediaReferences } = require("./media");
 const {
   MAX_EMBEDDED_ATTACHMENT_BYTES,
@@ -107,22 +115,6 @@ const GUI_HINTS = Object.freeze({
   videoExpression: "Abrir ajuda em vídeo sobre expressões.",
   videoTemplate: "Abrir ajuda em vídeo sobre modelos Markdown.",
 });
-const TEMPLATE_MARKER_ACTIONS = Object.freeze([
-  {
-    hint: GUI_HINTS.dayPeriod,
-    icon: "sun",
-    id: "insertDayPeriodButton",
-    insert: "$diatarde$",
-    label: "Inserir saudação por horário",
-  },
-  {
-    hint: GUI_HINTS.variant,
-    icon: "layerGroup",
-    id: "insertVariantButton",
-    insert: "\n\n^^^\n\n",
-    label: "Inserir separador de modelos",
-  },
-]);
 
 function registerGuiClientHandlers(client, basePaths = PATHS, baseOptions = {}) {
   const serverInfo = baseOptions.guiServerInfo;
@@ -279,9 +271,12 @@ function listenGuiServer(client, basePaths, baseOptions, state, port, attempt) {
 
 function createGuiState(paths = PATHS) {
   const persistedUpdate = readUpdateState(paths.root || ROOT_DIR);
+  const sessionId = (paths.activeSession && paths.activeSession.id) || paths.sessionClientId || "default";
+  const persistedCampaign = reconcileCampaignState(paths.root || ROOT_DIR, sessionId);
   const state = {
     activeSession: paths.activeSession || null,
     busy: false,
+    campaign: persistedCampaign,
     guiClients: createGuiClientsState(),
     finishedAt: null,
     lastError: "",
@@ -296,6 +291,7 @@ function createGuiState(paths = PATHS) {
     sessions: listSessions(paths),
     whatsappReady: false,
   };
+  state.busy = isCampaignActive(state.campaign);
   if (persistedUpdate && persistedUpdate.result) {
     pushGuiLog(state, {
       message: [persistedUpdate.result, persistedUpdate.error, persistedUpdate.recovery].filter(Boolean).join(" "),
@@ -643,9 +639,14 @@ async function routeGuiRequest(req, res, context) {
     const { OFFLINE_BUNDLE_NAME, buildOfflineBundle } = require("../scripts/build-offline-bundle");
     const targetDir = path.join(GUI_RUNTIME_DIR, "offline-bundle");
     pushGuiLog(context.state, { message: "Preparando bundle offline validado.", type: "info" });
-    const built = buildOfflineBundle(targetDir);
-    sendDownload(res, built.outputPath, OFFLINE_BUNDLE_NAME, "text/html; charset=utf-8");
-    pushGuiLog(context.state, { message: `Bundle offline preparado: ${OFFLINE_BUNDLE_NAME}.`, type: "success" });
+    try {
+      const built = buildOfflineBundle(targetDir);
+      sendDownload(res, built.outputPath, OFFLINE_BUNDLE_NAME, "text/html; charset=utf-8");
+      pushGuiLog(context.state, { message: `Bundle offline preparado: ${OFFLINE_BUNDLE_NAME}.`, type: "success" });
+    } catch (error) {
+      pushGuiLog(context.state, { message: `Bundle offline não foi entregue: ${error.message}`, type: "error" });
+      throw error;
+    }
     return;
   }
 
@@ -661,6 +662,7 @@ async function routeGuiRequest(req, res, context) {
 
   if (req.method === "GET" && url.pathname === "/api/status") {
     context.state.sessions = listSessions(context.basePaths);
+    refreshAuthoritativeCampaign(context);
     sendJson(res, 200, {
       ok: true,
       state: serializeGuiState(context.state),
@@ -702,6 +704,25 @@ async function routeGuiRequest(req, res, context) {
     }
     startGuiUpdate(context, action);
     sendJson(res, 202, { message: "Atualização iniciada. Acompanhe o progresso abaixo.", ok: true });
+    return;
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/campaign/interrupt") {
+    const campaign = refreshAuthoritativeCampaign(context);
+    if (!campaign) {
+      sendJson(res, 404, { error: "Nenhuma campanha registrada para interromper.", ok: false });
+      return;
+    }
+    context.state.campaign = requestCampaignInterrupt(
+      context.basePaths.root || ROOT_DIR,
+      campaign.sessionId,
+    );
+    context.state.busy = isCampaignActive(context.state.campaign);
+    pushGuiLog(context.state, {
+      message: "Interrupção solicitada. O item indivisível atual poderá terminar antes da parada.",
+      type: "warning",
+    });
+    sendJson(res, 202, { campaign: context.state.campaign, ok: true });
     return;
   }
 
@@ -856,7 +877,7 @@ async function routeGuiRequest(req, res, context) {
       return;
     }
 
-    if (context.state.busy) {
+    if (isCampaignActive(refreshAuthoritativeCampaign(context))) {
       sendJson(res, 409, {
         error: "Não é possível alternar sessão durante um processamento.",
         ok: false,
@@ -884,7 +905,7 @@ async function routeGuiRequest(req, res, context) {
       return;
     }
 
-    if (context.state.busy) {
+    if (isCampaignActive(refreshAuthoritativeCampaign(context))) {
       sendJson(res, 409, {
         error: "Não é possível criar sessão durante um processamento.",
         ok: false,
@@ -911,6 +932,14 @@ async function routeGuiRequest(req, res, context) {
     if (!sessionId || !name) {
       sendJson(res, 400, {
         error: "Informe a sessão e o novo nome.",
+        ok: false,
+      });
+      return;
+    }
+
+    if (isCampaignActive(refreshAuthoritativeCampaign(context))) {
+      sendJson(res, 409, {
+        error: "Não é possível renomear sessão durante uma campanha ativa.",
         ok: false,
       });
       return;
@@ -944,7 +973,7 @@ async function routeGuiRequest(req, res, context) {
       return;
     }
 
-    if (context.state.busy) {
+    if (isCampaignActive(refreshAuthoritativeCampaign(context))) {
       sendJson(res, 409, {
         error: "Não é possível remover sessão durante um processamento.",
         ok: false,
@@ -1048,7 +1077,22 @@ async function routeGuiRequest(req, res, context) {
       return;
     }
 
-    if (context.state.busy) {
+    const activeCampaign = refreshAuthoritativeCampaign(context);
+    if (
+      isCampaignActive(activeCampaign) &&
+      payload.operationKey &&
+      activeCampaign.idempotencyKey === String(payload.operationKey)
+    ) {
+      sendJson(res, 202, {
+        campaign: activeCampaign,
+        message: "A mesma campanha já está em andamento.",
+        ok: true,
+        reused: true,
+      });
+      return;
+    }
+
+    if (isCampaignActive(activeCampaign)) {
       sendJson(res, 409, {
         error: "Já existe um processamento em andamento.",
         ok: false,
@@ -1061,6 +1105,23 @@ async function routeGuiRequest(req, res, context) {
         error: "Aguarde o WhatsApp conectar antes de executar.",
         ok: false,
       });
+      return;
+    }
+
+    try {
+      const sessionId =
+        (context.state.activeSession && context.state.activeSession.id) ||
+        context.basePaths.sessionClientId ||
+        "default";
+      context.state.campaign = acquireCampaign(
+        context.basePaths.root || ROOT_DIR,
+        sessionId,
+        String(payload.operationKey || ""),
+      ).state;
+      context.state.busy = true;
+    } catch (error) {
+      refreshAuthoritativeCampaign(context);
+      sendJson(res, 409, { error: error.message, ok: false });
       return;
     }
 
@@ -1112,7 +1173,9 @@ async function runGuiCampaign(payload, context) {
   const executionPaths = materializeGuiExecutionPaths(payload, context.basePaths);
   const options = {
     ...context.baseOptions,
+    campaignState: state.campaign,
     forceResend: Boolean(payload.forceResend),
+    idempotencyKey: String(payload.operationKey || ""),
     onProgress: (event) => pushGuiLog(state, event),
     resetSent: Boolean(payload.resetSent),
   };
@@ -1154,7 +1217,8 @@ async function runGuiCampaign(payload, context) {
 
   state.status = "executando";
   try {
-    await processCampaign(context.client, executionPaths, options);
+    const result = await processCampaign(context.client, executionPaths, options);
+    state.campaign = result.state;
     state.busy = false;
     state.finishedAt = new Date().toISOString();
     state.progress = {
@@ -1163,7 +1227,7 @@ async function runGuiCampaign(payload, context) {
       percent: 100,
       total: state.progress ? state.progress.total : 0,
     };
-    state.status = "concluido";
+    state.status = result.interrupted ? "interrompido" : "concluido";
     state.whatsappReady = true;
     endGuiOperation(state, operationId, "concluido");
   } finally {
@@ -3040,6 +3104,24 @@ function renderGuiHtml() {
       margin: 0;
     }
 
+    #runForm.campaign-locked > section > :not(h2) {
+      display: none;
+    }
+
+    #runForm.campaign-locked > section::after {
+      color: var(--warn);
+      content: "Indisponível durante a campanha ativa.";
+      display: block;
+      font-weight: 750;
+      padding: 8px 0 2px;
+    }
+
+    .log-actions {
+      align-items: center;
+      display: flex;
+      gap: 8px;
+    }
+
     .log-toggle {
       min-height: 32px;
       padding: 0 10px;
@@ -3245,6 +3327,7 @@ function renderGuiHtml() {
       </div>
       <div class="header-actions">
         <div class="status-pill" id="statusPill">Aguardando</div>
+        <button id="saveOfflineButton" class="icon-button" type="button" data-hint="${escapeHtml(GUI_HINTS.saveOffline)}" aria-label="Baixar versão offline">${renderGuiIcon("cloudDownload")}</button>
         <button id="updateButton" class="icon-button" type="button" data-hint="${escapeHtml(GUI_HINTS.update)}" aria-label="Atualizar">${renderGuiIcon("f0ed")}</button>
         <button id="settingsButton" class="icon-button" type="button" data-hint="${escapeHtml(GUI_HINTS.settings)}" aria-label="Configurações">${renderGuiIcon("settings")}</button>
         <button id="shutdownButton" class="icon-button shutdown-button" type="button" data-hint="${escapeHtml(GUI_HINTS.shutdown)}" aria-label="Desligar">${renderGuiIcon("power")}</button>
@@ -3406,7 +3489,10 @@ function renderGuiHtml() {
         <section class="full-card log-card">
           <div class="log-header">
             <h2>Andamento</h2>
-            <button id="logToggleButton" class="secondary-button log-toggle" type="button" aria-expanded="false" aria-controls="log">Expandir histórico</button>
+            <div class="log-actions">
+              <button id="interruptCampaignButton" class="danger-button" type="button" hidden>Interromper envio</button>
+              <button id="logToggleButton" class="secondary-button log-toggle" type="button" aria-expanded="false" aria-controls="log">Expandir histórico</button>
+            </div>
           </div>
           <div class="log" id="log"></div>
         </section>
@@ -3482,10 +3568,12 @@ function renderGuiHtml() {
     const button = document.getElementById("runButton");
     const message = document.getElementById("message");
     const log = document.getElementById("log");
+    const interruptCampaignButton = document.getElementById("interruptCampaignButton");
     const logToggleButton = document.getElementById("logToggleButton");
     const statusPill = document.getElementById("statusPill");
     const topProgress = document.getElementById("topProgress");
     const topProgressBar = document.getElementById("topProgressBar");
+    const saveOfflineButton = document.getElementById("saveOfflineButton");
     const updateButton = document.getElementById("updateButton");
     const settingsButton = document.getElementById("settingsButton");
     const shutdownButton = document.getElementById("shutdownButton");
@@ -4848,12 +4936,17 @@ function renderGuiHtml() {
         const input = document.createElement("input");
         input.id = "setting-" + definition.name;
         input.name = definition.name;
-        input.type = "number";
+        input.type = definition.type === "boolean" ? "checkbox" : "number";
         input.step = definition.type === "integer" ? "1" : "any";
         if (definition.min !== undefined) input.min = String(definition.min);
         if (definition.max !== undefined) input.max = String(definition.max);
         input.placeholder = definition.fallback || "";
         input.value = values[definition.name] || "";
+        if (definition.type === "boolean") {
+          input.checked = ["1", "true", "sim", "on"].includes(String(values[definition.name] ?? definition.fallback).toLowerCase());
+          input.value = input.checked ? "true" : "false";
+          input.addEventListener("change", () => { input.value = input.checked ? "true" : "false"; });
+        }
 
         row.append(label, input);
           groupBox.append(row);
@@ -5076,6 +5169,7 @@ function renderGuiHtml() {
         csvFile: (await readFile(csvFileInput)) || importedPackageCsv,
         filter: document.getElementById("filter").value,
         forceResend: document.getElementById("forceResend").checked,
+        operationKey: "gui-" + createStableId(),
         resetSent: document.getElementById("resetSent").checked,
         templateBaseDir: templateBaseDirInput.value,
         templateFile: useTemplateFile ? templateFile : null,
@@ -5174,9 +5268,14 @@ function renderGuiHtml() {
 
     function renderStatus(state) {
       const ready = Boolean(state.whatsappReady);
-      statusPill.textContent = state.busy ? "Executando" : statusLabel(state.status, ready);
-      button.disabled = Boolean(state.busy) || !ready;
-      if (state.busy) completionInvalidated = false;
+      const campaignActive = Boolean(state.campaign && ["preparando", "validando", "executando", "interrupcao_solicitada", "interrompendo"].includes(state.campaign.status));
+      statusPill.textContent = campaignActive ? "Executando" : statusLabel(state.status, ready);
+      button.disabled = campaignActive || !ready;
+      form.classList.toggle("campaign-locked", campaignActive);
+      if ("inert" in form) form.inert = campaignActive;
+      interruptCampaignButton.hidden = !campaignActive;
+      interruptCampaignButton.disabled = Boolean(state.campaign && ["interrupcao_solicitada", "interrompendo"].includes(state.campaign.status));
+      if (campaignActive) completionInvalidated = false;
       renderTopProgress(state);
       renderSessions(state);
       renderUpdateCheck(state.updateCheck || {});
@@ -5270,6 +5369,19 @@ function renderGuiHtml() {
       }
       document.title = title;
     }
+
+    interruptCampaignButton.addEventListener("click", async () => {
+      if (interruptCampaignButton.disabled) return;
+      interruptCampaignButton.disabled = true;
+      try {
+        await postJson("/api/campaign/interrupt", {});
+        showMessage("Interrupção solicitada; aguardando confirmação terminal.", "warning");
+        await refreshStatus();
+      } catch (error) {
+        showMessage(error.message, "error");
+        await refreshStatus().catch(() => {});
+      }
+    });
 
     function invalidateCompletionForMaterialChange() {
       if (!lastGuiState || lastGuiState.busy) return;
@@ -5709,6 +5821,21 @@ function renderGuiHtml() {
       updateOptions.querySelectorAll("[data-update-action]").forEach((item) => item.classList.remove("selected"));
     }
 
+    saveOfflineButton.addEventListener("click", () => {
+      saveOfflineButton.disabled = true;
+      showMessage("Preparando versão offline validada...", "warning");
+      const link = document.createElement("a");
+      link.href = "/api/offline-bundle/download";
+      link.download = "WhatSend-Modelo-Offline.html";
+      document.body.append(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => {
+        saveOfflineButton.disabled = false;
+        showMessage("Download da versão offline solicitado.", "ok");
+      }, 500);
+    });
+
     updateButton.addEventListener("click", () => {
       updateOverlay.classList.add("visible");
       refreshUpdateCheck(true).catch((err) => showMessage(err.message, "error"));
@@ -5881,19 +6008,30 @@ function renderGuiHtml() {
 }
 
 function renderTemplateMarkerButtons() {
-  return TEMPLATE_MARKER_ACTIONS.map((action) => {
+  let previousGroup = "";
+  return COMMON_EDITOR_ACTIONS.map((action) => {
     const id = escapeHtml(action.id);
     const label = escapeHtml(action.label);
     const hint = escapeHtml(action.hint);
     const insert = escapeHtml(action.insert);
-
-    return `<button type="button" id="${id}" data-insert-marker="${insert}" data-hint="${hint}" aria-label="${label}">${renderGuiIcon(action.icon)}</button>`;
+    const separator = previousGroup && previousGroup !== action.group
+      ? '<span class="toolbar-separator" aria-hidden="true"></span>'
+      : "";
+    previousGroup = action.group;
+    const icon = action.id === "insertDayPeriodButton"
+      ? "sun"
+      : action.id === "insertVariantButton"
+        ? "layerGroup"
+        : "code";
+    return `${separator}<button type="button" id="${id}" data-editor-action="${id}" data-insert-marker="${insert}" data-hint="${hint}" aria-label="${label}">${renderGuiIcon(icon)}</button>`;
   }).join("");
 }
 
 function startGuiUpdate(context, action) {
   const { state } = context;
   const operationId = beginGuiOperation(state, "update", { interruptible: false });
+  let latestPersistedState = null;
+  let childFinished = false;
   state.busy = true;
   state.update = { active: true, action, result: "" };
   pushGuiLog(state, { message: `Atualização iniciada: ${action}.`, type: "warning" });
@@ -5903,30 +6041,105 @@ function startGuiUpdate(context, action) {
   ], { cwd: ROOT_DIR, windowsHide: true });
   adoptGuiChildProcess(state, child, "update", operationId);
   const append = (chunk, type) => String(chunk || "").split(/\r?\n/u).filter(Boolean).forEach((message) => {
+    if (message.startsWith(UPDATE_STATE_MARKER)) {
+      try {
+        latestPersistedState = JSON.parse(message.slice(UPDATE_STATE_MARKER.length));
+        state.update = latestPersistedState;
+      } catch (error) {
+        pushGuiLog(state, {
+          message: `Estado estruturado da atualização inválido: ${error.message}`,
+          type: "error",
+        });
+      }
+      return;
+    }
+
     pushGuiLog(state, { message, type });
   });
   child.stdout.on("data", (chunk) => append(chunk, "info"));
   child.stderr.on("data", (chunk) => append(chunk, "error"));
   child.on("error", (error) => {
+    if (childFinished) return;
+    childFinished = true;
     state.busy = false;
     state.update = { active: false, action, result: error.message };
     endGuiOperation(state, operationId, "erro");
     pushGuiLog(state, { message: `Atualização não iniciada: ${error.message}`, type: "error" });
     scheduleAutoGuiShutdown(context, "gui_update_finished");
   });
-  child.on("close", (code) => {
+  child.on("close", async (code) => {
+    if (childFinished) return;
+    childFinished = true;
     const ok = code === 0;
+    const persisted = latestPersistedState || readUpdateState(context.basePaths.root || ROOT_DIR);
     state.busy = false;
-    state.update = { active: false, action, result: ok ? "concluída" : `falhou (código ${code})` };
+    state.update = persisted || { active: false, action, result: ok ? "concluída" : `falhou (código ${code})` };
     endGuiOperation(state, operationId, ok ? "concluido" : "erro");
     pushGuiLog(state, {
       message: ok
-        ? "Atualização concluída. Reinicie o WhatSend para carregar as versões instaladas."
+        ? (persisted && persisted.restart && persisted.restart.required
+          ? "Atualização concluída. O servidor e a GUI serão reiniciados automaticamente."
+          : "Atualização concluída sem necessidade de reinício.")
         : "Atualização falhou; verifique o erro e a recuperação automática registrada acima.",
       type: ok ? "success" : "error",
     });
+    if (persisted && persisted.restart && persisted.restart.required) {
+      try {
+        await scheduleUpdateRestart(context, persisted);
+        return;
+      } catch (error) {
+        state.update = failUpdateRestart(context.basePaths.root || ROOT_DIR, "", error) || state.update;
+        state.lastError = error.message;
+        pushGuiLog(state, { message: `Reinício automático falhou: ${error.message}`, type: "error" });
+      }
+    }
     scheduleAutoGuiShutdown(context, "gui_update_finished");
   });
+}
+
+function isCampaignActive(campaign) {
+  return Boolean(campaign && ACTIVE_CAMPAIGN_STATES.has(campaign.status));
+}
+
+function refreshAuthoritativeCampaign(context) {
+  const sessionId =
+    (context.state.activeSession && context.state.activeSession.id) ||
+    (context.basePaths.activeSession && context.basePaths.activeSession.id) ||
+    context.basePaths.sessionClientId ||
+    "default";
+  context.state.campaign = reconcileCampaignState(context.basePaths.root || ROOT_DIR, sessionId);
+  context.state.busy = isCampaignActive(context.state.campaign) || hasActiveGuiOperations(context.state);
+  return context.state.campaign;
+}
+
+async function scheduleUpdateRestart(context, updateState) {
+  const rootDir = context.basePaths.root || ROOT_DIR;
+  const prepared = prepareUpdateRestart(rootDir, updateState);
+  context.state.update = prepared;
+  const sessionId =
+    (context.state.activeSession && context.state.activeSession.id) ||
+    (context.basePaths.activeSession && context.basePaths.activeSession.id) ||
+    "";
+  const port = context.server && context.server.address() ? context.server.address().port : GUI_PORT;
+  const child = childProcess.spawn(process.execPath, [
+    path.join(ROOT_DIR, "scripts", "restart-gui.js"),
+    "--parent-pid", String(process.pid),
+    "--port", String(port),
+    "--session", sessionId,
+    "--token", prepared.restart.token,
+  ], {
+    cwd: ROOT_DIR,
+    detached: true,
+    stdio: "ignore",
+    windowsHide: true,
+  });
+  await new Promise((resolve, reject) => {
+    child.once("error", reject);
+    child.once("spawn", resolve);
+  });
+  child.unref();
+  pushGuiLog(context.state, { message: "Supervisor de reinício iniciado.", type: "warning" });
+  await shutdownCurrentGuiProcess(context, "scripts_changed");
 }
 
 function renderHelpLink(iconName, href, hint, extraClass = "") {
