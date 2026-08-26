@@ -3,6 +3,43 @@
 
 Resumo operacional gerado de `.ia.rules/continue.ia`.
 
+## FT-017 - Implementar aleatorizacao efemera dos modelos
+
+Objetivo: Implementar e validar o contrato que vier a ser equalizado pela FT-016 no carregamento da campanha, configuracao, GUI, CLI e testes, sem alterar a ordem persistida dos modelos.
+
+<table>
+<thead><tr><th>Etapa</th><th>Tarefa</th><th>Status</th></tr></thead>
+<tbody>
+<tr>
+<td rowspan="2">Preparacao tecnica</td>
+<td>Auditar pontos de selecao, persistencia e retomada de modelos</td>
+<td><span style="color:#64748b">&#9679;</span> pendente</td>
+</tr>
+<tr>
+<td>Definir plano de alteracao minimo conforme o RCF concluido</td>
+<td><span style="color:#64748b">&#9679;</span> pendente</td>
+</tr>
+<tr>
+<td rowspan="2">Implementacao e testes</td>
+<td>Implementar configuracao e ordem efemera</td>
+<td><span style="color:#64748b">&#9679;</span> pendente</td>
+</tr>
+<tr>
+<td>Cobrir defaults, estabilidade, retomada e nao persistencia</td>
+<td><span style="color:#64748b">&#9679;</span> pendente</td>
+</tr>
+<tr>
+<td rowspan="2">Validacao e entrega</td>
+<td>Executar gates aplicaveis e sincronizar documentacao</td>
+<td><span style="color:#64748b">&#9679;</span> pendente</td>
+</tr>
+<tr>
+<td>Concluir FT somente apos comprovacao funcional integral</td>
+<td><span style="color:#64748b">&#9679;</span> pendente</td>
+</tr>
+</tbody>
+</table>
+
 ## FT-006 - Deteccao assincrona de atualizacoes e reorganizacao da GUI
 
 Objetivo: Implementar verificacao assincrona e fail-safe de atualizacoes do aplicativo e de whatsapp-web.js, reorganizar cards, compactar Andamento e adicionar selecao opcional de modelos preexistentes.
