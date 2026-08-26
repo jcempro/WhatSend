@@ -8,14 +8,14 @@ POLITICA=90IA/10HUMANO;1FT_POR_SOLICITACAO;DEV_BRANCH;COMMIT_PUSH_POR_ETAPA_SE_P
 
 FT-016|nome=Aleatorizacao efemera da ordem dos modelos|tipo=implementacao_normativa|escopo=Negocio|prioridade=alta|status=concluido
 criado_em=2026-08-26T18:55:55-03:00
-ultima_atualizacao=2026-08-26T20:05:55-03:00
+ultima_atualizacao=2026-08-26T20:45:09-03:00
 conclusao=2026-08-26T20:05:55-03:00
 origem=TODO.ia.md@ea87253;sha256=8a27272e12d10c315645b4f645c68c8088a7b86547147e53acd648e62221f2d4;item=aleatorizacao da ordem dos modelos exclusivamente no envio
 objetivo=Equalizar e normatizar configuracao habilitada por padrao, embaralhamento unico e efemero no inicio da execucao, estabilidade durante o fluxo e preservacao integral da ordem persistida, sem regressao de alternancia, contexto, delays ou editores.
 dependencias=RCF.md RN025 RN035 RN044 RN046 RN047;FT-015 concluida
 aceite=RCF determina escopo, default, ciclo de vida da ordem temporaria, retomada, caso unitario, integracao GUI/CLI quando aplicavel e validacao deterministica sem persistir a reordenacao.
 estado_atual=Etapa 3/3 concluida; RN048 normatiza configuracao, permutacao efemera unica, estabilidade, retomada viva, nao persistencia, GUI, CLI e testes.
-proximo_ponto_executavel=Nenhum; FT-017 aguarda nova autorizacao humana explicita posterior a esta conclusao.
+proximo_ponto_executavel=Nenhum; FT-017 foi concluida apos autorizacao humana posterior.
 
 etapas=
 1/3 Triagem e conciliacao [concluido]
@@ -44,37 +44,51 @@ verificacoes_concluidas=
 - `git diff --check`: aprovado; somente avisos de conversao LF/CRLF do Git.
 
 pendencias=
-- Nenhuma; FT-017 permanece separadamente bloqueada por autorizacao posterior.
+- Nenhuma; FT-017 concluida.
 
-FT-017|nome=Implementar aleatorizacao efemera dos modelos|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=pendente
+FT-017|nome=Implementar aleatorizacao efemera dos modelos|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=concluido
 criado_em=2026-08-26T18:55:56-03:00
-ultima_atualizacao=2026-08-26T18:55:56-03:00
+ultima_atualizacao=2026-08-26T20:45:09-03:00
+conclusao=2026-08-26T20:45:09-03:00
 origem=TODO.ia.md@ea87253;sha256=8a27272e12d10c315645b4f645c68c8088a7b86547147e53acd648e62221f2d4;vinculo=FT-016
 objetivo=Implementar e validar o contrato que vier a ser equalizado pela FT-016 no carregamento da campanha, configuracao, GUI, CLI e testes, sem alterar a ordem persistida dos modelos.
 dependencias=FT-016 concluida;nova autorizacao humana explicita posterior
 aceite=Implementacao, testes, documentacao e distribuicao comprovam embaralhamento unico por nova execucao, estabilidade em retomada e ausencia de efeito com um modelo ou opcao desabilitada.
-estado_atual=FT-016 concluida; permanece bloqueada somente pela autorizacao humana explicita posterior obrigatoria.
-proximo_ponto_executavel=Aguardar nova autorizacao humana explicita posterior a conclusao e publicacao da FT-016.
+estado_atual=Etapa 3/3 concluida; configuracao central, GUI, CLI e permutacao unica por campanha foram implementadas e validadas sem persistir a ordem temporaria.
+proximo_ponto_executavel=Nenhum; FT concluida.
 
 etapas=
-1/3 Preparacao tecnica [pendente]
-  1/2 Auditar pontos de selecao, persistencia e retomada de modelos [pendente]
-  2/2 Definir plano de alteracao minimo conforme o RCF concluido [pendente]
-2/3 Implementacao e testes [pendente]
-  1/2 Implementar configuracao e ordem efemera [pendente]
-  2/2 Cobrir defaults, estabilidade, retomada e nao persistencia [pendente]
-3/3 Validacao e entrega [pendente]
-  1/2 Executar gates aplicaveis e sincronizar documentacao [pendente]
-  2/2 Concluir FT somente apos comprovacao funcional integral [pendente]
+1/3 Preparacao tecnica [concluido]
+  1/2 Auditar pontos de selecao, persistencia e retomada de modelos [concluido]
+  2/2 Definir plano de alteracao minimo conforme o RCF concluido [concluido]
+2/3 Implementacao e testes [concluido]
+  1/2 Implementar configuracao e ordem efemera [concluido]
+  2/2 Cobrir defaults, estabilidade, retomada e nao persistencia [concluido]
+3/3 Validacao e entrega [concluido]
+  1/2 Executar gates aplicaveis e sincronizar documentacao [concluido]
+  2/2 Concluir FT somente apos comprovacao funcional integral [concluido]
 
 decisoes=
 - Nao iniciar codigo antes da conclusao normativa e de nova autorizacao humana explicita.
+- A autorizacao humana posterior foi recebida em 2026-08-26 apos o commit normativo 23993a3.
+- A permutacao Fisher-Yates e criada no unico ponto de separacao dos modelos antes da bifurcacao sequencial/alternada e permanece na memoria da chamada viva.
+- A GUI reutiliza o painel central de configuracoes; a CLI oferece flags explicitas em portugues e ingles.
 
 verificacoes_concluidas=
 - RN048 concluida sem inicio de implementacao tecnica.
+- Configuracao `TEMPLATE_VARIANT_RANDOMIZATION_ENABLED=true` integrada ao schema central, GUI, ENV e exemplo distribuido.
+- Testes focados comprovam default habilitado, desabilitacao, zero, um e multiplos modelos, fonte deterministica, integridade, ausencia de mutacao e rejeicao de fonte invalida.
+- Teste integrado comprova uma unica permutacao em campanha alternada, estabilidade entre tres destinatarios, arquivo `.md` inalterado e ausencia dos modelos no estado persistido.
+- `npm run check`: aprovado com `VERIFY_OK`, 56 arquivos indexados.
+- `npm test`: aprovado com `TEST_OK`.
+- Suite direta: 154/154 testes aprovados.
+- `npm run build:dist`: concluido; ZIP `WhatSend-v0.3.1.zip` gerado.
+- `npm run validate:dist`: aprovado com cache npm isolado apos `EPERM` do cache global do Windows; instalacao de 174 pacotes e pre-validacao funcional concluidas.
+- `git diff --check`: aprovado; somente avisos de conversao LF/CRLF do Git.
+- Commit funcional 3ea50c4 criou a aleatorizacao efemera e suas superficies/testes.
 
 pendencias=
-- Toda a FT-017.
+- Nenhuma.
 
 FT-012|nome=Estado transacional autoritativo de campanhas na GUI|tipo=implementacao_normativa|escopo=Negocio|prioridade=alta|status=concluido
 criado_em=2026-08-25T17:36:46-03:00
