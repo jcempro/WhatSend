@@ -99,7 +99,7 @@ Objetivo: Publicar o release oficial de identificacao explicita v0.4.0-beta some
 </tr>
 <tr>
 <td>Validar inexistencia da tag/release e preflight</td>
-<td><span style="color:#64748b">&#9679;</span> pendente</td>
+<td><span style="color:#15803d">&#9679;</span> concluído</td>
 </tr>
 <tr>
 <td rowspan="2">Publicacao</td>
