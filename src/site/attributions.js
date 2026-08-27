@@ -415,7 +415,10 @@ function sourceFingerprints(rootDir) {
     "node_modules/lucide/LICENSE",
     "node_modules/@fortawesome/free-solid-svg-icons/LICENSE.txt",
   ];
-  return Object.fromEntries(sources.map((source) => [source, sha256(fs.readFileSync(path.join(rootDir, source)))]));
+  return Object.fromEntries(sources.map((source) => [
+    source,
+    sha256(fs.readFileSync(path.join(rootDir, source), "utf8").replace(/\r\n/gu, "\n")),
+  ]));
 }
 
 function buildSiteManifest(outputDir) {

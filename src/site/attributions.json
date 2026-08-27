@@ -1,6 +1,6 @@
 {
   "fingerprints": {
-    "package-lock.json": "cd9c638eddf8d290e8cc0c3e2a5e2ecbe48643c94c479406b29e6b6b6d9eb43c",
+    "package-lock.json": "2a4ac3f7d0aebd5bebf497d53b958c0f9b9993eebf99aea9a2b2971c24f7c663",
     "src/gui-icon-data.js": "8b18e8ca9045fff200a40de17bbdfc38f28e317c26795618a4df0d6346b0dc55",
     "node_modules/tabulator-tables/package.json": "068040f00e45b03b958162b6899c581be96f60c2183bf80cf5692f2fea2e3fd9",
     "node_modules/tabulator-tables/LICENSE": "191a2ee554684e1064c897b432f0e1bc6dfa714ca045d3f6ea2cf692cbd398b7",
