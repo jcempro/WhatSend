@@ -1,6 +1,7 @@
 node_modules
 dist/*
 !dist/release-notes.md
+/site/
 logs
 .wwebjs*
 .wwebjs_sessions.json

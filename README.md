@@ -22,6 +22,7 @@ Todos os nomes, telefones, contas, caminhos e URLs deste README sao exemplos fic
 - [Logs e reenvio](#logs-e-reenvio)
 - [Atualizacao](#atualizacao)
 - [Releases](#releases)
+- [Atribuicoes de terceiros](#atribuicoes-de-terceiros)
 - [Testes](#testes)
 - [Documentacao](#documentacao)
 - [Licenca e disclaimer](#licenca-e-disclaimer)
@@ -325,10 +326,25 @@ O build gera:
 
 - `dist/whatsend-version.json`
 - `dist/WhatSend-v1.2.0-beta.zip`
+- `dist/THIRD-PARTY-NOTICES.txt`, derivado do inventário legal versionado.
 
 Sem parametros e em terminal interativo, o comando pergunta versao, canal e se o artefato e uma Release oficial. Em automacao, passe os parametros explicitamente.
 
 A publicacao oficial parte de `dev` e pode usar `npm run agent:release:publish -- VERSAO`, que exige worktree limpo, confirma a autenticacao GitHub, versiona o manifesto, executa testes e acompanha o workflow GitHub Actions `Release`. O workflow recebe versao, canal e confirmacao, gera o mesmo ZIP pelo `build:dist`, cria ou atualiza a tag e a Release correspondente, anexa o ZIP e `whatsend-version.json`, marca a Release como Latest e conclui com `release: vVERSAO` antes do fast-forward para `main`. Pela interface web, execute o mesmo workflow selecionando a branch `dev`.
+
+## Atribuicoes de terceiros
+
+A relação pública de avisos legalmente obrigatórios fica em [WhatSend / atribuições](https://jcempro.github.io/WhatSend/atribuicoes/). Ela é gerada de `src/site/attributions.json`, sem lista editorial paralela, e inclui somente componentes de runtime e recursos efetivamente incorporados cuja licença exige preservação de aviso ou crédito.
+
+Para verificar o inventário e construir exatamente o artefato publicado:
+
+```powershell
+npm run attributions:check
+npm run build:pages
+npm run validate:pages
+```
+
+O site estático produzido em `site/` é isolado, allowlisted, sem Jekyll e sem JavaScript. O workflow `Pages` valida o mesmo artefato em `dev` e pull requests, mas implanta somente a branch `main`. As mesmas atribuições acompanham o ZIP oficial em `THIRD-PARTY-NOTICES.txt`.
 
 ## Testes
 

@@ -21,6 +21,8 @@ const {
 
 const ROOT_DIR = path.resolve(__dirname, "..");
 const DIST_DIR = path.join(ROOT_DIR, "dist");
+const THIRD_PARTY_NOTICES_FILE_NAME = "THIRD-PARTY-NOTICES.txt";
+const ATTRIBUTIONS_DATA_PATH = path.join(ROOT_DIR, "src", "site", "attributions.json");
 const STRUCTURE_ONLY_DIRS = ["logs", "modelos", "listas"];
 const ROOT_FILES = [
   "LICENSE",
@@ -58,6 +60,8 @@ const EXCLUDED_NAMES = new Set([
   "generate-agents-status.js",
   "logs",
   "node_modules",
+  "pages.js",
+  "site",
   "sync-gui-icons.js",
   "test",
   "update-agents.js",
@@ -100,6 +104,8 @@ async function buildDist(options = {}) {
   for (const dirName of ROOT_DIRS) {
     copyDirectory(path.join(ROOT_DIR, dirName), path.join(DIST_DIR, dirName));
   }
+
+  writeThirdPartyNotices();
 
   for (const dirName of STRUCTURE_ONLY_DIRS) {
     fs.mkdirSync(path.join(DIST_DIR, dirName), { recursive: true });
@@ -335,6 +341,53 @@ function ensureEnvExample() {
   );
 }
 
+function renderThirdPartyNotices(data) {
+  if (!data || !Array.isArray(data.records) || data.records.length === 0) {
+    throw new Error("Inventário de atribuições vazio ou inválido.");
+  }
+
+  const lines = [
+    "THIRD-PARTY NOTICES — WhatSend",
+    "",
+    "Este arquivo acompanha a distribuição oficial e é gerado do inventário legal versionado.",
+    "Os textos abaixo preservam os avisos e licenças aplicáveis aos componentes distribuídos.",
+    "",
+  ];
+
+  for (const record of data.records) {
+    lines.push(
+      "=".repeat(80),
+      `${record.name}${record.version ? ` ${record.version}` : ""}`,
+      `Identificador: ${record.id}`,
+      `Escopo: ${record.scope}`,
+      `Licença: ${record.license}`,
+      `Autor/crédito: ${record.author}`,
+      `Origem: ${record.originUrl}`,
+      `Licença oficial: ${record.licenseUrl}`,
+      `Uso: ${record.purpose}`,
+      `Modificações: ${record.modified}`,
+      "",
+      record.notice,
+      "",
+    );
+  }
+
+  return `${lines.join("\n").trimEnd()}\n`;
+}
+
+function writeThirdPartyNotices() {
+  if (!fs.existsSync(ATTRIBUTIONS_DATA_PATH)) {
+    throw new Error("Inventário legal ausente. Rode npm run attributions:sync.");
+  }
+
+  const data = JSON.parse(fs.readFileSync(ATTRIBUTIONS_DATA_PATH, "utf8"));
+  fs.writeFileSync(
+    path.join(DIST_DIR, THIRD_PARTY_NOTICES_FILE_NAME),
+    renderThirdPartyNotices(data),
+    "utf8",
+  );
+}
+
 function shouldExcludeEntry(name) {
   return (
     EXCLUDED_NAMES.has(name) ||
@@ -349,9 +402,19 @@ function shouldExcludeRootFile(name) {
 
 function validateBuiltDist() {
   validateRootOperationalFilesExcluded();
+  validateThirdPartyNotices();
   validateVersionMetadata();
   validateReleaseNotesIfPresent();
   validateMinifiedLegalHeaders();
+}
+
+function validateThirdPartyNotices() {
+  const noticePath = path.join(DIST_DIR, THIRD_PARTY_NOTICES_FILE_NAME);
+  const data = JSON.parse(fs.readFileSync(ATTRIBUTIONS_DATA_PATH, "utf8"));
+
+  if (!fs.existsSync(noticePath) || fs.readFileSync(noticePath, "utf8") !== renderThirdPartyNotices(data)) {
+    throw new Error(`${THIRD_PARTY_NOTICES_FILE_NAME} ausente ou divergente do inventário legal.`);
+  }
 }
 
 function validateVersionMetadata() {
@@ -554,9 +617,11 @@ if (require.main === module) {
 
 module.exports = {
   DIST_DIR,
+  THIRD_PARTY_NOTICES_FILE_NAME,
   buildDist,
   createDistributionArchive,
   listFiles,
+  renderThirdPartyNotices,
   splitLeadingLegalHeader,
   shouldExcludeEntry,
   shouldExcludeRootFile,

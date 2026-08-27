@@ -12,6 +12,10 @@ const path = require("path");
 const { RELEASE_NOTES_RELATIVE_PATH, validateReleaseNotesContent } = require("./release-notes-policy");
 const { VERSION_FILE_NAME } = require("./release-metadata");
 const { OFFLINE_BUNDLE_NAME, validateOfflineBundle } = require("./build-offline-bundle");
+const {
+  THIRD_PARTY_NOTICES_FILE_NAME,
+  renderThirdPartyNotices,
+} = require("./build-dist");
 
 const ROOT_DIR = path.resolve(__dirname, "..");
 const DIST_DIR = path.join(ROOT_DIR, "dist");
@@ -25,6 +29,7 @@ const REQUIRED_FILES = [
   VERSION_FILE_NAME,
   OFFLINE_BUNDLE_NAME,
   `${OFFLINE_BUNDLE_NAME}.sha256`,
+  THIRD_PARTY_NOTICES_FILE_NAME,
   "src/index.js",
 ];
 const REQUIRED_DIRS = ["docs", "scripts", "src", "logs", "modelos", "listas"];
@@ -63,6 +68,7 @@ const LEGAL_HEADER_KEYWORDS = [
 function validateDist() {
   validateStructure(DIST_DIR);
   validateRuntimePackageFiles(DIST_DIR);
+  validateThirdPartyNotices(DIST_DIR);
   validateNoSensitiveFiles(DIST_DIR);
   validateStructureOnlyDirs(DIST_DIR);
   validateVersionMetadata(DIST_DIR);
@@ -71,6 +77,21 @@ function validateDist() {
   validateOfflineArtifact(DIST_DIR);
   validateExecutableDist(DIST_DIR);
   console.log("Dist validado com sucesso.");
+}
+
+function validateThirdPartyNotices(distDir) {
+  const inventoryPath = path.join(ROOT_DIR, "src", "site", "attributions.json");
+  const noticePath = path.join(distDir, THIRD_PARTY_NOTICES_FILE_NAME);
+  const data = JSON.parse(fs.readFileSync(inventoryPath, "utf8"));
+  const actual = fs.readFileSync(noticePath, "utf8");
+
+  if (actual !== renderThirdPartyNotices(data)) {
+    throw new Error(`${THIRD_PARTY_NOTICES_FILE_NAME} diverge do inventário legal versionado.`);
+  }
+
+  if (fs.existsSync(path.join(distDir, "src", "site")) || fs.existsSync(path.join(distDir, "scripts", "pages.js"))) {
+    throw new Error("Implementação exclusiva do site não pode compor o runtime distribuível.");
+  }
 }
 
 function validateOfflineArtifact(distDir) {
@@ -500,5 +521,6 @@ module.exports = {
   validateReleaseNotesIfPresent,
   validateRuntimePackageFiles,
   validateStructure,
+  validateThirdPartyNotices,
   validateVersionMetadata,
 };
