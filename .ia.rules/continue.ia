@@ -6,29 +6,30 @@ MACHINE_ID=JEAN-DESKTOP
 DATA_REF=202607101735
 POLITICA=90IA/10HUMANO;1FT_POR_SOLICITACAO;DEV_BRANCH;COMMIT_PUSH_POR_ETAPA_SE_POSSIVEL
 
-FT-018|nome=Iconografia multiprovedor e paridade visual das ferramentas|tipo=implementacao_normativa|escopo=Negocio|prioridade=alta|status=em_andamento
+FT-018|nome=Iconografia multiprovedor e paridade visual das ferramentas|tipo=implementacao_normativa|escopo=Negocio|prioridade=alta|status=concluido
 criado_em=2026-08-26T21:37:05-03:00
-ultima_atualizacao=2026-08-26T21:37:05-03:00
+ultima_atualizacao=2026-08-26T21:42:01-03:00
+conclusao=2026-08-26T21:42:01-03:00
 origem=TODO.ia.md@2d7734c;sha256=21118311a959f09700b02d153b11a41368984f580f2ec09093930ee311b34e17;item=Lucide Iconify Font Awesome e correcao da iconizacao e UX das ferramentas;referencias=.ia.rules/state/evidencias/evidencia1.png,.ia.rules/state/evidencias/evidencia2.png,.ia.rules/state/evidencias/evidencia3.png,.ia.rules/state/evidencias/evidencia4.png
 objetivo=Equalizar e normatizar suporte isolado a Lucide, Iconify e Font Awesome, incorporacao exclusiva dos icones usados, semantica dos controles de atualizacao, iconizacao inequívoca do cabecalho, duas toolbars contextuais nos editores e paridade da toolbar CSV offline, sem regressao funcional ou visual.
 dependencias=RCF.md RN022 RN027 RN035 RN039 RN047 RN048;GUI e bundle offline vigentes;quatro evidencias da demanda
 aceite=RCF define identificacao qualificada e isolamento por provedor, licencas e atribuicao, resolucao deterministica, deduplicacao segura, emissao used-only, icones obrigatorios do cabecalho, omissoes do offline, semantica radio/switch da atualizacao, duas barras horizontais e toolbar CSV iconizada com hints, acessibilidade, responsividade e validacao visual/estrutural.
-estado_atual=Etapa 1/3 em andamento; demanda e evidencias foram confrontadas com o estado real, lacunas confirmadas e FT tecnica segregada.
-proximo_ponto_executavel=Concluir contrato normativo no RCF, validar e solicitar nova autorizacao humana explicita para FT-019.
+estado_atual=Etapa 3/3 concluida; RN049 e sincronizacoes em RN022, RN039 e RN047 definem integralmente o contrato multiprovedor, as superficies visuais e a validacao.
+proximo_ponto_executavel=Solicitar nova autorizacao humana explicita para iniciar FT-019.
 
 etapas=
-1/3 Triagem e conciliacao [em andamento]
+1/3 Triagem e conciliacao [concluido]
   1/4 Verificar origem, integridade e novidade da demanda [concluido]
   2/4 Confrontar evidencia1 a evidencia4 com GUI, bundle e selecao de atualizacao [concluido]
   3/4 Mapear contrato e mecanismo de Font Awesome preexistentes [concluido]
   4/4 Segregar FTs normativa e tecnica [concluido]
-2/3 Implementacao normativa [pendente]
-  1/3 Generalizar contrato multiprovedor, licencas, isolamento e distribuicao used-only [pendente]
-  2/3 Normatizar cabecalho, atualizacao, toolbars e CSV offline [pendente]
-  3/3 Sincronizar documentacao normativa aplicavel [pendente]
-3/3 Validacao e encerramento normativo [pendente]
-  1/2 Executar gates normativos e rastreabilidade [pendente]
-  2/2 Concluir FT e solicitar autorizacao posterior para FT-019 [pendente]
+2/3 Implementacao normativa [concluido]
+  1/3 Generalizar contrato multiprovedor, licencas, isolamento e distribuicao used-only [concluido]
+  2/3 Normatizar cabecalho, atualizacao, toolbars e CSV offline [concluido]
+  3/3 Sincronizar documentacao normativa aplicavel [concluido]
+3/3 Validacao e encerramento normativo [concluido]
+  1/2 Executar gates normativos e rastreabilidade [concluido]
+  2/2 Concluir FT e solicitar autorizacao posterior para FT-019 [concluido]
 
 decisoes=
 - A demanda comportamental exige FTs normativa e tecnica distintas; este registro nao autoriza implementacao de codigo.
@@ -43,20 +44,25 @@ verificacoes_concluidas=
 - `src/gui-icons.js` contem somente definicoes Font Awesome incorporadas em sprite e resolve aliases sem namespace de provedor.
 - GUI principal injeta somente o sprite utilizado; o bundle offline projeta o painel canônico, mas sua toolbar CSV adicional permanece textual e independente.
 - Fontes oficiais confirmam Lucide em SVG tree-shakable e Iconify em dados IconifyJSON por colecao, com licencas por conjunto e possibilidade de extracao build-time sem dependencia da API.
+- RN049 fixa registro autoritativo, chaves qualificadas, isolamento sem fallback, licencas por colecao, extracao no build, subsetting e deduplicacao preservadora de proveniencia.
+- RN022 fixa `iconify:game-icons:upgrade`, `iconify:streamline-sharp:download-box-1-solid` e radio com aparencia de switch para as quatro acoes exclusivas.
+- RN039 e RN047 fixam ausencia de estado Node/WhatsApp no offline, exatamente duas barras contextuais e toolbar CSV iconizada com input nativo oculto.
+- `npm run agent:rcf`: concluido em modo `RCF_DEGRADED`, com leitura do RCF de 86446 bytes.
+- `node --test test/rcf.test.js`: 114/114 testes aprovados.
+- `git diff --check`: aprovado; somente avisos de conversao LF/CRLF do Git.
 
 pendencias=
-- Normatizar e validar FT-018.
-- Manter FT-019 bloqueada ate autorizacao humana explicita posterior.
+- Nenhuma; FT-019 permanece condicionada a nova autorizacao humana explicita posterior.
 
 FT-019|nome=Implementar iconografia multiprovedor e paridade das toolbars|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=pendente
 criado_em=2026-08-26T21:37:06-03:00
-ultima_atualizacao=2026-08-26T21:37:06-03:00
+ultima_atualizacao=2026-08-26T21:42:01-03:00
 origem=TODO.ia.md@2d7734c;sha256=21118311a959f09700b02d153b11a41368984f580f2ec09093930ee311b34e17;vinculo=FT-018
 objetivo=Implementar o contrato da FT-018 no registro de icones, GUI principal, projecao offline, build, documentacao e testes, aplicando os icones obrigatorios e corrigindo cabecalho, atualizacao, duas toolbars dos editores e toolbar CSV.
 dependencias=FT-018 concluida;nova autorizacao humana explicita posterior
 aceite=Implementacao e testes comprovam tres provedores isolados, recursos usados apenas uma vez e somente quando referenciados, ausencia de rede no offline, cabecalho inequivoco, atualizacao com radio/switch, duas barras contextuais, CSV iconizado sem input exposto, hints/acessibilidade e conformidade visual com as quatro evidencias.
-estado_atual=Etapa 1/4 pendente; bloqueada pela FT-018 e por nova autorizacao humana explicita posterior.
-proximo_ponto_executavel=Aguardar conclusao normativa e autorizacao humana posterior.
+estado_atual=Etapa 1/4 pendente; FT-018 concluida, bloqueada somente por nova autorizacao humana explicita posterior.
+proximo_ponto_executavel=Aguardar autorizacao humana posterior para iniciar a implementacao.
 
 etapas=
 1/4 Preparacao tecnica [pendente]
@@ -82,7 +88,6 @@ decisoes=
 - A convergencia para main foi autorizada antecipadamente pelo usuario, mas permanece condicionada a conclusao integral da FT e validacoes.
 
 pendencias=
-- FT-018 concluida.
 - Nova autorizacao humana explicita posterior a normatizacao.
 
 FT-016|nome=Aleatorizacao efemera da ordem dos modelos|tipo=implementacao_normativa|escopo=Negocio|prioridade=alta|status=concluido
