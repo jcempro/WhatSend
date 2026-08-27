@@ -50,13 +50,13 @@ pendencias=
 
 FT-021|nome=Implementar e publicar pagina de atribuicoes|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=em andamento
 criado_em=2026-08-26T23:33:03-03:00
-ultima_atualizacao=2026-08-27T00:02:26-03:00
+ultima_atualizacao=2026-08-27T09:21:51-03:00
 origem=TODO.ia.md@aff82f3;sha256=8e07230d949a960858361ff89f4430cb1297e895856bd27d9b7581d484287301;vinculo=FT-020
 objetivo=Implementar, validar e publicar /atribuicoes conforme o contrato concluido pela FT-020, usando somente atribuicoes legalmente exigidas dos recursos efetivamente usados.
 dependencias=FT-020 concluida;nova autorizacao humana explicita posterior;permissao GitHub Pages
 aceite=Pagina, dados, rota, build, workflow/publicacao, responsividade, impressao, acessibilidade, links e disponibilidade publica atendem integralmente o RCF e os termos das licencas selecionadas.
-estado_atual=Etapa 1/4 em andamento; FT-020 concluida e autorizacao humana explicita posterior recebida em 2026-08-27.
-proximo_ponto_executavel=Materializar inventario legal, pagina estatica, build, workflow e validacoes da RN050.
+estado_atual=Etapa 1/4 em andamento; execucao preservada e suspensa no ponto de validacao pela solicitacao superveniente de retirar o requisito de impressao.
+proximo_ponto_executavel=Concluir FT-022 e obter autorizacao humana posterior para FT-023 antes de adequar e retomar esta implementacao.
 
 etapas=
 1/4 Preparacao tecnica [em andamento]
@@ -81,7 +81,56 @@ decisoes=
 - Aplicar RN050 com artefato estatico allowlisted por Actions, sem Jekyll e sem publicar raiz ou `docs/`.
 
 pendencias=
-- Materializar, validar e publicar a pagina; comprovar deployment antes da convergencia final.
+- FT-022 normativa; autorizacao humana posterior e FT-023 tecnica; retomar validacao e publicar a pagina.
+
+FT-022|nome=Retirar impressao da pagina de atribuicoes|tipo=implementacao_normativa|escopo=Negocio|prioridade=alta|status=em andamento
+criado_em=2026-08-27T09:21:51-03:00
+ultima_atualizacao=2026-08-27T09:21:51-03:00
+origem=solicitacao_humana_explicita_2026-08-27;vinculo=FT-020,FT-021
+objetivo=Remover da RN050 e dos aceites correlatos qualquer requisito ou gate especifico de impressao da pagina publica de atribuicoes, preservando integralmente conteudo legal, acessibilidade, responsividade e publicacao web.
+dependencias=FT-020 concluida;solicitacao humana explicita
+aceite=RCF e estado operacional deixam de exigir impressao, A4, monocromia, CSS de print ou prova de impressao para /atribuicoes, sem reduzir obrigacoes legais no HTML e no artefato distribuivel.
+estado_atual=Etapa 1/2 em andamento; FTs segregadas e impacto localizado em RN050 e FT-021.
+proximo_ponto_executavel=Atualizar RN050, validar a norma e concluir esta FT.
+
+etapas=
+1/2 Conciliacao normativa [em andamento]
+  1/2 Registrar alteracao e segregar FT tecnica [concluido]
+  2/2 Retirar impressao dos contratos e aceites correlatos [pendente]
+2/2 Validacao e encerramento [pendente]
+  1/2 Executar gates normativos [pendente]
+  2/2 Concluir FT e solicitar autorizacao posterior para FT-023 [pendente]
+
+decisoes=
+- Impressao nao integra requisito geral do produto e sera retirada especificamente da RN050 por determinacao humana.
+- A retirada nao autoriza omitir aviso, URL, autor, licenca ou texto obrigatorio da pagina web nem de THIRD-PARTY-NOTICES.txt.
+
+pendencias=
+- Atualizar e validar RCF; concluir FT normativa.
+
+FT-023|nome=Adequar pagina de atribuicoes sem impressao|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=pendente
+criado_em=2026-08-27T09:21:52-03:00
+ultima_atualizacao=2026-08-27T09:21:52-03:00
+origem=solicitacao_humana_explicita_2026-08-27;vinculo=FT-022,FT-021
+objetivo=Remover CSS, testes e validacoes exclusivos de impressao da pagina /atribuicoes e retomar a implementacao e publicacao da FT-021 conforme a RN050 revisada.
+dependencias=FT-022 concluida;nova autorizacao humana explicita posterior
+aceite=Fonte, testes, documentacao e pipeline nao contem requisito especifico de impressao para /atribuicoes; gates web, legais, de distribuicao e publicacao permanecem aprovados.
+estado_atual=Aguardando conclusao normativa e nova autorizacao humana explicita posterior.
+proximo_ponto_executavel=Nenhum antes da conclusao da FT-022 e autorizacao posterior.
+
+etapas=
+1/2 Adequacao tecnica [pendente]
+  1/2 Remover implementacao e testes exclusivos de impressao [pendente]
+  2/2 Sincronizar documentacao tecnica aplicavel [pendente]
+2/2 Validacao e retomada [pendente]
+  1/2 Executar gates sem prova de impressao [pendente]
+  2/2 Retomar e concluir FT-021 [pendente]
+
+decisoes=
+- Esta FT nao inicia por autorizacao anterior a sua norma concluida.
+
+pendencias=
+- FT-022 concluida e nova autorizacao humana explicita posterior.
 
 FT-018|nome=Iconografia multiprovedor e paridade visual das ferramentas|tipo=implementacao_normativa|escopo=Negocio|prioridade=alta|status=concluido
 criado_em=2026-08-26T21:37:05-03:00
