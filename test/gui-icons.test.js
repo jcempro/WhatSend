@@ -54,6 +54,8 @@ test("bundle offline omite estado executor e padroniza a toolbar CSV", () => {
     const html = fs.readFileSync(result.outputPath, "utf8");
     assert.doesNotMatch(html, /id="statusPill"|id="updateButton"|id="saveOfflineButton"|autenticando/iu);
     assert.match(html, /id="guiIconManifest"/u);
+    assert.match(html, /id="guiTooltip" class="gui-tooltip" role="tooltip" hidden/u);
+    assert.match(html, /function showGuiTooltip\(target\)/u);
     assert.match(html, /class="wa-toolbar wa-toolbar-document" aria-label="Ferramentas de documento e persistência"/u);
     assert.match(html, /class="wa-toolbar wa-toolbar-composition" aria-label="Ferramentas de composição e expressões"/u);
     assert.match(html, /class="wa-toolbar wa-toolbar-document csv-toolbar" aria-label="Ferramentas do editor CSV"/u);

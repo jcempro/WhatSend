@@ -19,6 +19,7 @@ const {
   renderLegalFooterHtml,
 } = require("../src/notice");
 const { COMMON_EDITOR_ACTIONS } = require("../src/editor-actions");
+const { renderGuiHintRuntime } = require("../src/gui-hints");
 const { renderGuiIcon } = require("../src/gui-icons");
 
 const ROOT_DIR = path.resolve(__dirname, "..");
@@ -55,6 +56,7 @@ function buildParityManifest() {
     "src/gui.js",
     "src/gui-icon-data.js",
     "src/gui-icons.js",
+    "src/gui-hints.js",
     "src/editor-actions.js",
     "src/expression.js",
     "src/notice.js",
@@ -138,6 +140,8 @@ function renderOfflineHtml(parts) {
 <script>
 (function(){"use strict";
 var STORAGE_KEY="whatsend.offline-editor.v1";var NAMED_KEY="whatsend.offline-editor.v1.named.";var headers=["nome","telefone"];var preservedPackage=null;var templateText=document.getElementById("templateEditorInput");var templateTextHidden=document.getElementById("templateText");var templateHighlight=document.getElementById("templateHighlight");var modelStatus=document.getElementById("templateMediaStatus");var csvStatus=document.getElementById("csvStatus");var advisories=document.getElementById("templateAdvisories");var preview=document.getElementById("templatePreview");var modelTabs=document.getElementById("templateTabs");
+var guiTooltip=document.getElementById("guiTooltip");
+${renderGuiHintRuntime()}
 var table=new Tabulator("#csvGrid",{data:[],height:300,layout:"fitColumns",selectableRows:true,clipboard:true,history:true,index:"__rowId",columns:columnsFor(headers)});
 function columnsFor(names){return names.map(function(name){return{title:name,field:name,editor:"input",headerFilter:"input",headerSort:true,minWidth:130,sorter:"string"};});}
 function setStatus(element,message,type){element.textContent=message||"";var base=element.id==="templateMediaStatus"?"field-message":"status";element.className=base+(type?" "+type:"");}
