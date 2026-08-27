@@ -6,6 +6,70 @@ MACHINE_ID=JEAN-DESKTOP
 DATA_REF=202607101735
 POLITICA=90IA/10HUMANO;1FT_POR_SOLICITACAO;DEV_BRANCH;COMMIT_PUSH_POR_ETAPA_SE_POSSIVEL
 
+FT-020|nome=Pagina publica de atribuicoes obrigatorias|tipo=implementacao_normativa|escopo=Negocio|prioridade=alta|status=em andamento
+criado_em=2026-08-26T23:33:02-03:00
+ultima_atualizacao=2026-08-26T23:33:02-03:00
+origem=TODO.ia.md@aff82f3;sha256=8e07230d949a960858361ff89f4430cb1297e895856bd27d9b7581d484287301;item=pagina GitHub Pages /atribuicoes
+objetivo=Normatizar fonte, selecao juridicamente verificavel, conteudo, layout, rota, build, publicacao e validacao da pagina publica /atribuicoes, sem atribuir dependencias que nao exijam atribuicao nem criar arquitetura visual paralela.
+dependencias=RCF.md RN049;inventario real de dependencias e recursos;configuracao real do repositorio e GitHub Pages
+aceite=RCF define fonte autoritativa do inventario, criterio por licenca efetiva, campos e textos obrigatorios, ordenacao, links, identidade visual, acessibilidade, responsividade, impressao, rota canonica, build/publicacao e gates verificaveis.
+estado_atual=Etapa 1/3 em andamento; demanda triada, GitHub Pages inexistente confirmado e FT tecnica segregada.
+proximo_ponto_executavel=Auditar licencas e normatizar integralmente a pagina e sua publicacao.
+
+etapas=
+1/3 Triagem e inventario [em andamento]
+  1/3 Verificar estado real de Pages, site, workflow e rota [concluido]
+  2/3 Identificar fontes autoritativas de licenca e atribuicao [em andamento]
+  3/3 Segregar FT tecnica e dependencias [concluido]
+2/3 Implementacao normativa [pendente]
+  1/3 Definir selecao, conteudo e ordenacao das atribuicoes [pendente]
+  2/3 Definir layout, acessibilidade, responsividade e impressao [pendente]
+  3/3 Definir build, publicacao, rota e validacao [pendente]
+3/3 Validacao e encerramento normativo [pendente]
+  1/2 Executar gates normativos e rastreabilidade [pendente]
+  2/2 Concluir FT e solicitar autorizacao posterior para FT-021 [pendente]
+
+decisoes=
+- A consulta somente leitura ao GitHub confirmou `has_pages=false` e endpoint Pages 404; nao existe site ou pipeline Pages preexistente para reutilizar.
+- A demanda comportamental exige FT normativa e FT tecnica distintas; esta FT nao autoriza criar pagina, workflow ou publicacao.
+- A selecao deve derivar dos recursos efetivamente incorporados ao produto/publicacao e dos termos autoritativos de cada licenca, nao de uma lista manual de todas as dependencias instaladas.
+
+pendencias=
+- Concluir normatizacao e solicitar nova autorizacao humana explicita posterior para FT-021.
+
+FT-021|nome=Implementar e publicar pagina de atribuicoes|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=pendente
+criado_em=2026-08-26T23:33:03-03:00
+ultima_atualizacao=2026-08-26T23:33:03-03:00
+origem=TODO.ia.md@aff82f3;sha256=8e07230d949a960858361ff89f4430cb1297e895856bd27d9b7581d484287301;vinculo=FT-020
+objetivo=Implementar, validar e publicar /atribuicoes conforme o contrato concluido pela FT-020, usando somente atribuicoes legalmente exigidas dos recursos efetivamente usados.
+dependencias=FT-020 concluida;nova autorizacao humana explicita posterior;permissao GitHub Pages
+aceite=Pagina, dados, rota, build, workflow/publicacao, responsividade, impressao, acessibilidade, links e disponibilidade publica atendem integralmente o RCF e os termos das licencas selecionadas.
+estado_atual=Etapa 1/4 pendente; bloqueada pela FT-020 e por nova autorizacao humana explicita posterior.
+proximo_ponto_executavel=Aguardar conclusao normativa e autorizacao humana posterior.
+
+etapas=
+1/4 Preparacao tecnica [pendente]
+  1/2 Materializar inventario verificavel e plano minimo [pendente]
+  2/2 Confirmar arquitetura Pages definida pela FT-020 [pendente]
+2/4 Implementacao [pendente]
+  1/3 Criar pagina e dados de atribuicao [pendente]
+  2/3 Integrar build, rota e publicacao [pendente]
+  3/3 Preservar identidade, acessibilidade e impressao [pendente]
+3/4 Validacao [pendente]
+  1/3 Validar licencas, conteudo e links [pendente]
+  2/3 Validar build, rota, responsividade e impressao [pendente]
+  3/3 Comprovar publicacao real em /atribuicoes [pendente]
+4/4 Entrega e convergencia [pendente]
+  1/2 Concluir FT e publicar dev [pendente]
+  2/2 Convergir main somente apos gates e publicacao aprovados [pendente]
+
+decisoes=
+- Nao iniciar implementacao antes da FT-020 concluida e de nova autorizacao humana explicita posterior.
+- Nao publicar lista especulativa, pacote apenas transitivo/desenvolvimento sem uso publicavel ou atribuicao nao exigida pela licenca efetiva.
+
+pendencias=
+- FT-020 e nova autorizacao humana explicita posterior.
+
 FT-018|nome=Iconografia multiprovedor e paridade visual das ferramentas|tipo=implementacao_normativa|escopo=Negocio|prioridade=alta|status=concluido
 criado_em=2026-08-26T21:37:05-03:00
 ultima_atualizacao=2026-08-26T21:42:01-03:00
@@ -54,16 +118,17 @@ verificacoes_concluidas=
 pendencias=
 - Nenhuma; FT-019 concluida.
 
-FT-019|nome=Implementar iconografia multiprovedor e paridade das toolbars|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=concluido
+FT-019|nome=Implementar iconografia multiprovedor e paridade das toolbars|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=em andamento
 criado_em=2026-08-26T21:37:06-03:00
 ultima_atualizacao=2026-08-26T22:48:40-03:00
 conclusao=2026-08-26T22:48:40-03:00
+reabertura=2026-08-26T23:33:04-03:00
 origem=TODO.ia.md@2d7734c;sha256=21118311a959f09700b02d153b11a41368984f580f2ec09093930ee311b34e17;vinculo=FT-018
 objetivo=Implementar o contrato da FT-018 no registro de icones, GUI principal, projecao offline, build, documentacao e testes, aplicando os icones obrigatorios e corrigindo cabecalho, atualizacao, duas toolbars dos editores e toolbar CSV.
 dependencias=FT-018 concluida;nova autorizacao humana explicita posterior
 aceite=Implementacao e testes comprovam tres provedores isolados, recursos usados apenas uma vez e somente quando referenciados, ausencia de rede no offline, cabecalho inequivoco, atualizacao com radio/switch, duas barras contextuais, CSV iconizado sem input exposto, hints/acessibilidade e conformidade visual com as quatro evidencias.
-estado_atual=Etapa 4/4 concluida; registro multiprovedor, GUI, bundle offline, build, documentacao, testes e validacao visual atendem integralmente a FT-018.
-proximo_ponto_executavel=Nenhum; FT-019 concluida e publicada em dev.
+estado_atual=Correcao pos-conclusao em andamento; hint por pseudoelemento foi recortado pelo overflow vertical das toolbars e esta sendo substituido por portal fixo comum.
+proximo_ponto_executavel=Validar portal de hint na GUI e no bundle offline, commitar, publicar e reconcluir FT-019.
 
 etapas=
 1/4 Preparacao tecnica [concluido]
@@ -89,6 +154,7 @@ decisoes=
 - A convergencia para main foi autorizada antecipadamente pelo usuario, mas permanece condicionada a conclusao integral da FT e validacoes.
 - Lucide, Iconify e Font Awesome permanecem dependencias exclusivas de desenvolvimento; o runtime recebe somente o subconjunto SVG gerado e validado.
 - A auditoria npm vigente identifica cinco vulnerabilidades altas na cadeia produtiva preexistente de whatsapp-web.js, sem correcao compativel indicada pelo npm; a FT nao alterou essa arvore e nao aplicou force/major inseguro.
+- Reabertura autorizada pela evidencia anexada: overflow vertical da toolbar recortava o balao de hint e deixava visivel apenas seu triangulo.
 
 verificacoes_concluidas=
 - Commit tecnico 35b8c91 implementou registro qualificado, gerador deterministico, dados used-only, GUI, offline, build, README e testes; publicado em origin/dev.
@@ -106,7 +172,7 @@ verificacoes_concluidas=
 - `npm run agent:rcf`: RCF_DEGRADED com leitura de 86446 bytes; `git diff --check`: aprovado, somente avisos LF/CRLF.
 
 pendencias=
-- Nenhuma no escopo da FT-019; acompanhar correcao upstream compativel das cinco vulnerabilidades npm sem forcar regressao.
+- Validar e publicar a correcao do hint; acompanhar correcao upstream compativel das cinco vulnerabilidades npm sem forcar regressao.
 
 FT-016|nome=Aleatorizacao efemera da ordem dos modelos|tipo=implementacao_normativa|escopo=Negocio|prioridade=alta|status=concluido
 criado_em=2026-08-26T18:55:55-03:00
@@ -568,13 +634,14 @@ resultados=
 pendencias=
 - Nenhuma.
 
-FT-006|nome=Deteccao assincrona de atualizacoes e reorganizacao da GUI|escopo=Tecnico|prioridade=alta|status=em andamento
+FT-006|nome=Deteccao assincrona de atualizacoes e reorganizacao da GUI|escopo=Tecnico|prioridade=alta|status=concluido
 criado_em=2026-07-22T10:13:56-03:00
 inicio=20260722.1013.56
-ultima_atualizacao=20260722.1355.00
+ultima_atualizacao=2026-08-26T23:33:05-03:00
+conclusao=2026-08-26T23:33:05-03:00
 objetivo=Implementar verificacao assincrona e fail-safe de atualizacoes do aplicativo e de whatsapp-web.js, reorganizar cards, compactar Andamento e adicionar selecao opcional de modelos preexistentes.
-estado_atual=Ajuste de abertura/modelos aplicado sobre a implementacao concluida; wrappers normativos e testes diretos aprovados.
-proximo_ponto_executavel=Commitar ajuste de GUI e avaliar push conforme autorizacao explicita.
+estado_atual=Etapa 6/6 concluida; implementacao, ajustes, validacoes, commits e publicacao foram comprovados no historico convergido.
+proximo_ponto_executavel=Nenhum; estado legado reconciliado com os commits e remotos atuais.
 
 etapas=
 1/6 Migracao e contrato [concluido]
@@ -600,10 +667,10 @@ etapas=
   1/3 Atualizar testes unitarios/GUI com mocks [concluido]
   2/3 Executar testes e checks aplicaveis [concluido]
   3/3 Validar renderizacao real quando disponivel [concluido]
-6/6 Rastreabilidade e entrega [em andamento]
+6/6 Rastreabilidade e entrega [concluido]
   1/3 Atualizar RCF/README/handoff quando aplicavel [concluido]
-  2/3 Preparar commits coesos [em andamento]
-  3/3 Push apos validacoes obrigatorias [pendente]
+  2/3 Preparar commits coesos [concluido]
+  3/3 Push apos validacoes obrigatorias [concluido]
 
 decisoes=
 - AGENTS.md atualizado define .ia.rules como raiz operacional; AGENTS.md e arquivos gerenciados originais permanecem intocaveis nesta migracao.
@@ -640,8 +707,7 @@ verificacoes_concluidas=
 - node --check src/gui.js concluiu; node --test test/gui-ui.test.js concluiu 6/6; node --test concluiu 128/128; npm test concluiu; npm run check concluiu em execucao isolada apos detectar corrida quando executado em paralelo com npm test.
 
 pendencias=
-- Commit do ajuste de GUI pendente.
-- Push pendente.
+- Nenhuma.
 
 antirretrabalho=
 - Nao reexecutar git push sem credencial nova ou evidencia de autenticacao.
@@ -743,13 +809,14 @@ resultados=
 - Os avisos, erros e vulnerabilidades reproduzidos no TODO foram eliminados. A instalacao limpa ainda informa deprecacao upstream de fluent-ffmpeg 2.1.3, dependencia fixa da versao atual de whatsapp-web.js, sem vulnerabilidade auditada ou falha funcional; substituicao especulativa foi recusada para preservar compatibilidade.
 - TODO.ia.md foi migrado para .ia.rules/state/TODO.ia.md e seus 277 criterios foram marcados como concluidos apos a validacao final.
 
-FT-007|nome=Persistencia nomeada e encerramento fail-safe da GUI|escopo=Tecnico|prioridade=alta|status=em andamento
+FT-007|nome=Persistencia nomeada e encerramento fail-safe da GUI|escopo=Tecnico|prioridade=alta|status=concluido
 criado_em=2026-07-22T00:00:00-03:00
 inicio=20260722.0000.00
-ultima_atualizacao=20260722.0000.01
+ultima_atualizacao=2026-08-26T23:33:06-03:00
+conclusao=2026-08-26T23:33:06-03:00
 objetivo=Implementar encerramento automatico seguro da instancia GUI quando a sessao local se ausentar, consolidar salvamentos nomeados no navegador, autosave .autosave, painel de abertura local e nova edicao com protecao contra perda de dados.
-estado_atual=Etapa 7/7 concluida localmente; implementacao validada e commitada, push bloqueado por falta de autorizacao explicita de publicacao externa.
-proximo_ponto_executavel=Executar git push somente se houver autorizacao humana explicita para publicar no remoto.
+estado_atual=Etapa 7/7 concluida; implementacao, validacao, commits e publicacao foram comprovados no historico convergido.
+proximo_ponto_executavel=Nenhum; estado legado reconciliado com os commits e remotos atuais.
 
 etapas=
 1/7 Contrato e mapeamento [concluido]
@@ -787,7 +854,7 @@ etapas=
   1/4 Atualizar memoria e handoff [concluido]
   2/4 Compactar contexto por agent:compress [concluido]
   3/4 Criar commits coesos [concluido]
-  4/4 Push somente com autorizacao/credencial explicita [pendente]
+  4/4 Push somente com autorizacao/credencial explicita [concluido]
 
 decisoes=
 - Prompt anexo de 2026-07-22 autoriza consolidar o contrato de persistencia da GUI, substituindo o salvamento local antigo sem nome por salvamentos nomeados versionados e .autosave reservado.
@@ -816,9 +883,10 @@ verificacoes_concluidas=
 - npm run build:dist e npm run validate:dist concluiram; artefatos transitórios dist/release-notes.md e index.json foram restaurados/removidos.
 - Commit operacional local criado: feat: adiciona persistencia nomeada e encerramento seguro da gui.
 - git push foi solicitado com escalonamento, mas bloqueado pelo revisor de seguranca por publicar em destino externo sem autorizacao explicita especifica apos identificacao do risco.
+- Reconciliacao de 2026-08-26 confirmou os commits af6a7bd e 4e97c3 ancestrais de dev/main e os quatro refs locais/remotos convergidos em 3da7448.
 
 pendencias=
-- Push somente com autorizacao explicita para publicar no remoto.
+- Nenhuma.
 
 FT-003|nome=Auditoria e publicacao da release 0.2.0-beta|escopo=Tecnico|prioridade=alta|status=concluido
 inicio=20260713.0013.37
