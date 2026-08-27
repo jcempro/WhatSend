@@ -72,4 +72,4 @@ Este marcador encerra a seção de governança e inicia exclusivamente as TO-DOs
   - Preferencialmente padronizar cada registro com **nome da biblioteca/recurso, repositório/origem, link oficial, autor primário e licença**, acrescentando qualquer informação/texto obrigatório que a licença exigir.
   - Incluir antes da relação apenas um **texto introdutório sucinto**, explicando a finalidade da página.
   - A apresentação PODE adotar composição elegante e legível, inclusive inspiração **ABNT** ou formato tabular, desde que compatível com os padrões existentes; estética alternativa NÃO justifica alterar o design global.
-  - Validar `/atribuicoes` no fluxo real do GitHub Pages, inclusive navegação/roteamento, responsividade e impressão quando aplicável, sem alterar indevidamente páginas, posts, módulos ou recursos preexistentes.
+  - Validar `/atribuicoes` no fluxo real do GitHub Pages, inclusive navegação/roteamento e responsividade, sem alterar indevidamente páginas, posts, módulos ou recursos preexistentes. Impressão e geração de PDF não integram esta demanda.
