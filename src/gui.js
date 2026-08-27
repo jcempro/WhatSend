@@ -13,7 +13,7 @@ const path = require("path");
 
 const { PATHS, ROOT_DIR, readIntegerEnv } = require("./config");
 const { COMMON_EDITOR_ACTIONS } = require("./editor-actions");
-const { renderGuiIcon, renderGuiIconSprite } = require("./gui-icons");
+const { getGuiIconManifest, renderGuiIcon, renderGuiIconSprite } = require("./gui-icons");
 const {
   AUTHOR,
   AUTHOR_URL,
@@ -2223,13 +2223,23 @@ function renderGuiHtml() {
       background: #f8fafc;
       border-bottom: 1px solid var(--line);
       display: flex;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
       gap: 6px;
       min-height: 42px;
-      overflow: visible;
+      overflow-x: auto;
+      overflow-y: hidden;
       padding: 7px;
       position: relative;
+      scrollbar-width: thin;
       z-index: 11;
+    }
+
+    .wa-toolbar-document {
+      background: #f8fafc;
+    }
+
+    .wa-toolbar-composition {
+      background: #f4f7fb;
     }
 
     .wa-tabs {
@@ -2286,8 +2296,8 @@ function renderGuiHtml() {
       min-width: 260px;
       overflow: auto;
       padding: 7px;
-      position: absolute;
-      top: calc(100% + 6px);
+      position: fixed;
+      top: 0;
       z-index: 1002;
     }
 
@@ -3222,6 +3232,89 @@ function renderGuiHtml() {
       padding-right: 4px;
     }
 
+    .update-options {
+      display: grid;
+      gap: 9px;
+      margin-top: 14px;
+    }
+
+    .update-option {
+      align-items: center;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      cursor: pointer;
+      display: grid;
+      gap: 11px;
+      grid-template-columns: auto minmax(0, 1fr);
+      margin: 0;
+      padding: 10px 12px;
+      position: relative;
+      transition: background 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease;
+    }
+
+    .update-option:hover,
+    .update-option:focus-within {
+      border-color: #98a2b3;
+      box-shadow: 0 0 0 3px var(--focus);
+    }
+
+    .update-option.selected {
+      background: #ecfdf3;
+      border-color: #12b76a;
+    }
+
+    .update-option input {
+      height: 1px;
+      opacity: 0;
+      position: absolute;
+      width: 1px;
+    }
+
+    .update-switch {
+      background: #d0d5dd;
+      border-radius: 999px;
+      display: inline-flex;
+      height: 24px;
+      padding: 3px;
+      transition: background 0.14s ease;
+      width: 42px;
+    }
+
+    .update-switch::after {
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: 0 1px 3px rgba(16, 24, 40, 0.28);
+      content: "";
+      height: 18px;
+      transform: translateX(0);
+      transition: transform 0.14s ease;
+      width: 18px;
+    }
+
+    .update-option.selected .update-switch {
+      background: var(--accent);
+    }
+
+    .update-option.selected .update-switch::after {
+      transform: translateX(18px);
+    }
+
+    .update-option-copy {
+      display: grid;
+      gap: 2px;
+    }
+
+    .update-option-copy strong {
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .update-option-copy small {
+      color: var(--muted);
+      font-weight: 650;
+    }
+
     .settings-group {
       border: 1px solid var(--line);
       border-radius: 8px;
@@ -3316,6 +3409,7 @@ function renderGuiHtml() {
 </head>
 <body>
   ${renderGuiIconSprite()}
+  <script type="application/json" id="guiIconManifest">${serializeJsonForHtml(getGuiIconManifest())}</script>
   <div id="topProgress" class="top-progress" aria-hidden="true">
     <div id="topProgressBar" class="top-progress-bar"></div>
   </div>
@@ -3327,10 +3421,10 @@ function renderGuiHtml() {
       </div>
       <div class="header-actions">
         <div class="status-pill" id="statusPill">Aguardando</div>
-        <button id="saveOfflineButton" class="icon-button" type="button" data-hint="${escapeHtml(GUI_HINTS.saveOffline)}" aria-label="Baixar versão offline">${renderGuiIcon("cloudDownload")}</button>
-        <button id="updateButton" class="icon-button" type="button" data-hint="${escapeHtml(GUI_HINTS.update)}" aria-label="Atualizar">${renderGuiIcon("f0ed")}</button>
-        <button id="settingsButton" class="icon-button" type="button" data-hint="${escapeHtml(GUI_HINTS.settings)}" aria-label="Configurações">${renderGuiIcon("settings")}</button>
-        <button id="shutdownButton" class="icon-button shutdown-button" type="button" data-hint="${escapeHtml(GUI_HINTS.shutdown)}" aria-label="Desligar">${renderGuiIcon("power")}</button>
+        <button id="saveOfflineButton" class="icon-button" type="button" data-hint="${escapeHtml(GUI_HINTS.saveOffline)}" aria-label="Baixar versão offline">${renderGuiIcon("iconify:streamline-sharp:download-box-1-solid")}</button>
+        <button id="updateButton" class="icon-button" type="button" data-hint="${escapeHtml(GUI_HINTS.update)}" aria-label="Atualizar">${renderGuiIcon("iconify:game-icons:upgrade")}</button>
+        <button id="settingsButton" class="icon-button" type="button" data-hint="${escapeHtml(GUI_HINTS.settings)}" aria-label="Configurações">${renderGuiIcon("fontawesome:solid:gear")}</button>
+        <button id="shutdownButton" class="icon-button shutdown-button" type="button" data-hint="${escapeHtml(GUI_HINTS.shutdown)}" aria-label="Desligar">${renderGuiIcon("fontawesome:solid:power-off")}</button>
       </div>
     </header>
 
@@ -3343,9 +3437,9 @@ function renderGuiHtml() {
               <label for="sessionSelect">WhatsApp</label>
               <select id="sessionSelect"></select>
             </div>
-            <button id="newSessionButton" class="icon-button" type="button" data-hint="Criar sessão" aria-label="Criar sessão">${renderGuiIcon("plus")}</button>
-            <button id="renameSessionButton" class="icon-button" type="button" data-hint="Renomear sessão" aria-label="Renomear sessão">${renderGuiIcon("pencil")}</button>
-            <button id="removeSessionButton" class="icon-button danger-button" type="button" data-hint="Remover sessão" aria-label="Remover sessão">${renderGuiIcon("trash")}</button>
+            <button id="newSessionButton" class="icon-button" type="button" data-hint="Criar sessão" aria-label="Criar sessão">${renderGuiIcon("fontawesome:solid:plus")}</button>
+            <button id="renameSessionButton" class="icon-button" type="button" data-hint="Renomear sessão" aria-label="Renomear sessão">${renderGuiIcon("fontawesome:solid:pen")}</button>
+            <button id="removeSessionButton" class="icon-button danger-button" type="button" data-hint="Remover sessão" aria-label="Remover sessão">${renderGuiIcon("fontawesome:solid:trash")}</button>
           </div>
           <div class="hint">Ao alternar, criar ou remover a sessão ativa, o WhatsApp é reiniciado automaticamente. Se a última sessão for removida, a próxima abertura volta ao QR Code.</div>
         </section>
@@ -3373,7 +3467,7 @@ function renderGuiHtml() {
 
           <div class="label-with-help" style="margin-top:14px">
             <label for="templateEditorInput">Texto do modelo</label>
-            <span class="help-links">${renderHelpLink("youtube", HELP_VIDEO_URLS.template, GUI_HINTS.videoTemplate, "video-help")}</span>
+            <span class="help-links">${renderHelpLink("fontawesome:brands:youtube", HELP_VIDEO_URLS.template, GUI_HINTS.videoTemplate, "video-help")}</span>
           </div>
           <div class="editor-identity" aria-live="polite">
             <span>Origem ativa: <strong id="templateActiveName">Sem nome</strong></span>
@@ -3381,36 +3475,37 @@ function renderGuiHtml() {
           </div>
           <div class="wa-editor">
             <div class="wa-tabs" id="templateTabs" aria-label="Blocos do modelo">
-              <button id="newTemplateTabButton" class="wa-tab wa-tab-create" type="button" data-hint="${escapeHtml(GUI_HINTS.newModel)}" aria-label="Novo modelo">${renderGuiIcon("plus")}</button>
+              <button id="newTemplateTabButton" class="wa-tab wa-tab-create" type="button" data-hint="${escapeHtml(GUI_HINTS.newModel)}" aria-label="Novo modelo">${renderGuiIcon("fontawesome:solid:plus")}</button>
             </div>
-            <div class="wa-toolbar" aria-label="Ferramentas de edição textual">
-              <button type="button" id="newEditionButton" data-hint="${escapeHtml(GUI_HINTS.newEdition)}" aria-label="Nova edição">${renderGuiIcon("f15b")}</button>
+            <div class="wa-toolbar wa-toolbar-document" aria-label="Ferramentas de documento e persistência">
+              <button type="button" id="newEditionButton" data-hint="${escapeHtml(GUI_HINTS.newEdition)}" aria-label="Nova edição">${renderGuiIcon("fontawesome:solid:file")}</button>
               <span class="toolbar-separator" aria-hidden="true"></span>
-              <button type="button" id="saveTemplateLocalButton" data-hint="${escapeHtml(GUI_HINTS.saveLocal)}" aria-label="Salvar no navegador">${renderGuiIcon("f0c7")}</button>
-              <button type="button" id="openLocalSavesButton" data-hint="${escapeHtml(GUI_HINTS.openLocal)}" aria-label="Abrir do armazenamento local" aria-haspopup="dialog">${renderGuiIcon("folderOpenRegular")}</button>
+              <button type="button" id="saveTemplateLocalButton" data-hint="${escapeHtml(GUI_HINTS.saveLocal)}" aria-label="Salvar no navegador">${renderGuiIcon("fontawesome:solid:floppy-disk")}</button>
+              <button type="button" id="openLocalSavesButton" data-hint="${escapeHtml(GUI_HINTS.openLocal)}" aria-label="Abrir do armazenamento local" aria-haspopup="dialog">${renderGuiIcon("fontawesome:regular:folder-open")}</button>
               <div class="wa-toolbar-group">
-                <button type="button" id="templateModelsButton" data-hint="${escapeHtml(GUI_HINTS.templateModels)}" aria-label="Selecionar modelo" aria-haspopup="menu" aria-expanded="false">${renderGuiIcon("folderOpen")}</button>
+                <button type="button" id="templateModelsButton" data-hint="${escapeHtml(GUI_HINTS.templateModels)}" aria-label="Selecionar modelo" aria-haspopup="menu" aria-expanded="false">${renderGuiIcon("fontawesome:solid:folder-open")}</button>
                 <div id="templateModelsMenu" class="template-menu" role="menu" aria-label="Modelos preexistentes"></div>
               </div>
               <span class="toolbar-separator" aria-hidden="true"></span>
-              <button type="button" id="saveTemplateButton" data-hint="${escapeHtml(GUI_HINTS.save)}" aria-label="Salvar">${renderGuiIcon("f56d")}</button>
-              <button type="button" id="openTemplateButton" data-hint="${escapeHtml(GUI_HINTS.open)}" aria-label="Abrir">${renderGuiIcon("f574")}</button>
-              <button type="button" id="savePackageButton" data-hint="Salvar modelo e CSV em pacote .whatsend.json" aria-label="Salvar pacote">${renderGuiIcon("layerGroup")}</button>
-              <button type="button" id="openPackageButton" data-hint="Abrir pacote .whatsend.json" aria-label="Abrir pacote">${renderGuiIcon("folderOpenRegular")}</button>
-              <button type="button" id="savePackageCsvButton" data-hint="Salvar o CSV importado do pacote" aria-label="Salvar CSV do pacote">CSV</button>
-              <span class="toolbar-separator" aria-hidden="true"></span>
-              <button type="button" data-wrap="*" data-hint="${escapeHtml(GUI_HINTS.bold)}" aria-label="Negrito">${renderGuiIcon("bold")}</button>
-              <button type="button" data-wrap="_" data-hint="${escapeHtml(GUI_HINTS.italic)}" aria-label="Itálico">${renderGuiIcon("italic")}</button>
-              <button type="button" data-wrap="~" data-hint="${escapeHtml(GUI_HINTS.strikethrough)}" aria-label="Tachado">${renderGuiIcon("strikethrough")}</button>
-              <button type="button" data-wrap="\`\`\`" data-hint="${escapeHtml(GUI_HINTS.code)}" aria-label="Monoespaçado" class="icon-tool">${renderGuiIcon("code")}</button>
+              <button type="button" id="saveTemplateButton" data-hint="${escapeHtml(GUI_HINTS.save)}" aria-label="Salvar">${renderGuiIcon("fontawesome:solid:file-arrow-down")}</button>
+              <button type="button" id="openTemplateButton" data-hint="${escapeHtml(GUI_HINTS.open)}" aria-label="Abrir">${renderGuiIcon("fontawesome:solid:file-arrow-up")}</button>
+              <button type="button" id="savePackageButton" data-hint="Salvar modelo e CSV em pacote .whatsend.json" aria-label="Salvar pacote">${renderGuiIcon("lucide:package-check")}</button>
+              <button type="button" id="openPackageButton" data-hint="Abrir pacote .whatsend.json" aria-label="Abrir pacote">${renderGuiIcon("lucide:package-open")}</button>
+              <button type="button" id="savePackageCsvButton" data-hint="Salvar o CSV importado do pacote" aria-label="Salvar CSV do pacote">${renderGuiIcon("lucide:file-spreadsheet")}</button>
+            </div>
+            <div class="wa-toolbar wa-toolbar-composition" aria-label="Ferramentas de composição e expressões">
+              <button type="button" data-wrap="*" data-hint="${escapeHtml(GUI_HINTS.bold)}" aria-label="Negrito">${renderGuiIcon("fontawesome:solid:bold")}</button>
+              <button type="button" data-wrap="_" data-hint="${escapeHtml(GUI_HINTS.italic)}" aria-label="Itálico">${renderGuiIcon("fontawesome:solid:italic")}</button>
+              <button type="button" data-wrap="~" data-hint="${escapeHtml(GUI_HINTS.strikethrough)}" aria-label="Tachado">${renderGuiIcon("fontawesome:solid:strikethrough")}</button>
+              <button type="button" data-wrap="\`\`\`" data-hint="${escapeHtml(GUI_HINTS.code)}" aria-label="Monoespaçado" class="icon-tool">${renderGuiIcon("fontawesome:solid:code")}</button>
               <span class="toolbar-separator" aria-hidden="true"></span>
               ${renderTemplateMarkerButtons()}
               <div class="wa-toolbar-group">
-                <button type="button" id="insertEmojiButton" data-hint="${escapeHtml(GUI_HINTS.emoji)}" aria-label="Inserir emoji" aria-haspopup="menu" aria-expanded="false">${renderGuiIcon("emoji")}</button>
+                <button type="button" id="insertEmojiButton" data-hint="${escapeHtml(GUI_HINTS.emoji)}" aria-label="Inserir emoji" aria-haspopup="menu" aria-expanded="false">${renderGuiIcon("fontawesome:solid:face-smile")}</button>
                 <div id="emojiMenu" class="emoji-menu" role="menu" aria-label="Emojis profissionais"></div>
               </div>
-              <button type="button" id="insertAttachmentButton" data-hint="${escapeHtml(GUI_HINTS.attachment)}" aria-label="Inserir anexo">${renderGuiIcon("attachment")}</button>
-              <button type="button" id="insertPostingButton" data-hint="${escapeHtml(GUI_HINTS.newPosting)}" aria-label="Inserir nova postagem">${renderGuiIcon("newPosting")}</button>
+              <button type="button" id="insertAttachmentButton" data-hint="${escapeHtml(GUI_HINTS.attachment)}" aria-label="Inserir anexo">${renderGuiIcon("fontawesome:solid:paperclip")}</button>
+              <button type="button" id="insertPostingButton" data-hint="${escapeHtml(GUI_HINTS.newPosting)}" aria-label="Inserir nova postagem">${renderGuiIcon("fontawesome:solid:paragraph")}</button>
             </div>
             <div class="wa-editor-shell">
               <div class="wa-input-pane">
@@ -3422,7 +3517,7 @@ function renderGuiHtml() {
           </div>
           <textarea id="templateText" class="visually-hidden-field" tabindex="-1" aria-hidden="true"></textarea>
           <div id="templateAdvisories" class="template-advisories" aria-live="polite"></div>
-          <div class="hint">\${campo} aceita colunas/expressões. Use a toolbar para inserir apenas marcação textual do WhatsApp. Anexos em <code>![](arquivo.pdf)</code>, <code>$postagem$</code> e separadores <code>^^^</code> permanecem texto puro. ${renderHelpLink("info", DOCS_USAGE_GITHUB_URL, GUI_HINTS.docs)}</div>
+          <div class="hint">\${campo} aceita colunas/expressões. Use a toolbar para inserir apenas marcação textual do WhatsApp. Anexos em <code>![](arquivo.pdf)</code>, <code>$postagem$</code> e separadores <code>^^^</code> permanecem texto puro. ${renderHelpLink("fontawesome:solid:circle-info", DOCS_USAGE_GITHUB_URL, GUI_HINTS.docs)}</div>
           <details class="syntax-details">
             <summary>Notações suportadas</summary>
             <div class="syntax-demo" aria-label="Demonstração de sintaxe textual">
@@ -3454,16 +3549,16 @@ function renderGuiHtml() {
               <h2>Filtro</h2>
               <div class="label-with-help">
                 <label for="filter">Expressão</label>
-                <span class="help-links">${renderHelpLink("youtube", HELP_VIDEO_URLS.expression, GUI_HINTS.videoExpression, "video-help")}</span>
+                <span class="help-links">${renderHelpLink("fontawesome:brands:youtube", HELP_VIDEO_URLS.expression, GUI_HINTS.videoExpression, "video-help")}</span>
               </div>
               <input id="filter" type="text" placeholder="status=ativo && valor>=100">
-              <div class="hint">Suporta <code>=</code>, <code>!=</code>, <code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>, <code>&gt;=</code>, <code>&amp;&amp;</code>, <code>||</code>, <code>^^</code>, <code>!</code>, funções <code>$.isnum(campo)</code> e matemática simples. ${renderHelpLink("info", DOCS_USAGE_GITHUB_URL, GUI_HINTS.docs)}</div>
+              <div class="hint">Suporta <code>=</code>, <code>!=</code>, <code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>, <code>&gt;=</code>, <code>&amp;&amp;</code>, <code>||</code>, <code>^^</code>, <code>!</code>, funções <code>$.isnum(campo)</code> e matemática simples. ${renderHelpLink("fontawesome:solid:circle-info", DOCS_USAGE_GITHUB_URL, GUI_HINTS.docs)}</div>
             </div>
             <div>
               <h2>Base de clientes</h2>
               <div class="label-with-help">
                 <label for="csvFile">Arquivo .csv opcional</label>
-                <span class="help-links">${renderHelpLink("youtube", HELP_VIDEO_URLS.clients, GUI_HINTS.videoClients, "video-help")}</span>
+                <span class="help-links">${renderHelpLink("fontawesome:brands:youtube", HELP_VIDEO_URLS.clients, GUI_HINTS.videoClients, "video-help")}</span>
               </div>
               <input id="csvFile" type="file" accept=".csv,text/csv,text/plain">
               <div id="packageCsvStatus" class="package-csv-status" aria-live="polite"></div>
@@ -3548,11 +3643,11 @@ function renderGuiHtml() {
       <h2 id="updateTitle">Atualizar</h2>
       <p>Atualizações de software ou dependências podem introduzir incompatibilidades e quebrar um ambiente estável.</p>
       <div id="updateStatusList" class="update-status-list" aria-live="polite"></div>
-      <div class="settings-grid" id="updateOptions">
-        <button type="button" data-update-action="whatsapp-web.js">Atualizar whatsapp-web.js<br><small>Somente o motor crítico.</small></button>
-        <button type="button" data-update-action="dependencies">Atualizar dependências<br><small>Inclui whatsapp-web.js.</small></button>
-        <button type="button" data-update-action="software">Atualizar software<br><small>Repositório oficial e sincronização.</small></button>
-        <button type="button" data-update-action="revert">Reverter atualização<br><small>Restaura a última atualização válida.</small></button>
+      <div class="update-options" id="updateOptions" role="radiogroup" aria-label="Operação de atualização">
+        <label class="update-option" data-update-action="whatsapp-web.js"><input type="radio" name="updateAction" value="whatsapp-web.js"><span class="update-switch" aria-hidden="true"></span><span class="update-option-copy"><strong>Atualizar whatsapp-web.js</strong><small>Somente o motor crítico.</small></span></label>
+        <label class="update-option" data-update-action="dependencies"><input type="radio" name="updateAction" value="dependencies"><span class="update-switch" aria-hidden="true"></span><span class="update-option-copy"><strong>Atualizar dependências</strong><small>Inclui whatsapp-web.js.</small></span></label>
+        <label class="update-option" data-update-action="software"><input type="radio" name="updateAction" value="software"><span class="update-switch" aria-hidden="true"></span><span class="update-option-copy"><strong>Atualizar software</strong><small>Repositório oficial e sincronização.</small></span></label>
+        <label class="update-option" data-update-action="revert"><input type="radio" name="updateAction" value="revert"><span class="update-switch" aria-hidden="true"></span><span class="update-option-copy"><strong>Reverter atualização</strong><small>Restaura a última atualização válida.</small></span></label>
       </div>
       <div id="updateWarning" class="hint">Selecione uma operação. A confirmação explícita inicia o processo.</div>
       <div class="modal-actions">
@@ -3667,7 +3762,7 @@ function renderGuiHtml() {
     let completionInvalidated = false;
     const embeddedAttachmentCapabilities = ${JSON.stringify(getEmbeddedAttachmentCapabilities())};
     const maxEmbeddedAttachmentBytes = ${MAX_EMBEDDED_ATTACHMENT_BYTES};
-    const tabDeleteIcon = ${JSON.stringify(renderGuiIcon("trash"))};
+    const tabDeleteIcon = ${JSON.stringify(renderGuiIcon("fontawesome:solid:trash"))};
     const emojiOptions = [
       ["⚠️", "alerta"],
       ["✅", "concluído"],
@@ -3755,6 +3850,7 @@ function renderGuiHtml() {
           if (!content) return;
 
           element.setAttribute("data-hint", content);
+          element.setAttribute("title", content);
           element.removeAttribute("title");
         });
     }
@@ -5549,6 +5645,20 @@ function renderGuiHtml() {
       });
       templateModelsMenu.classList.add("open");
       templateModelsButton.setAttribute("aria-expanded", "true");
+      const buttonRect = templateModelsButton.getBoundingClientRect();
+      const margin = 8;
+      const menuWidth = templateModelsMenu.offsetWidth || 260;
+      const menuHeight = templateModelsMenu.offsetHeight || 320;
+      const left = Math.max(
+        margin,
+        Math.min(buttonRect.left, window.innerWidth - menuWidth - margin),
+      );
+      const below = buttonRect.bottom + 6;
+      const top = below + menuHeight > window.innerHeight
+        ? Math.max(margin, buttonRect.top - menuHeight - 6)
+        : below;
+      templateModelsMenu.style.left = left + "px";
+      templateModelsMenu.style.top = top + "px";
     }
 
     function closeTemplateModelsMenu() {
@@ -5819,6 +5929,7 @@ function renderGuiHtml() {
       selectedUpdateAction = "";
       updateConfirm.disabled = true;
       updateOptions.querySelectorAll("[data-update-action]").forEach((item) => item.classList.remove("selected"));
+      updateOptions.querySelectorAll('input[name="updateAction"]').forEach((input) => { input.checked = false; });
     }
 
     saveOfflineButton.addEventListener("click", () => {
@@ -5840,12 +5951,12 @@ function renderGuiHtml() {
       updateOverlay.classList.add("visible");
       refreshUpdateCheck(true).catch((err) => showMessage(err.message, "error"));
     });
-    updateOptions.addEventListener("click", (event) => {
-      const option = event.target.closest("[data-update-action]");
-      if (!option) return;
-      selectedUpdateAction = option.getAttribute("data-update-action") || "";
+    updateOptions.addEventListener("change", (event) => {
+      const input = event.target.closest('input[name="updateAction"]');
+      if (!input) return;
+      selectedUpdateAction = input.value || "";
       updateConfirm.disabled = !selectedUpdateAction;
-      updateOptions.querySelectorAll("[data-update-action]").forEach((item) => item.classList.toggle("selected", item === option));
+      updateOptions.querySelectorAll("[data-update-action]").forEach((item) => item.classList.toggle("selected", item.contains(input)));
       updateWarning.textContent = selectedUpdateAction === "revert"
         ? "A reversão restaura software, dependências e metadados da última atualização válida."
         : "A confirmação explícita inicia a atualização e o progresso será registrado.";
@@ -6018,12 +6129,7 @@ function renderTemplateMarkerButtons() {
       ? '<span class="toolbar-separator" aria-hidden="true"></span>'
       : "";
     previousGroup = action.group;
-    const icon = action.id === "insertDayPeriodButton"
-      ? "sun"
-      : action.id === "insertVariantButton"
-        ? "layerGroup"
-        : "code";
-    return `${separator}<button type="button" id="${id}" data-editor-action="${id}" data-insert-marker="${insert}" data-hint="${hint}" aria-label="${label}">${renderGuiIcon(icon)}</button>`;
+    return `${separator}<button type="button" id="${id}" data-editor-action="${id}" data-insert-marker="${insert}" data-hint="${hint}" aria-label="${label}">${renderGuiIcon(action.icon)}</button>`;
   }).join("");
 }
 
@@ -6145,6 +6251,10 @@ async function scheduleUpdateRestart(context, updateState) {
 function renderHelpLink(iconName, href, hint, extraClass = "") {
   const className = ["help-link", extraClass].filter(Boolean).join(" ");
   return `<a class="${escapeHtml(className)}" href="${escapeHtml(href)}" target="_blank" rel="noreferrer" data-hint="${escapeHtml(hint)}" aria-label="${escapeHtml(hint)}">${renderGuiIcon(iconName)}</a>`;
+}
+
+function serializeJsonForHtml(value) {
+  return JSON.stringify(value).replace(/</gu, "\\u003c");
 }
 
 function escapeHtml(value) {

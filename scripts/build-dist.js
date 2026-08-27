@@ -58,6 +58,7 @@ const EXCLUDED_NAMES = new Set([
   "generate-agents-status.js",
   "logs",
   "node_modules",
+  "sync-gui-icons.js",
   "test",
   "update-agents.js",
 ]);

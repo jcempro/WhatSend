@@ -26,7 +26,7 @@ const {
   saveEnvSettings,
 } = require("../main");
 
-test("GUI usa Font Awesome por sprite, hints e toolbar integrada", () => {
+test("GUI usa registro multiprovedor qualificado, used-only e duas toolbars", () => {
   const html = renderGuiHtml();
 
   assert.match(html, /wa-icon-sprite/);
@@ -37,14 +37,16 @@ test("GUI usa Font Awesome por sprite, hints e toolbar integrada", () => {
   assert.match(html, /id="saveTemplateButton"/);
   assert.match(html, /data-hint="Salvar todas as abas em um arquivo \.md separado por \^\^\^/);
   assert.doesNotMatch(html, /<button[^>]*>💾<\/button>/u);
-  assert.equal(resolveGuiIconKey("f56d"), "save");
-  assert.equal(resolveGuiIconKey("f574"), "open");
-  assert.equal(resolveGuiIconKey("f0c7"), "saveLocal");
-  assert.equal(resolveGuiIconKey("f15b"), "newEdition");
-  assert.equal(resolveGuiIconKey("f07c"), "folderOpen");
-  assert.equal(resolveGuiIconKey("folderOpen"), "folderOpen");
-  assert.equal(resolveGuiIconKey("folderOpenRegular"), "folderOpenRegular");
-  assert.equal(resolveGuiIconKey("f0ed"), "cloudDownload");
+  assert.equal(resolveGuiIconKey("f56d"), "fontawesome:solid:file-arrow-down");
+  assert.equal(resolveGuiIconKey("f574"), "fontawesome:solid:file-arrow-up");
+  assert.equal(resolveGuiIconKey("f0c7"), "fontawesome:solid:floppy-disk");
+  assert.equal(resolveGuiIconKey("f15b"), "fontawesome:solid:file");
+  assert.equal(resolveGuiIconKey("f07c"), "fontawesome:solid:folder-open");
+  assert.equal(resolveGuiIconKey("folderOpen"), "fontawesome:solid:folder-open");
+  assert.equal(resolveGuiIconKey("folderOpenRegular"), "fontawesome:regular:folder-open");
+  assert.equal(resolveGuiIconKey("lucide:variable"), "lucide:variable");
+  assert.equal(resolveGuiIconKey("iconify:game-icons:upgrade"), "iconify:game-icons:upgrade");
+  assert.throws(() => resolveGuiIconKey("f0ed"), /não configurado/u);
   assert.ok(html.indexOf('id="newEditionButton"') < html.indexOf('id="saveTemplateLocalButton"'));
   assert.ok(html.indexOf('id="newEditionButton"') < html.indexOf('class="toolbar-separator"'));
   assert.ok(html.indexOf('class="toolbar-separator"') < html.indexOf('id="saveTemplateLocalButton"'));
@@ -53,8 +55,19 @@ test("GUI usa Font Awesome por sprite, hints e toolbar integrada", () => {
   assert.ok(html.indexOf('id="templateModelsButton"') < html.indexOf('id="saveTemplateButton"'));
   assert.ok(html.indexOf('id="saveTemplateButton"') < html.indexOf('id="openTemplateButton"'));
   assert.match(html, /id="templateModelsMenu"/);
-  assert.match(html, /renderGuiIcon\("folderOpen"\)|wa-icon-folderOpen/);
-  assert.match(html, /id="openLocalSavesButton"[\s\S]*wa-icon-folderOpenRegular/);
+  assert.match(html, /data-icon-key="iconify:game-icons:upgrade"/);
+  assert.match(html, /data-icon-key="iconify:streamline-sharp:download-box-1-solid"/);
+  assert.match(html, /data-icon-key="lucide:variable"/);
+  assert.match(html, /id="openLocalSavesButton"[\s\S]*data-icon-key="fontawesome:regular:folder-open"/);
+  assert.equal((html.match(/class="wa-toolbar wa-toolbar-/gu) || []).length, 2);
+  assert.match(html, /class="wa-toolbar wa-toolbar-document" aria-label="Ferramentas de documento e persistência"/u);
+  assert.match(html, /class="wa-toolbar wa-toolbar-composition" aria-label="Ferramentas de composição e expressões"/u);
+  const iconManifestMatch = html.match(/<script type="application\/json" id="guiIconManifest">([^<]+)<\/script>/u);
+  assert.ok(iconManifestMatch);
+  const iconManifest = JSON.parse(iconManifestMatch[1]);
+  assert.equal(iconManifest["iconify:game-icons:upgrade"].license, "CC-BY-3.0");
+  assert.equal(iconManifest["iconify:streamline-sharp:download-box-1-solid"].license, "CC-BY-4.0");
+  assert.equal(iconManifest["lucide:variable"].license, "ISC");
   assert.match(html, /LEGACY_LOCAL_TEMPLATE_STORAGE_KEY = "whatsend\.template\.local"/);
   assert.match(html, /LOCAL_SAVE_INDEX_KEY = "whatsend\.templateSets\.v1\.index"/);
   assert.match(html, /LOCAL_SAVE_AUTOSAVE_NAME = "\.autosave"/);
@@ -79,35 +92,25 @@ test("GUI emite script de navegador sintaticamente válido", () => {
 
 test("GUI inicia heartbeat antes de consultar status", () => {
   const html = renderGuiHtml();
-
   assert.match(html, /startGuiHeartbeat\(\);\s*refreshStatus\(\)\.catch/);
 });
 
 test("configurações ENV persistem por escopo global e sessão", () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "whatsend-env-"));
-
-  saveEnvSettings(root, "global", "default", {
-    MIN_DELAY_MS: "10",
-  });
-  saveEnvSettings(root, "session", "campanha teste", {
-    MAX_DELAY_MS: "20",
-  });
-
+  saveEnvSettings(root, "global", "default", { MIN_DELAY_MS: "10" });
+  saveEnvSettings(root, "session", "campanha teste", { MAX_DELAY_MS: "20" });
   const snapshot = getEnvSettingsSnapshot(root, "campanha-teste");
   assert.equal(snapshot.scopes.global.MIN_DELAY_MS, "10");
   assert.equal(snapshot.scopes.session.MAX_DELAY_MS, "20");
-  const randomization = snapshot.definitions.find(
-    (definition) => definition.name === "TEMPLATE_VARIANT_RANDOMIZATION_ENABLED",
-  );
+  const randomization = snapshot.definitions.find((definition) => definition.name === "TEMPLATE_VARIANT_RANDOMIZATION_ENABLED");
   assert.equal(randomization.fallback, "true");
   assert.equal(randomization.group, "Modelo");
-
   delete process.env.MAX_DELAY_MS;
   applyStartupEnvSettings(root, ["--session", "campanha teste"]);
   assert.equal(process.env.MAX_DELAY_MS, "20");
 });
 
-test("GUI expõe atualização com confirmação explícita", () => {
+test("GUI expõe atualização com confirmação explícita e rádio em formato switch", () => {
   const html = renderGuiHtml();
   assert.match(html, /id="updateButton"/);
   assert.match(html, /id="updateOverlay"/);
@@ -119,6 +122,11 @@ test("GUI expõe atualização com confirmação explícita", () => {
   assert.doesNotMatch(html, /window\.prompt\("Atualizar/u);
   assert.match(html, /\/api\/update/);
   assert.match(html, /incompatibilidades/);
+  assert.match(html, /id="updateOptions" role="radiogroup"/);
+  assert.equal((html.match(/type="radio" name="updateAction"/gu) || []).length, 4);
+  assert.match(html, /class="update-switch"/);
+  assert.match(html, /updateOptions\.addEventListener\("change"/);
+  assert.doesNotMatch(html, /<button type="button" data-update-action=/u);
 });
 
 test("GUI organiza modelo e andamento em largura total com log retraível", () => {
@@ -126,7 +134,7 @@ test("GUI organiza modelo e andamento em largura total com log retraível", () =
   assert.match(html, /class="full-card template-card"/);
   assert.match(html, /class="full-card log-card"/);
   assert.match(html, /section \{[\s\S]*min-width: 0;/);
-  assert.match(html, /\.wa-toolbar \{[\s\S]*flex-wrap: wrap;/);
+  assert.match(html, /\.wa-toolbar \{[\s\S]*flex-wrap: nowrap;/);
   assert.match(html, /@media \(max-width: 860px\)/);
   assert.match(html, /id="logToggleButton"/);
   assert.match(html, /\.log\.expanded/);
@@ -136,7 +144,6 @@ test("GUI organiza modelo e andamento em largura total com log retraível", () =
 
 test("GUI confirma descarte e reseta seleção antes de abrir modelo ou arquivo", () => {
   const html = renderGuiHtml();
-
   assert.match(html, /function hasUnsavedTemplateChanges\(\)/);
   assert.match(html, /function confirmDiscardUnsavedTemplateChanges\(actionLabel\)/);
   assert.match(html, /ainda não foi salvo localmente nem baixado em arquivo/);
@@ -158,15 +165,10 @@ test("GUI confirma descarte e reseta seleção antes de abrir modelo ou arquivo"
 
 test("GUI centraliza clientes conectados e operações ativas para encerramento seguro", () => {
   const state = createGuiState();
-
   assert.equal(hasActiveGuiClients(state), false);
-  registerGuiHeartbeat(state, {
-    clientId: "cliente-gui-001",
-    sessionId: "sessao-gui-001",
-  });
+  registerGuiHeartbeat(state, { clientId: "cliente-gui-001", sessionId: "sessao-gui-001" });
   assert.equal(hasActiveGuiClients(state), true);
   assert.equal(hasActiveGuiOperations(state), false);
-
   const operationId = beginGuiOperation(state, "campaign", { interruptible: false });
   assert.equal(hasActiveGuiOperations(state), true);
   endGuiOperation(state, operationId, "concluido");
@@ -176,14 +178,12 @@ test("GUI centraliza clientes conectados e operações ativas para encerramento 
 
 test("GUI não agenda encerramento antes de existir cliente conhecido", () => {
   const state = createGuiState();
-
   assert.equal(scheduleAutoGuiShutdown({ state, baseOptions: {} }, "teste"), false);
   assert.equal(state._guiShutdownTimer, undefined);
 });
 
 test("GUI mantém botão de desligar funcional com requisição dedicada", () => {
   const html = renderGuiHtml();
-
   assert.match(html, /id="shutdownButton"/);
   assert.match(html, /function requestGuiShutdown\(\)/);
   assert.match(html, /fetch\("\/api\/runtime\/stop", \{/);

@@ -16,7 +16,9 @@
     "start:gui": "node main.js --gui",
     "sent:clear": "node main.js --clear-sent",
     "start:reset": "node main.js --reset-sent",
-    "build:dist": "node scripts/build-dist.js",
+    "build:dist": "npm run icons:check && node scripts/build-dist.js",
+    "icons:check": "node scripts/sync-gui-icons.js --check",
+    "icons:sync": "node scripts/sync-gui-icons.js",
     "validate:dist": "node scripts/validate-dist.js",
     "release-notes:generate": "node scripts/generate-release-notes.js",
     "release-notes:validate": "node scripts/validate-release-notes-policy.js --staged",
@@ -146,6 +148,12 @@
     "whatsapp-web.js": "^1.34.7"
   },
   "devDependencies": {
+    "@fortawesome/free-brands-svg-icons": "^7.3.1",
+    "@fortawesome/free-regular-svg-icons": "^7.3.1",
+    "@fortawesome/free-solid-svg-icons": "^7.3.1",
+    "@iconify-json/game-icons": "^1.2.4",
+    "@iconify-json/streamline-sharp": "^1.2.0",
+    "lucide": "^1.34.0",
     "tabulator-tables": "^6.5.2",
     "terser": "^5.48.0"
   },
