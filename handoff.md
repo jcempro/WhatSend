@@ -22,20 +22,20 @@ Objetivo: Publicar o release oficial de identificacao explicita v0.4.0-beta depo
 <tr>
 <td rowspan="2">Publicacao</td>
 <td>Executar fluxo canonico do release 0.4.0-beta</td>
-<td><span style="color:#64748b">&#9679;</span> pendente</td>
+<td><span style="color:#15803d">&#9679;</span> concluído</td>
 </tr>
 <tr>
 <td>Acompanhar workflow, tag e assets</td>
-<td><span style="color:#64748b">&#9679;</span> pendente</td>
+<td><span style="color:#15803d">&#9679;</span> concluído</td>
 </tr>
 <tr>
 <td rowspan="2">Encerramento</td>
 <td>Comprovar release remoto e latest aplicavel</td>
-<td><span style="color:#64748b">&#9679;</span> pendente</td>
+<td><span style="color:#15803d">&#9679;</span> concluído</td>
 </tr>
 <tr>
 <td>Confirmar convergencia dev/main e concluir FT</td>
-<td><span style="color:#64748b">&#9679;</span> pendente</td>
+<td><span style="color:#15803d">&#9679;</span> concluído</td>
 </tr>
 </tbody>
 </table>
