@@ -48,52 +48,14 @@ verificacoes_concluidas=
 pendencias=
 - Nova autorizacao humana explicita posterior para FT-021.
 
-FT-021|nome=Implementar e publicar pagina de atribuicoes|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=em andamento
+FT-021|nome=Implementar atribuicoes obrigatorias|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=concluido
 criado_em=2026-08-26T23:33:03-03:00
-ultima_atualizacao=2026-08-27T20:07:29-03:00
-origem=TODO.ia.md@aff82f3;sha256=8e07230d949a960858361ff89f4430cb1297e895856bd27d9b7581d484287301;vinculo=FT-020
-objetivo=Implementar, validar e publicar /atribuicoes conforme o contrato concluido pela FT-020, usando somente atribuicoes legalmente exigidas dos recursos efetivamente usados.
-dependencias=FT-020 concluida;nova autorizacao humana explicita posterior;permissao GitHub Pages
-aceite=Pagina, dados, rota, build, workflow/publicacao, responsividade, acessibilidade, links e disponibilidade publica atendem integralmente o RCF e os termos das licencas selecionadas; impressao e PDF ficam fora do escopo conforme FT-022.
-estado_atual=Etapa 3/4 em andamento; CI dev/main e Pages dev aprovados, main convergida; deployment Pages bloqueado porque o repositorio nao possui Pages habilitado e esta credencial nao administra o repositorio.
-proximo_ponto_executavel=Proprietario habilitar Pages em Settings > Pages com GitHub Actions; reexecutar Pages main, validar URL publica e concluir.
-
-etapas=
-1/4 Preparacao tecnica [concluido]
-  1/2 Materializar inventario verificavel e plano minimo [concluido]
-  2/2 Confirmar arquitetura Pages definida pela FT-020 [concluido]
-2/4 Implementacao [concluido]
-  1/3 Criar pagina e dados de atribuicao [concluido]
-  2/3 Integrar build, rota e publicacao [concluido]
-  3/3 Preservar identidade e acessibilidade [concluido]
-3/4 Validacao [em andamento]
-  1/3 Validar licencas, conteudo e links [concluido]
-  2/3 Validar build, rota e responsividade [concluido]
-  3/3 Comprovar publicacao real em /atribuicoes [pendente]
-4/4 Entrega e convergencia [pendente]
-  1/2 Concluir FT e publicar dev [pendente]
-  2/2 Convergir main somente apos gates e publicacao aprovados [pendente]
-
-decisoes=
-- Nao iniciar implementacao antes da FT-020 concluida e de nova autorizacao humana explicita posterior.
-- Nao publicar lista especulativa, pacote apenas transitivo/desenvolvimento sem uso publicavel ou atribuicao nao exigida pela licenca efetiva.
-- Autorizacao humana explicita posterior recebida em 2026-08-27 libera implementacao, publicacao Pages e convergencia condicionada aos gates.
-- Aplicar RN050 com artefato estatico allowlisted por Actions, sem Jekyll e sem publicar raiz ou `docs/`.
-- O inventario versionado contem 175 obrigacoes materiais: 170 dependencias de runtime e 5 recursos incorporados; licencas sem dever de aviso foram excluidas.
-- O site gerado permanece fora de `dist`, enquanto `THIRD-PARTY-NOTICES.txt` deriva do mesmo inventario e acompanha o distribuivel.
-
-verificacoes_concluidas=
-- `npm test`, `npm run check:test`, `npm run build:pages`, `npm run validate:pages`, `npm run build:dist` e `npm run validate:dist`: aprovados.
-- Testes focados de atribuicoes: 5/5; inventario reprodutivel e allowlist exata de cinco paths do Pages.
-- Navegador integrado: 320, 768 e 1280 px sem overflow estrutural; 175 linhas e 175 avisos; rota sem barra converge; HTML sem `@media print`, `@page` ou A4.
-- Auditoria npm: cinco altas preexistentes na cadeia whatsapp-web.js -> puppeteer -> extract-zip; sem correcao compativel indicada na raiz e sem alteracao dessa arvore pela FT.
-- Reproducao limpa no Node 22 do CI identificou fingerprint dependente de CRLF em `src/gui-icon-data.js`; normalizacao para LF corrigida e suite integral: 163/163 aprovada.
-- Workflows do commit `b3c7dad`: Pages dev 33124920592 aprovado; CI dev 33124920582 aprovado; CI main 33124988793 aprovado.
-- Main convergiu por fast-forward no SHA `b3c7dade335cda0c0cf7a55ac5fe82b26caeaf52`.
-- Pages main 33124988782 bloqueado em `configure-pages`: endpoint Pages 404 porque o site ainda nao esta habilitado.
-
-pendencias=
-- Habilitacao administrativa de GitHub Pages; deployment e verificacao HTTP publica.
+ultima_atualizacao=2026-08-27T21:14:00-03:00
+conclusao=2026-08-27T21:14:00-03:00
+origem=TODO.ia.md@aff82f3;vinculo=FT-020,FT-027,FT-028
+resultado=Rota local `/atribuicoes` e `/atribuicoes/` integrada ao servidor da GUI; o escopo de dominio e GitHub Pages foi revogado por correcao humana posterior.
+verificacoes_concluidas=`npm test`, `npm run check:test`, inventario de 175 registros, rota local e `npm run build:dist`/`npm run validate:dist` aprovados.
+pendencias=Nenhuma.
 
 FT-022|nome=Retirar impressao da pagina de atribuicoes|tipo=implementacao_normativa|escopo=Negocio|prioridade=alta|status=concluido
 criado_em=2026-08-27T09:21:51-03:00
@@ -127,30 +89,14 @@ verificacoes_concluidas=
 pendencias=
 - Nova autorizacao humana explicita posterior para FT-023.
 
-FT-023|nome=Adequar pagina de atribuicoes sem impressao|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=em andamento
+FT-023|nome=Adequar atribuicoes sem impressao|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=concluido
 criado_em=2026-08-27T09:21:52-03:00
-ultima_atualizacao=2026-08-27T20:07:29-03:00
-origem=solicitacao_humana_explicita_2026-08-27;vinculo=FT-022,FT-021
-objetivo=Remover CSS, testes e validacoes exclusivos de impressao da pagina /atribuicoes e retomar a implementacao e publicacao da FT-021 conforme a RN050 revisada.
-dependencias=FT-022 concluida;nova autorizacao humana explicita posterior
-aceite=Fonte, testes, documentacao e pipeline nao contem requisito especifico de impressao para /atribuicoes; gates web, legais, de distribuicao e publicacao permanecem aprovados.
-estado_atual=Etapa 2/2 em andamento; adequacao, CI e convergencia aprovadas; encerramento aguarda somente o deployment Pages bloqueado por permissao administrativa externa.
-proximo_ponto_executavel=Habilitar Pages, comprovar URL publica e concluir junto da FT-021.
-
-etapas=
-1/2 Adequacao tecnica [concluido]
-  1/2 Remover implementacao e testes exclusivos de impressao [concluido]
-  2/2 Sincronizar documentacao tecnica aplicavel [concluido]
-2/2 Validacao e retomada [em andamento]
-  1/2 Executar gates sem prova de impressao [concluido]
-  2/2 Retomar e concluir FT-021 [pendente]
-
-decisoes=
-- Esta FT nao inicia por autorizacao anterior a sua norma concluida.
-- Autorizacao humana explicita posterior recebida em 2026-08-27 libera FT-023, gates sem impressao e retomada integral da FT-021.
-
-pendencias=
-- Habilitacao administrativa de GitHub Pages; deployment e verificacao publica.
+ultima_atualizacao=2026-08-27T21:14:00-03:00
+conclusao=2026-08-27T21:14:00-03:00
+origem=solicitacao_humana_explicita_2026-08-27;vinculo=FT-022,FT-021,FT-028
+resultado=Rota local, testes e distribuivel permanecem sem CSS ou gate de impressao, A4 e PDF.
+verificacoes_concluidas=HTML sem `@media print`, `@page` ou A4; testes e gates de distribuicao aprovados.
+pendencias=Nenhuma.
 
 FT-027|nome=Delimitar atribuicoes no servidor local|tipo=implementacao_normativa|escopo=Negocio|prioridade=alta|status=concluido
 criado_em=2026-08-27T20:50:00-03:00
@@ -181,40 +127,45 @@ verificacoes_concluidas=
 pendencias=
 - Executar a FT-028 tecnica; validar, convergir e publicar o release solicitado.
 
-FT-028|nome=Servir atribuicoes localmente|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=em andamento
+FT-028|nome=Servir atribuicoes localmente|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=concluido
 criado_em=2026-08-27T20:58:01-03:00
-ultima_atualizacao=2026-08-27T20:58:01-03:00
+ultima_atualizacao=2026-08-27T21:14:00-03:00
+conclusao=2026-08-27T21:14:00-03:00
 origem=correcao_humana_explicita_2026-08-27;vinculo=FT-027,FT-021,FT-023
 objetivo=Integrar `/atribuicoes` ao servidor local da GUI, preservar inventario e avisos do ZIP e remover somente o workflow de deployment externo.
 dependencias=FT-027 concluida;autorizacao humana explicita ja recebida
 aceite=As duas rotas locais devolvem a relacao validada no host local; nao ha workflow Pages, dominio ou artefato de deployment; o ZIP conserva `THIRD-PARTY-NOTICES.txt` e os gates passam.
-estado_atual=Etapa 1/3 em andamento; adequacao tecnica autorizada.
-proximo_ponto_executavel=Integrar a rota ao servidor local e adaptar comandos, testes e CI.
+estado_atual=Etapa 3/3 concluida; as duas rotas locais reutilizam o servidor da GUI e o distribuivel contem o runtime e o inventario correspondentes.
+proximo_ponto_executavel=Nenhum; FT-024 pode executar o release canonico.
 
 etapas=
 1/3 Preparacao [concluido]
   1/2 Mapear gerador e servidor local [concluido]
   2/2 Confirmar limites sem publicacao externa [concluido]
-2/3 Implementacao [em andamento]
-  1/3 Integrar as rotas locais [pendente]
-  2/3 Remover workflow e comandos de deployment [pendente]
-  3/3 Adaptar testes, distribuivel e CI [pendente]
-3/3 Validacao e entrega [pendente]
-  1/2 Executar gates locais e distribuiveis [pendente]
-  2/2 Concluir FTs, convergir branches e liberar release [pendente]
+2/3 Implementacao [concluido]
+  1/3 Integrar as rotas locais [concluido]
+  2/3 Remover workflow e comandos de deployment [concluido]
+  3/3 Adaptar testes, distribuivel e CI [concluido]
+3/3 Validacao e entrega [concluido]
+  1/2 Executar gates locais e distribuiveis [concluido]
+  2/2 Concluir FTs e liberar release [concluido]
 
-pendencias=
-- Implementar e validar a rota local.
+verificacoes_concluidas=
+- `GET /atribuicoes` e `GET /atribuicoes/` respondem 200 no servidor local; ambas renderizam 175 avisos.
+- Navegador integrado: 320, 768 e 1280 px sem overflow estrutural; tabela responsiva e sem requisito de impressao.
+- `npm test`, `npm run check:test`, `npm run attributions:validate`, `npm run build:dist` e `npm run validate:dist` aprovados.
+
+pendencias=Nenhuma.
 
 FT-025|nome=Revogar publicacao web de atribuicoes|tipo=implementacao_normativa|escopo=Negocio|prioridade=alta|status=concluido
 criado_em=2026-08-27T20:35:00-03:00
 ultima_atualizacao=2026-08-27T20:42:00-03:00
 conclusao=2026-08-27T20:42:00-03:00
 origem=solicitacao_humana_explicita_2026-08-27;vinculo=FT-020,FT-021,FT-022,FT-023
-objetivo=Revogar a pagina publica de atribuicoes, seu contrato e sua publicacao GitHub Pages, pois o produto e o repositorio nao possuem superficie web solicitada; preservar somente obrigacoes legais efetivamente distribuidas no pacote oficial.
+objetivo=Revogar a publicacao externa e o deployment GitHub Pages de atribuicoes, preservando a rota local posteriormente delimitada pela FT-027 e as obrigacoes legais distribuidas.
 dependencias=solicitacao humana explicita;inventario do escopo introduzido
-aceite=RCF, documentacao e estado operacional deixam de exigir pagina, rota, site, workflow ou GitHub Pages; nao se remove aviso de terceiros juridicamente exigido do artefato distribuivel.
-estado_atual=Etapa 3/3 concluida; RCF e README nao definem superficie web, pagina publica ou GitHub Pages para o produto.
+aceite=RCF, documentacao e estado operacional deixam de exigir dominio, site, workflow ou GitHub Pages; a rota local e os avisos juridicamente exigidos permanecem.
+estado_atual=Etapa 3/3 concluida; o escopo externo foi revogado e a FT-027 corrigiu a preservacao da rota local.
 proximo_ponto_executavel=Nenhum; a autorizacao humana explicita ja recebida libera a FT-026 tecnica.
 
 etapas=
@@ -233,46 +184,46 @@ decisoes=
 - A retirada nao autoriza eliminar avisos ou licencas que acompanhem bytes distribuidos; a obrigacao juridica sera preservada somente no pacote oficial aplicavel.
 
 verificacoes_concluidas=
-- RN050, a rota publica e qualquer obrigacao de GitHub Pages foram retiradas do RCF e do README.
+- A obrigacao de GitHub Pages foi retirada; a FT-027 reintroduziu explicitamente a rota local sem dominio ou deployment.
 - A obrigacao de licenca dos recursos incorporados permanece sob RN049 e no artefato distribuivel aplicavel.
 
 pendencias=
 - Executar a FT-026 tecnica, validar o distribuivel e publicar o release solicitado.
 
-FT-026|nome=Retirar superficie GitHub Pages|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=em andamento
+FT-026|nome=Retirar deployment GitHub Pages|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=concluido
 criado_em=2026-08-27T20:42:01-03:00
-ultima_atualizacao=2026-08-27T20:42:01-03:00
+ultima_atualizacao=2026-08-27T21:14:00-03:00
+conclusao=2026-08-27T21:14:00-03:00
 origem=solicitacao_humana_explicita_2026-08-27;vinculo=FT-025
-objetivo=Remover workflow, comandos, fonte, testes, rota e artefatos exclusivos da pagina publica, sem remover os avisos de terceiros do pacote distribuivel.
+objetivo=Remover workflow e comandos de deployment GitHub Pages sem remover a rota local ou os avisos de terceiros do pacote distribuivel.
 dependencias=FT-025 concluida;autorizacao humana explicita posterior ja recebida
-aceite=Repositorio nao possui workflow Pages, artefato de site, rota publica ou comandos de Pages; o ZIP conserva avisos legais aplicaveis e todos os gates de produto e release permanecem aprovados.
-estado_atual=Etapa 1/3 em andamento; retirada tecnica autorizada.
-proximo_ponto_executavel=Remover implementacao exclusiva e adaptar o inventario legal ao distribuivel.
+aceite=Repositorio nao possui workflow ou comandos de deployment Pages; o ZIP e a rota local conservam avisos legais aplicaveis.
+estado_atual=Etapa 3/3 concluida; deployment externo removido e rota local preservada.
+proximo_ponto_executavel=Nenhum; FT-024 pode executar o release canonico.
 
 etapas=
 1/3 Preparacao [concluido]
   1/2 Confirmar escopo exclusivo de Pages [concluido]
   2/2 Preservar fonte legal do distribuivel [concluido]
-2/3 Retirada e adequacao [em andamento]
-  1/3 Remover workflow, comandos e artefatos de pagina [pendente]
-  2/3 Adaptar inventario para o ZIP [pendente]
-  3/3 Retirar gates e testes web [pendente]
-3/3 Validacao e entrega [pendente]
-  1/2 Executar gates completos do produto e distribuivel [pendente]
-  2/2 Concluir FTs revogadas, convergir branches e liberar release [pendente]
+2/3 Retirada e adequacao [concluido]
+  1/3 Remover workflow e comandos de deployment [concluido]
+  2/3 Adaptar inventario para o ZIP [concluido]
+  3/3 Retirar gates externos e preservar testes locais [concluido]
+3/3 Validacao e entrega [concluido]
+  1/2 Executar gates completos do produto e distribuivel [concluido]
+  2/2 Concluir FTs revogadas e liberar release [concluido]
 
-pendencias=
-- Implementar e validar retirada tecnica.
+pendencias=Nenhuma.
 
 FT-024|nome=Publicar release v0.4.0-beta|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=em andamento
 criado_em=2026-08-27T09:58:15-03:00
-ultima_atualizacao=2026-08-27T20:07:29-03:00
-origem=solicitacao_humana_explicita_2026-08-27;vinculo=FT-021,FT-023
-objetivo=Publicar o release oficial de identificacao explicita v0.4.0-beta somente depois da conclusao efetiva da pagina de atribuicoes, dos gates e da convergencia dev/main.
-dependencias=FT-021 concluida;FT-023 concluida;gates locais e remotos;workflow Release
+ultima_atualizacao=2026-08-27T21:14:00-03:00
+origem=solicitacao_humana_explicita_2026-08-27;vinculo=FT-021,FT-023,FT-026,FT-028
+objetivo=Publicar o release oficial de identificacao explicita v0.4.0-beta depois da conclusao da rota local de atribuicoes, dos gates e da convergencia dev/main.
+dependencias=FT-021 concluida;FT-023 concluida;FT-026 concluida;FT-028 concluida;gates locais e remotos;workflow Release
 aceite=Versao 0.4.0-beta, tag v0.4.0-beta, ZIP e metadado oficiais publicados e verificaveis; workflow aprovado; dev e main convergentes; release remoto acessivel.
-estado_atual=Etapa 1/3 em andamento; preflight do release aprovado, mas FT-021/FT-023 nao concluem sem Pages habilitado e deployment publico comprovado.
-proximo_ponto_executavel=Habilitar Pages, concluir FT-021/FT-023 e executar o fluxo canonico do release.
+estado_atual=Etapa 1/3 concluida; dependencias locais concluidas e preflight aprovado.
+proximo_ponto_executavel=Executar o fluxo canonico do release 0.4.0-beta.
 
 etapas=
 1/3 Preparacao [concluido]
@@ -291,7 +242,7 @@ decisoes=
 - `npm run release -- 0.4.0-beta --dry-run` aprovou branch dev limpa, GitHub CLI autenticado, tag local inexistente e workflow Release presente.
 
 pendencias=
-- Habilitacao administrativa de GitHub Pages; concluir FT-021/FT-023; executar e comprovar release.
+- Executar e comprovar release 0.4.0-beta.
 
 FT-018|nome=Iconografia multiprovedor e paridade visual das ferramentas|tipo=implementacao_normativa|escopo=Negocio|prioridade=alta|status=concluido
 criado_em=2026-08-26T21:37:05-03:00
