@@ -22,18 +22,17 @@ const os = require("node:os");
 const path = require("node:path");
 const test = require("node:test");
 
-test("RCF normatiza inventário e publicação verificável de atribuições", () => {
+test("RCF normatiza inventário e rota local verificável de atribuições", () => {
   const rcf = fs.readFileSync(path.join(__dirname, "..", "RCF.md"), "utf8");
   const section = rcf.slice(
-    rcf.indexOf("### RN050 - Página Pública de Atribuições Obrigatórias"),
+    rcf.indexOf("### RN050 - Atribuições locais obrigatórias"),
     rcf.indexOf("## Requisitos Não Funcionais"),
   );
 
-  assert.match(section, /árvore realmente instalada[\s\S]*dependências de desenvolvimento omitidas/u);
-  assert.match(section, /diferença vazia entre obrigações detectadas e registros publicados/u);
-  assert.match(section, /\/atribuicoes\/index\.html/u);
-  assert.match(section, /contents: read[\s\S]*pages: write[\s\S]*id-token: write/u);
-  assert.match(section, /página pública complementa e NÃO substitui avisos/u);
+  assert.match(section, /mesmo host e porta da GUI local/u);
+  assert.match(section, /dependências de runtime materializada/u);
+  assert.match(section, /THIRD-PARTY-NOTICES\.txt/u);
+  assert.match(section, /ausência de domínio[\s\S]*GitHub Pages[\s\S]*Jekyll/u);
 });
 
 const {

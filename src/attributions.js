@@ -13,14 +13,6 @@ const ATTRIBUTIONS_SCHEMA = "whatsend-attributions/v1";
 const EXEMPT_LICENSES = new Set(["0BSD", "CC0-1.0", "Unlicense"]);
 const LICENSE_FILE_PATTERN = /^(?:licen[cs]e|copying|notice)(?:[._-].*)?$/iu;
 const SIMPLE_SPDX_PATTERN = /^[A-Za-z0-9.-]+$/u;
-const SITE_FILES = Object.freeze([
-  ".nojekyll",
-  "assets/favicon.svg",
-  "atribuicoes/index.html",
-  "index.html",
-  "manifest.json",
-]);
-
 function collectAttributions({ rootDir }) {
   const lock = readJson(path.join(rootDir, "package-lock.json"));
   const rootPackage = readJson(path.join(rootDir, "package.json"));
@@ -245,7 +237,7 @@ function joinNoticeFiles(packageDir, files) {
   ].join("\n")).join("\n\n");
 }
 
-function renderAttributionsPage(data) {
+function renderAttributionsPage(data, { faviconHref = "/brand/favicon.svg" } = {}) {
   validateAttributionsData(data);
   const rows = data.records.map((record) => `
           <tr>
@@ -274,13 +266,13 @@ function renderAttributionsPage(data) {
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'">
   <title>Atribuições obrigatórias — WhatSend</title>
   <meta name="description" content="Licenças e atribuições obrigatórias dos componentes efetivamente distribuídos pelo WhatSend.">
-  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="${escapeAttribute(faviconHref)}" type="image/svg+xml">
   <style>${renderStyles()}</style>
 </head>
 <body>
   <a class="skip" href="#conteudo">Ir para o conteúdo</a>
   <header class="masthead">
-    <div class="brand"><img src="../assets/favicon.svg" width="48" height="48" alt=""><span>WhatSend</span></div>
+    <div class="brand"><img src="${escapeAttribute(faviconHref)}" width="48" height="48" alt=""><span>WhatSend</span></div>
   </header>
   <main id="conteudo">
     <section class="hero" aria-labelledby="titulo">
@@ -323,66 +315,6 @@ function renderStyles() {
   `;
 }
 
-function buildPages({ data, outputDir, rootDir }) {
-  validateAttributionsData(data);
-  fs.rmSync(outputDir, { force: true, recursive: true });
-  fs.mkdirSync(path.join(outputDir, "assets"), { recursive: true });
-  fs.mkdirSync(path.join(outputDir, "atribuicoes"), { recursive: true });
-  fs.writeFileSync(path.join(outputDir, ".nojekyll"), "", "utf8");
-  fs.copyFileSync(
-    path.join(rootDir, "src", "brand", "html-favicon", "favicon.svg"),
-    path.join(outputDir, "assets", "favicon.svg"),
-  );
-  fs.writeFileSync(path.join(outputDir, "atribuicoes", "index.html"), renderAttributionsPage(data), "utf8");
-  fs.writeFileSync(path.join(outputDir, "index.html"), renderRootRedirect(), "utf8");
-  const manifest = buildSiteManifest(outputDir);
-  fs.writeFileSync(path.join(outputDir, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
-  validateBuiltPages({ data, outputDir });
-  return manifest;
-}
-
-function validateBuiltPages({ data, outputDir }) {
-  validateAttributionsData(data);
-  const files = listFiles(outputDir).map((filePath) => normalizeRelative(path.relative(outputDir, filePath))).sort();
-
-  if (JSON.stringify(files) !== JSON.stringify(SITE_FILES)) {
-    throw new Error(`Allowlist do site divergente: ${files.join(", ")}`);
-  }
-
-  const html = readExactFile(path.join(outputDir, "atribuicoes", "index.html"));
-  const required = [
-    '<html lang="pt-BR">',
-    '<main id="conteudo">',
-    '<h1 id="titulo">Atribuições obrigatórias</h1>',
-    '<table>',
-    '@media(max-width:900px)',
-    'rel="license external noreferrer"',
-  ];
-  for (const marker of required) {
-    if (!html.includes(marker)) throw new Error(`Marcador obrigatório ausente na página: ${marker}`);
-  }
-  if (/<script\b/iu.test(html)) throw new Error("A página de atribuições não pode conter JavaScript.");
-  if (/@media\s+print|@page|\bA4\b/iu.test(html)) {
-    throw new Error("A página de atribuições não pode conter implementação específica de impressão.");
-  }
-  if (/(?:src|href)=["']https?:[^"']+["'][^>]*(?:stylesheet|script)/iu.test(html)) {
-    throw new Error("A página não pode carregar recurso externo.");
-  }
-  for (const record of data.records) {
-    if (!html.includes(`notice-${record.id}`)) throw new Error(`Aviso não renderizado: ${record.id}`);
-  }
-  const manifest = readJson(path.join(outputDir, "manifest.json"));
-  for (const entry of manifest.files) {
-    const target = path.join(outputDir, entry.path);
-    if (!fs.existsSync(target)) throw new Error(`Arquivo manifestado ausente: ${entry.path}`);
-    const content = fs.readFileSync(target);
-    if (sha256(content) !== entry.sha256 || content.length !== entry.size) {
-      throw new Error(`Integridade divergente no site: ${entry.path}`);
-    }
-  }
-  return true;
-}
-
 function validateAttributionsData(data) {
   if (!data || data.schema !== ATTRIBUTIONS_SCHEMA || !Array.isArray(data.records) || data.records.length === 0) {
     throw new Error("Inventário de atribuições inválido ou vazio.");
@@ -419,25 +351,6 @@ function sourceFingerprints(rootDir) {
     source,
     sha256(fs.readFileSync(path.join(rootDir, source), "utf8").replace(/\r\n/gu, "\n")),
   ]));
-}
-
-function buildSiteManifest(outputDir) {
-  const files = listFiles(outputDir)
-    .filter((filePath) => path.basename(filePath) !== "manifest.json")
-    .map((filePath) => {
-      const content = fs.readFileSync(filePath);
-      return {
-        path: normalizeRelative(path.relative(outputDir, filePath)),
-        sha256: sha256(content),
-        size: content.length,
-      };
-    })
-    .sort((a, b) => a.path.localeCompare(b.path, "en"));
-  return { files, schema: "whatsend-pages-manifest/v1" };
-}
-
-function renderRootRedirect() {
-  return `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta http-equiv="refresh" content="0; url=./atribuicoes/"><title>WhatSend — Atribuições</title><link rel="canonical" href="./atribuicoes/"></head><body><main><p><a href="./atribuicoes/">Abrir atribuições obrigatórias do WhatSend</a>.</p></main></body></html>`;
 }
 
 function deduplicateRecords(records) {
@@ -525,22 +438,6 @@ function readExactFile(filePath) {
   return fs.readFileSync(filePath, "utf8").replace(/\r\n/gu, "\n").trim();
 }
 
-function listFiles(directory) {
-  if (!fs.existsSync(directory)) return [];
-  const files = [];
-  for (const entry of fs.readdirSync(directory, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name, "en"))) {
-    const target = path.join(directory, entry.name);
-    if (entry.isDirectory()) files.push(...listFiles(target));
-    else if (entry.isFile()) files.push(target);
-    else throw new Error(`Entrada não regular proibida no site: ${target}`);
-  }
-  return files;
-}
-
-function normalizeRelative(value) {
-  return value.split(path.sep).join("/");
-}
-
 function sha256(value) {
   return crypto.createHash("sha256").update(value).digest("hex");
 }
@@ -555,10 +452,7 @@ function escapeAttribute(value) {
 
 module.exports = {
   ATTRIBUTIONS_SCHEMA,
-  SITE_FILES,
-  buildPages,
   collectAttributions,
   renderAttributionsPage,
   validateAttributionsData,
-  validateBuiltPages,
 };

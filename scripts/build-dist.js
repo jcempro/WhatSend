@@ -22,7 +22,7 @@ const {
 const ROOT_DIR = path.resolve(__dirname, "..");
 const DIST_DIR = path.join(ROOT_DIR, "dist");
 const THIRD_PARTY_NOTICES_FILE_NAME = "THIRD-PARTY-NOTICES.txt";
-const ATTRIBUTIONS_DATA_PATH = path.join(ROOT_DIR, "src", "site", "attributions.json");
+const ATTRIBUTIONS_DATA_PATH = path.join(ROOT_DIR, "src", "attributions.json");
 const STRUCTURE_ONLY_DIRS = ["logs", "modelos", "listas"];
 const ROOT_FILES = [
   "LICENSE",
@@ -60,8 +60,7 @@ const EXCLUDED_NAMES = new Set([
   "generate-agents-status.js",
   "logs",
   "node_modules",
-  "pages.js",
-  "site",
+  "sync-attributions.js",
   "sync-gui-icons.js",
   "test",
   "update-agents.js",

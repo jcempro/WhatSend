@@ -80,7 +80,7 @@ function validateDist() {
 }
 
 function validateThirdPartyNotices(distDir) {
-  const inventoryPath = path.join(ROOT_DIR, "src", "site", "attributions.json");
+  const inventoryPath = path.join(ROOT_DIR, "src", "attributions.json");
   const noticePath = path.join(distDir, THIRD_PARTY_NOTICES_FILE_NAME);
   const data = JSON.parse(fs.readFileSync(inventoryPath, "utf8"));
   const actual = fs.readFileSync(noticePath, "utf8");
@@ -89,8 +89,16 @@ function validateThirdPartyNotices(distDir) {
     throw new Error(`${THIRD_PARTY_NOTICES_FILE_NAME} diverge do inventário legal versionado.`);
   }
 
-  if (fs.existsSync(path.join(distDir, "src", "site")) || fs.existsSync(path.join(distDir, "scripts", "pages.js"))) {
-    throw new Error("Implementação exclusiva do site não pode compor o runtime distribuível.");
+  const dataPath = path.join(distDir, "src", "attributions.json");
+  if (!fs.existsSync(path.join(distDir, "src", "attributions.js")) || !fs.existsSync(dataPath)) {
+    throw new Error("Rota local de atribuições ausente no runtime distribuível.");
+  }
+  const distributedData = JSON.parse(fs.readFileSync(dataPath, "utf8"));
+  if (actual !== renderThirdPartyNotices(distributedData)) {
+    throw new Error("Inventário local de atribuições diverge do aviso distribuível.");
+  }
+  if (fs.existsSync(path.join(distDir, "scripts", "sync-attributions.js"))) {
+    throw new Error("Script de sincronização não pode compor o runtime distribuível.");
   }
 }
 

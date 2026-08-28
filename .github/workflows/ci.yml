@@ -42,9 +42,6 @@ jobs:
       - name: Run RCF check with fixtures
         run: npm run check:test
 
-      - name: Build and validate Pages artifact
-        run: npm run build:pages && npm run validate:pages
-
       - name: Build distributable dist
         run: npm run build:dist
 

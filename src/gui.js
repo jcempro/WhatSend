@@ -12,6 +12,7 @@ const os = require("os");
 const path = require("path");
 
 const { PATHS, ROOT_DIR, readIntegerEnv } = require("./config");
+const { renderAttributionsPage, validateAttributionsData } = require("./attributions");
 const { COMMON_EDITOR_ACTIONS } = require("./editor-actions");
 const { renderGuiHintRuntime } = require("./gui-hints");
 const { getGuiIconManifest, renderGuiIcon, renderGuiIconSprite } = require("./gui-icons");
@@ -613,6 +614,11 @@ async function routeGuiRequest(req, res, context) {
 
   if (req.method === "GET" && url.pathname === "/license") {
     sendText(res, readOptionalFile(path.join(ROOT_DIR, "LICENSE")) || "LICENSE não encontrada.");
+    return;
+  }
+
+  if (req.method === "GET" && ["/atribuicoes", "/atribuicoes/"].includes(url.pathname)) {
+    sendHtml(res, renderAttributionsPage(readAttributionsData()));
     return;
   }
 
@@ -6243,6 +6249,13 @@ function renderHelpLink(iconName, href, hint, extraClass = "") {
   return `<a class="${escapeHtml(className)}" href="${escapeHtml(href)}" target="_blank" rel="noreferrer" data-hint="${escapeHtml(hint)}" aria-label="${escapeHtml(hint)}">${renderGuiIcon(iconName)}</a>`;
 }
 
+function readAttributionsData() {
+  const dataPath = path.join(ROOT_DIR, "src", "attributions.json");
+  const data = JSON.parse(fs.readFileSync(dataPath, "utf8"));
+  validateAttributionsData(data);
+  return data;
+}
+
 function serializeJsonForHtml(value) {
   return JSON.stringify(value).replace(/</gu, "\\u003c");
 }
@@ -6260,6 +6273,7 @@ module.exports = {
   buildGuiTemplatePreview,
   beginGuiOperation,
   createGuiState,
+  createGuiHttpServer,
   discoverGuiTemplates,
   endGuiOperation,
   hasActiveGuiClients,

@@ -7,22 +7,19 @@
 
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
-const os = require("node:os");
 const path = require("node:path");
 const test = require("node:test");
 
 const {
-  SITE_FILES,
-  buildPages,
   collectAttributions,
   renderAttributionsPage,
   validateAttributionsData,
-  validateBuiltPages,
-} = require("../src/site/attributions");
+} = require("../src/attributions");
+const { createGuiHttpServer, createGuiState } = require("../src/gui");
 const { renderThirdPartyNotices } = require("../scripts/build-dist");
 
 const ROOT_DIR = path.resolve(__dirname, "..");
-const DATA_PATH = path.join(ROOT_DIR, "src", "site", "attributions.json");
+const DATA_PATH = path.join(ROOT_DIR, "src", "attributions.json");
 
 test("inventário legal é integral, reprodutível e contém somente obrigações materiais", () => {
   const versioned = JSON.parse(fs.readFileSync(DATA_PATH, "utf8"));
@@ -50,7 +47,7 @@ test("inventário legal é integral, reprodutível e contém somente obrigaçõe
   ]);
 });
 
-test("página estática é acessível, responsiva, sem impressão específica e sem dependência externa", () => {
+test("página local é acessível, responsiva, sem impressão específica e sem dependência externa", () => {
   const data = JSON.parse(fs.readFileSync(DATA_PATH, "utf8"));
   const html = renderAttributionsPage(data);
 
@@ -62,23 +59,24 @@ test("página estática é acessível, responsiva, sem impressão específica e 
   assert.doesNotMatch(html, /@media\s+print|@page|\bA4\b/iu);
   assert.doesNotMatch(html, /<script\b/iu);
   assert.doesNotMatch(html, /<(?:link|script|img)\b[^>]*(?:src|href)="https?:/iu);
+  assert.match(html, /href="\/brand\/favicon\.svg"/u);
   assert.equal((html.match(/class="notice"/gu) || []).length, data.records.length);
 });
 
-test("build do Pages produz somente a allowlist manifestada e com integridade", () => {
-  const outputDir = fs.mkdtempSync(path.join(os.tmpdir(), "whatsend-pages-"));
-  const data = JSON.parse(fs.readFileSync(DATA_PATH, "utf8"));
+test("servidor local atende as duas rotas de atribuições", async () => {
+  const server = createGuiHttpServer(null, {}, {}, createGuiState({}));
+  await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
+  const port = server.address().port;
 
   try {
-    buildPages({ data, outputDir, rootDir: ROOT_DIR });
-    assert.equal(validateBuiltPages({ data, outputDir }), true);
-    const files = listFiles(outputDir)
-      .map((filePath) => path.relative(outputDir, filePath).split(path.sep).join("/"))
-      .sort();
-    assert.deepEqual(files, SITE_FILES);
-    assert.match(fs.readFileSync(path.join(outputDir, "index.html"), "utf8"), /\.\/atribuicoes\//u);
+    for (const route of ["/atribuicoes", "/atribuicoes/"]) {
+      const response = await fetch(`http://127.0.0.1:${port}${route}`);
+      const html = await response.text();
+      assert.equal(response.status, 200);
+      assert.match(html, /Atribuições obrigatórias/u);
+    }
   } finally {
-    fs.rmSync(outputDir, { force: true, recursive: true });
+    await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
   }
 });
 
@@ -92,28 +90,6 @@ test("aviso do artefato distribuível deriva integralmente do mesmo inventário"
     assert.ok(notice.includes(record.notice));
   }
 });
-
-test("workflow valida o mesmo artefato em PR e implanta exclusivamente main", () => {
-  const workflow = fs.readFileSync(path.join(ROOT_DIR, ".github", "workflows", "pages.yml"), "utf8");
-  assert.match(workflow, /pull_request:/u);
-  assert.match(workflow, /npm run attributions:check/u);
-  assert.match(workflow, /npm run build:pages/u);
-  assert.match(workflow, /npm run validate:pages/u);
-  assert.match(workflow, /actions\/configure-pages@v6/u);
-  assert.match(workflow, /actions\/upload-pages-artifact@v5/u);
-  assert.match(workflow, /actions\/deploy-pages@v5/u);
-  assert.match(workflow, /github\.ref == 'refs\/heads\/main'/u);
-  assert.match(workflow, /pages: write/u);
-  assert.match(workflow, /id-token: write/u);
-  assert.match(workflow, /name: github-pages/u);
-});
-
-function listFiles(directory) {
-  return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
-    const target = path.join(directory, entry.name);
-    return entry.isDirectory() ? listFiles(target) : [target];
-  });
-}
 
 function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
