@@ -22,6 +22,7 @@ Todos os nomes, telefones, contas, caminhos e URLs deste README sao exemplos fic
 - [Logs e reenvio](#logs-e-reenvio)
 - [Atualizacao](#atualizacao)
 - [Releases](#releases)
+- [Atribuicoes de terceiros](#atribuicoes-de-terceiros)
 - [Testes](#testes)
 - [Documentacao](#documentacao)
 - [Licenca e disclaimer](#licenca-e-disclaimer)
@@ -330,6 +331,10 @@ O build gera:
 Sem parametros e em terminal interativo, o comando pergunta versao, canal e se o artefato e uma Release oficial. Em automacao, passe os parametros explicitamente.
 
 A publicacao oficial parte de `dev` e pode usar `npm run agent:release:publish -- VERSAO`, que exige worktree limpo, confirma a autenticacao GitHub, versiona o manifesto, executa testes e acompanha o workflow GitHub Actions `Release`. O workflow recebe versao, canal e confirmacao, gera o mesmo ZIP pelo `build:dist`, cria ou atualiza a tag e a Release correspondente, anexa o ZIP e `whatsend-version.json`, marca a Release como Latest e conclui com `release: vVERSAO` antes do fast-forward para `main`. Pela interface web, execute o mesmo workflow selecionando a branch `dev`.
+
+## Atribuicoes de terceiros
+
+Os avisos legalmente aplicáveis ficam disponíveis somente na rota local [http://127.0.0.1:3137/atribuicoes/](http://127.0.0.1:3137/atribuicoes/) quando a GUI está em execução. A mesma relação acompanha o ZIP oficial em `dist/THIRD-PARTY-NOTICES.txt`. O projeto não publica essa rota em domínio, Jekyll ou GitHub Pages.
 
 ## Testes
 
