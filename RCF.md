@@ -725,6 +725,14 @@ As duas barras dos editores definidas em RN047 e a barra CSV de RN039 DEVEM deri
 
 A validação DEVE cobrir: resolução positiva e negativa por cada namespace; colisões homônimas; inexistência de fallback ou importação cruzada; licença/atribuição por coleção; conjunto exato de ícones alcançáveis; ausência dos pacotes de build e de rede em runtime; deduplicação sem perda de proveniência; presença exata dos dois ícones obrigatórios; ausência de estado Node/WhatsApp e de controles executores no offline; semântica, teclado e distinção visual do grupo de atualização; exatamente duas barras e seus grupos nos dois editores; toolbar CSV, input de arquivo oculto, hints e acessibilidade; CSS/DOM e capturas determinísticas nos viewports declarados; comparação com `evidencia1.png` a `evidencia4.png`; e ausência de regressão funcional, visual, responsiva, de impressão ou de distribuição.
 
+### RN050 - Atribuições locais obrigatórias
+
+O servidor local do WhatSend DEVE disponibilizar a relação de avisos de terceiros em `/atribuicoes` e `/atribuicoes/`, no mesmo host e porta da GUI local. As rotas DEVEM responder ao documento HTML sem JavaScript gerado do inventário versionado e verificável; não constituem domínio, site público, conteúdo editorial, Jekyll, GitHub Pages, workflow de deployment nem publicação externa.
+
+O inventário autoritativo DEVE combinar somente os componentes e recursos efetivamente distribuídos: árvore de dependências de runtime materializada, manifestos de recursos incorporados e o registro used-only de RN049. Dependência de desenvolvimento, pacote não materializado, recurso não referenciado ou crédito facultativo DEVE ser excluído. Cada registro DEVE conservar nome, versão, finalidade, origem HTTPS, autor ou titular, licença, aviso integral e indicação de modificação, em ordem determinística; falta, ambiguidade ou divergência de licença bloqueia o build distribuível. Os mesmos avisos aplicáveis DEVEM acompanhar o ZIP oficial em `THIRD-PARTY-NOTICES.txt`.
+
+O documento local DEVE ter título único, landmarks, tabela ou lista semântica, teclado, foco visível, contraste e layout responsivo nos viewports 320, 768 e 1280 px, sem rolagem horizontal estrutural. Não existe requisito de impressão, A4, PDF ou mídia impressa. A validação DEVE comprovar inventário reprodutível, HTML sem dependência externa, as duas rotas locais, conteúdo integral dos avisos, acessibilidade e responsividade, presença dos avisos no distribuível e ausência de domínio, URL pública, deployment, GitHub Pages ou Jekyll.
+
 ## Requisitos Não Funcionais
 
 ### RNF001 - Plataforma

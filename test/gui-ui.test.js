@@ -77,7 +77,11 @@ test("GUI usa registro multiprovedor qualificado, used-only e duas toolbars", ()
   assert.match(html, /function openLocalSavesPanel\(\)/);
   assert.match(html, /function createNewEdition\(\)/);
   assert.match(html, /function autosaveTemplate\(\)/);
-  assert.match(html, /header-actions \[data-hint\]:hover::after/);
+  assert.match(html, /id="guiTooltip" class="gui-tooltip" role="tooltip" hidden/);
+  assert.match(html, /\.gui-tooltip \{[\s\S]*position: fixed;[\s\S]*z-index: 2000;/u);
+  assert.match(html, /function showGuiTooltip\(target\)/);
+  assert.match(html, /document\.addEventListener\("pointerover"/);
+  assert.doesNotMatch(html, /\[data-hint\]:hover::after/);
 });
 
 test("GUI emite script de navegador sintaticamente válido", () => {

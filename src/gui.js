@@ -12,7 +12,9 @@ const os = require("os");
 const path = require("path");
 
 const { PATHS, ROOT_DIR, readIntegerEnv } = require("./config");
+const { renderAttributionsPage, validateAttributionsData } = require("./attributions");
 const { COMMON_EDITOR_ACTIONS } = require("./editor-actions");
+const { renderGuiHintRuntime } = require("./gui-hints");
 const { getGuiIconManifest, renderGuiIcon, renderGuiIconSprite } = require("./gui-icons");
 const {
   AUTHOR,
@@ -612,6 +614,11 @@ async function routeGuiRequest(req, res, context) {
 
   if (req.method === "GET" && url.pathname === "/license") {
     sendText(res, readOptionalFile(path.join(ROOT_DIR, "LICENSE")) || "LICENSE não encontrada.");
+    return;
+  }
+
+  if (req.method === "GET" && ["/atribuicoes", "/atribuicoes/"].includes(url.pathname)) {
+    sendHtml(res, renderAttributionsPage(readAttributionsData()));
     return;
   }
 
@@ -1996,57 +2003,43 @@ function renderGuiHtml() {
       width: 1em;
     }
 
-    [data-hint] {
-      position: relative;
-    }
-
-    [data-hint]:hover::after,
-    [data-hint]:focus-visible::after {
+    .gui-tooltip {
       background: #101828;
       border-radius: 6px;
-      bottom: calc(100% + 8px);
       color: #fff;
-      content: attr(data-hint);
       font-size: 12px;
       font-weight: 600;
-      left: 50%;
       line-height: 1.35;
       max-width: min(280px, calc(100vw - 24px));
       padding: 7px 9px;
       pointer-events: none;
-      position: absolute;
+      position: fixed;
       text-align: center;
-      transform: translateX(-50%);
       white-space: normal;
       width: max-content;
-      z-index: 1200;
+      z-index: 2000;
     }
 
-    [data-hint]:hover::before,
-    [data-hint]:focus-visible::before {
+    .gui-tooltip[hidden] {
+      display: none;
+    }
+
+    .gui-tooltip::after {
       border: 6px solid transparent;
       border-top-color: #101828;
-      bottom: calc(100% - 3px);
       content: "";
       left: 50%;
       pointer-events: none;
       position: absolute;
+      top: 100%;
       transform: translateX(-50%);
-      z-index: 1201;
     }
 
-    .header-actions [data-hint]:hover::after,
-    .header-actions [data-hint]:focus-visible::after {
-      bottom: auto;
-      top: calc(100% + 8px);
-    }
-
-    .header-actions [data-hint]:hover::before,
-    .header-actions [data-hint]:focus-visible::before {
+    .gui-tooltip[data-placement="bottom"]::after {
       border-bottom-color: #101828;
       border-top-color: transparent;
-      bottom: auto;
-      top: calc(100% - 3px);
+      bottom: 100%;
+      top: auto;
     }
 
     body {
@@ -3410,6 +3403,7 @@ function renderGuiHtml() {
 <body>
   ${renderGuiIconSprite()}
   <script type="application/json" id="guiIconManifest">${serializeJsonForHtml(getGuiIconManifest())}</script>
+  <div id="guiTooltip" class="gui-tooltip" role="tooltip" hidden></div>
   <div id="topProgress" class="top-progress" aria-hidden="true">
     <div id="topProgressBar" class="top-progress-bar"></div>
   </div>
@@ -3668,6 +3662,7 @@ function renderGuiHtml() {
     const statusPill = document.getElementById("statusPill");
     const topProgress = document.getElementById("topProgress");
     const topProgressBar = document.getElementById("topProgressBar");
+    const guiTooltip = document.getElementById("guiTooltip");
     const saveOfflineButton = document.getElementById("saveOfflineButton");
     const updateButton = document.getElementById("updateButton");
     const settingsButton = document.getElementById("settingsButton");
@@ -3850,10 +3845,11 @@ function renderGuiHtml() {
           if (!content) return;
 
           element.setAttribute("data-hint", content);
-          element.setAttribute("title", content);
           element.removeAttribute("title");
         });
     }
+
+    ${renderGuiHintRuntime()}
 
     function setTemplateMediaStatus(text, type) {
       templateMediaStatus.textContent = text || "";
@@ -6253,6 +6249,13 @@ function renderHelpLink(iconName, href, hint, extraClass = "") {
   return `<a class="${escapeHtml(className)}" href="${escapeHtml(href)}" target="_blank" rel="noreferrer" data-hint="${escapeHtml(hint)}" aria-label="${escapeHtml(hint)}">${renderGuiIcon(iconName)}</a>`;
 }
 
+function readAttributionsData() {
+  const dataPath = path.join(ROOT_DIR, "src", "attributions.json");
+  const data = JSON.parse(fs.readFileSync(dataPath, "utf8"));
+  validateAttributionsData(data);
+  return data;
+}
+
 function serializeJsonForHtml(value) {
   return JSON.stringify(value).replace(/</gu, "\\u003c");
 }
@@ -6270,6 +6273,7 @@ module.exports = {
   buildGuiTemplatePreview,
   beginGuiOperation,
   createGuiState,
+  createGuiHttpServer,
   discoverGuiTemplates,
   endGuiOperation,
   hasActiveGuiClients,
