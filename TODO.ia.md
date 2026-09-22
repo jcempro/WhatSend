@@ -73,3 +73,24 @@ Este marcador encerra a seção de governança e inicia exclusivamente as TO-DOs
   - Incluir antes da relação apenas um **texto introdutório sucinto**, explicando a finalidade da página.
   - A apresentação PODE adotar composição elegante e legível, inclusive inspiração **ABNT** ou formato tabular, desde que compatível com os padrões existentes; estética alternativa NÃO justifica alterar o design global.
   - Validar `/atribuicoes` no fluxo real do GitHub Pages, inclusive navegação/roteamento e responsividade, sem alterar indevidamente páginas, posts, módulos ou recursos preexistentes. Impressão e geração de PDF não integram esta demanda.
+
+- [ ] Implementar a constante `${remetente}` conforme RCF, com suporte condicional exclusivo ao modo Node
+  - A UI do modo Node DEVE exibir um campo de remetente **se e somente se** qualquer modelo atualmente aberto no editor contiver `${remetente}`.
+  - Se nenhum texto aberto contiver `${remetente}`, o campo:
+    - NÃO DEVE ser exibido;
+    - NÃO DEVE ser obrigatório;
+    - NÃO DEVE bloquear envio.
+  - Se ao menos um texto aberto contiver `${remetente}`, o campo:
+    - DEVE ser exibido;
+    - DEVE tornar-se obrigatório;
+    - DEVE impedir o envio enquanto inválido ou vazio.
+  - O valor informado DEVE substituir `${remetente}` **somente no momento efetivo do envio**.
+  - O campo DEVE aceitar apenas nome próprio válido de **pessoa ou empresa**:
+    - letras e espaços permitidos;
+    - números e símbolos proibidos.
+  - Antes da substituição, o valor DEVE ser normalizado para **Title Case**: primeira letra de cada palavra maiúscula, demais minúsculas.
+  - O resultado substituído DEVE usar formatação WhatsApp em **negrito + itálico**, incluindo `:`.
+    - Ex.: `jean carlo` → `*_Jean Carlo:_*`
+  - Se `${remetente}` estiver colado diretamente ao texto seguinte, a substituição DEVE garantir exatamente um espaço de separação.
+    - Ex.: `${remetente}que bom...` → `*_Jean Carlo:_* que bom...`
+  - A implementação DEVE reutilizar a definição já existente no RCF, sem criar semântica paralela ou divergente.
