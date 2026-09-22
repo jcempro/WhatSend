@@ -74,7 +74,7 @@ Este marcador encerra a seção de governança e inicia exclusivamente as TO-DOs
   - A apresentação PODE adotar composição elegante e legível, inclusive inspiração **ABNT** ou formato tabular, desde que compatível com os padrões existentes; estética alternativa NÃO justifica alterar o design global.
   - Validar `/atribuicoes` no fluxo real do GitHub Pages, inclusive navegação/roteamento e responsividade, sem alterar indevidamente páginas, posts, módulos ou recursos preexistentes. Impressão e geração de PDF não integram esta demanda.
 
-- [ ] Implementar a constante `${remetente}` conforme RCF, com suporte condicional exclusivo ao modo Node
+- [ ] Implementar a constante `${remetente}` conforme RCF, com suporte funcional condicional exclusivo ao modo Node
   - A UI do modo Node DEVE exibir um campo de remetente **se e somente se** qualquer modelo atualmente aberto no editor contiver `${remetente}`.
   - Se nenhum texto aberto contiver `${remetente}`, o campo:
     - NÃO DEVE ser exibido;
