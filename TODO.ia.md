@@ -88,8 +88,8 @@ Este marcador encerra a seção de governança e inicia exclusivamente as TO-DOs
   - O campo DEVE aceitar apenas nome próprio válido de **pessoa ou empresa**:
     - letras e espaços permitidos;
     - números e símbolos proibidos.
-  - Antes da substituição, o valor DEVE ser normalizado para **Title Case**: primeira letra de cada palavra maiúscula, demais minúsculas.
-  - O resultado substituído DEVE usar formatação WhatsApp em **negrito + itálico**, incluindo `:`.
+  - Antes da substituição, o valor DEVE ser normalizado para **Title Case**: primeira letra de cada palavra maiúscula, demais minúsculas, e trim() global equivalente.
+  - O resultado substituído DEVE usar formatação WhatsApp em *negrito* + _itálico_, incluindo `:`.
     - Ex.: `jean carlo` → `*_Jean Carlo:_*`
   - Se `${remetente}` estiver colado diretamente ao texto seguinte, a substituição DEVE garantir exatamente um espaço de separação.
     - Ex.: `${remetente}que bom...` → `*_Jean Carlo:_* que bom...`
