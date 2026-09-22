@@ -93,4 +93,5 @@ Este marcador encerra a seção de governança e inicia exclusivamente as TO-DOs
     - Ex.: `jean carlo` → `*_Jean Carlo:_*`
   - Se `${remetente}` estiver colado diretamente ao texto seguinte, a substituição DEVE garantir exatamente um espaço de separação.
     - Ex.: `${remetente}que bom...` → `*_Jean Carlo:_* que bom...`
+    - Isso não se aplica a pontuação, como ',', '.' e ';'.
   - A implementação DEVE reutilizar a definição já existente no RCF, sem criar semântica paralela ou divergente.
