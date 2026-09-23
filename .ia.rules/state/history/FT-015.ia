@@ -1,0 +1,33 @@
+FT-015|nome=Implementar contexto, expressoes e alternancia de destinatarios|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=concluido
+criado_em=2026-08-25T17:36:49-03:00
+ultima_atualizacao=2026-08-26T18:30:00-03:00
+conclusao=2026-08-26T18:30:00-03:00
+origem=TODO.ia.md@39b47a4;sha256=318506e15446d9ec0bdea229d9ddfb938fa8ff819c25022efe52c89814501afa;vinculo=FT-014
+objetivo=Implementar e validar o contrato equalizado pela FT-014 no parser, template, contexto de conversa, campanha, configuracao, GUI, CLI, editor principal e projecao offline, preservando ordem, isolamento e compatibilidade.
+dependencias=FT-014 concluida;nova autorizacao humana explicita posterior;FT-013 concluida;FT-011 concluida
+aceite=Suite comprova contexto imutavel, funcoes e condicionais, multiline CRLF/LF, alternancia determinista, grupos, turnos, marcador, delay por conversa, paridade dos editores e ausencia de vazamento ou regressao.
+estado_atual=Etapa 6/6 concluida; contexto por conversa, linguagem ampliada, alternancia opt-in, grupos, turnos, pausa, delay e superficies GUI/CLI/offline foram integrados e validados.
+proximo_ponto_executavel=Nenhum; publicacao externa permanece fora do escopo sem autorizacao especifica.
+
+etapas=
+1/6 Contexto e historico de conversa [concluido]
+2/6 Parser, funcoes e condicionais [concluido]
+3/6 Planejador, alternancia e delay [concluido]
+4/6 GUI, CLI e editores [concluido]
+5/6 Testes, build e distribuicao [concluido]
+6/6 Documentacao, memoria e encerramento [concluido]
+
+restricoes_preservadas=
+- Nao iniciar antes de nova autorizacao humana posterior a FT-014.
+- Nao substituir `$.`, operadores, `$postagem$`, `^^^`, ordem por destinatario, retries ou delays existentes.
+- Nao expor execucao de campanha no bundle offline nem criar segunda fonte de editor.
+
+pendencias=
+- Nenhuma.
+
+verificacoes_concluidas=
+- ultimaconversa e emconversa usam captura imutavel anterior ao primeiro item e reservada por destinatario.
+- Parser cobre condicionais preguicosas, if/else, logica, matematica, %, **, multiline e falhas aritmeticas sem regredir filtros legados.
+- Escalonador preserva rede sequencial, grupos, itens por turno, pause, relogio elegivel por conversa, delay intraconversa e intervalo RN014 entre destinatarios.
+- GUI e CLI expõem configuracao central validada; GUI e offline projetam as mesmas acoes, painel DOM e CSS canônicos.
+- Suite completa direta: 151/151 testes aprovados; build e validacao do dist concluidos.

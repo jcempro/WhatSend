@@ -1,0 +1,39 @@
+FT-014|nome=Contexto isolado, expressoes e escalonamento de destinatarios|tipo=implementacao_normativa|escopo=Negocio|prioridade=alta|status=concluido
+criado_em=2026-08-25T17:36:48-03:00
+ultima_atualizacao=2026-08-25T17:43:13-03:00
+conclusao=2026-08-25T17:43:13-03:00
+origem=TODO.ia.md@39b47a4;sha256=318506e15446d9ec0bdea229d9ddfb938fa8ff819c25022efe52c89814501afa;item=contexto isolado, condicionais, alternancia, delay e editores
+objetivo=Equalizar e normatizar contexto imutavel por conversa, `ultimaconversa`, `emconversa`, funcoes condicionais/logicas/matematicas, `if/else`, alternancia opt-in, grupos, turnos, marcador de controle, delay intraconversa, GUI, CLI, editores e validacao integrada.
+dependencias=RCF.md RN003 RN014 RN022 RN025 RN026 RN032 RN033 RN035 RN039;FT-011 preservada;FT-012 para ordem normativa da solicitacao
+aceite=RCF define sintaxe, tipos, escopo, isolamento, defaults, ordem, configuracao, semantica de turnos/delay, paridade aplicavel e testes sem duplicar operadores, funcoes, postagens ou editores existentes.
+estado_atual=Etapa 3/3 concluida; RN045 a RN047 consolidaram contexto, linguagem, alternancia, delay, configuracao, GUI, CLI e paridade aplicavel dos editores.
+proximo_ponto_executavel=Nenhum; FT-015 concluida apos autorizacao humana explicita e conclusao das FTs 011 e 013.
+
+etapas=
+1/3 Equalizacao [concluido]
+  1/3 Conciliar parser, template, plano de envio e configuracao vigentes [concluido]
+  2/3 Definir sintaxe, contexto, funcoes e isolamento [concluido]
+  3/3 Definir escalonamento, delay, GUI, CLI e editores [concluido]
+2/3 Implementacao normativa [concluido]
+  1/2 Atualizar RCF com contexto e linguagem de expressoes [concluido]
+  2/2 Atualizar RCF com alternancia, delay e superficies de uso [concluido]
+3/3 Validacao e encerramento [concluido]
+  1/2 Validar completude, referencias e nao regressao [concluido]
+  2/2 Concluir FT e manter FT-015 bloqueada por autorizacao posterior [concluido]
+
+decisoes=
+- O namespace funcional canônico existente e `$.`; novas funcoes devem amplia-lo de modo case-insensitive, preservando os operadores `&&`, `||` e `^^`.
+- `$postagem$` continua separador de mensagens. O marcador de alternancia deve ser controle adicional, nunca substituir a divisao ou ser enviado como texto.
+- O delay intraconversa e distinto do intervalo RN014 entre destinatarios e dos backoffs de retentativa.
+- Controles comuns de sintaxe devem seguir a GUI Node como fonte primaria e projetar-se no bundle offline; configuracao de campanha permanece exclusiva das superficies executoras.
+- `$.if`, `$.and`, `$.or`, `$.xor`, `$.min`, `$.max`, `$.media`, `$.emconversa` e `if/else` ampliam a gramatica existente sem substituir operadores ou funcoes atuais.
+- A alternancia e cooperativa, desabilitada por padrao e sequencial na rede; `$pause$` somente cede em fronteira valida e nunca substitui `$postagem$`.
+- O delay usa instante elegivel por conversa; tempo real de outros destinatarios apenas abate o restante, sem compartilhar relogio ou estado.
+
+verificacoes_concluidas=
+- RN045 a RN047 foram verificadas pelos mesmos 111/111 testes do RCF, 16/16 marcadores focados e `git diff --check` aprovado.
+- Suite integrada focada: 117/118; unico bloqueio foi `node_modules/tabulator-tables/dist/js/tabulator.min.js` ausente ao construir o bundle, sem relacao com o diff normativo.
+- TODO raiz permanece como demanda manual em andamento e convergira ao path canônico somente apos conclusao tecnica, preservando o precedente da FT-008/FT-009.
+
+pendencias=
+- Nenhuma; FT-015 concluida.

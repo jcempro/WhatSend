@@ -1,0 +1,50 @@
+FT-011|nome=Implementar reinicio observavel e painel offline literalmente espelhado|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=concluido
+criado_em=2026-07-31T15:55:58-03:00
+inicio=20260731.1555.58
+ultima_atualizacao=20260826.1830.00
+conclusao=20260826.1830.00
+objetivo=Corrigir o atualizador para publicar estados terminais e reiniciar servidor e GUI com retomada observavel; gerar o painel Modelo de mensagem offline a partir da mesma fonte visual e comportamental da GUI Node.js; e oferecer na GUI o download validado do bundle, como unica excecao ausente da projecao offline, preservando recursos e compatibilidade existentes.
+dependencias=FT-010 concluida;nova autorizacao humana explicita posterior
+estado_atual=Etapa 5/5 concluida; atualizacao terminal retomavel, supervisor de reinicio, download validado e projecao literal do painel canônico foram integrados.
+proximo_ponto_executavel=Nenhum; publicacao externa permanece fora do escopo sem autorizacao especifica.
+
+etapas=
+1/5 Atualizador e retomada [concluido]
+  1/4 Persistir estado terminal e token de retomada [concluido]
+  2/4 Exibir andamento, conclusao e erro ate terminalidade [concluido]
+  3/4 Reiniciar servidor e reabrir GUI automaticamente [concluido]
+  4/4 Blindar falha, timeout, rollback e multiplas abas [concluido]
+2/5 Componente canônico compartilhado [concluido]
+  1/4 Extrair estrutura e estilos do painel sem alterar a GUI real [concluido]
+  2/4 Compartilhar contratos e comportamentos browser-side [concluido]
+  3/4 Adicionar na GUI download observavel do bundle validado [concluido]
+  4/4 Preservar adaptadores Node.js exclusivamente na GUI executora [concluido]
+3/5 Bundle offline literal [concluido]
+  1/3 Projetar estrutura, controles, estados, layout e responsividade idênticos [concluido]
+  2/3 Integrar CSV e pacote sem deformar o painel canônico [concluido]
+  3/3 Bloquear divergencia futura por paridade estrutural e visual [concluido]
+4/5 Validacao [concluido]
+  1/4 Testar estados e reinicio do atualizador [concluido]
+  2/4 Comparar GUI e bundle por DOM, CSS e equivalencia deterministica [concluido]
+  3/4 Validar bundle autocontido com rede bloqueada por CSP [concluido]
+  4/4 Executar regressao, build e dist isolado [concluido]
+5/5 Encerramento [concluido]
+  1/2 Sincronizar README, guia, memoria e handoff [concluido]
+  2/2 Auditar commits, worktree e pendencias [concluido]
+
+restricoes=
+- Nao iniciar codigo antes da autorizacao humana explicita posterior a conclusao da FT-010.
+- Nao duplicar manualmente o painel, CSS ou comportamento em uma segunda implementacao visual.
+- Omitir no bundle somente o controle Baixar versao offline; nao ampliar essa excecao.
+- Nao reiniciar antes de persistir e expor resultado terminal; nao perder rollback, logs, sessoes ou dados locais.
+- Nao transformar o bundle em executor de campanha nem introduzir rede em runtime offline.
+
+resultados=
+- Estados terminais e reinicio permanecem separados, persistidos e retomaveis; supervisor destacado so substitui a instancia depois do handoff.
+- GUI consome eventos estruturados, exibe resultado terminal, oferece download do bundle e registra falha de reinicio sem apagar o resultado da atualizacao.
+- O build extrai painel DOM, sprite e CSS diretamente de renderGuiHtml; adaptadores offline preservam controles impossiveis como desabilitados e acessiveis.
+- Teste deterministico comprova inclusao literal do painel e CSS canônicos, instancia unica e mesmas acoes comuns.
+- GUI local foi inspecionada no navegador; file URL foi bloqueada pela politica do navegador de validacao, sem contorno. A equivalencia foi comprovada pela fonte literal, CSP, suite e dist.
+
+pendencias=
+- Nenhuma.

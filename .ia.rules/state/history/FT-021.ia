@@ -1,0 +1,8 @@
+FT-021|nome=Implementar atribuicoes obrigatorias|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=concluido
+criado_em=2026-08-26T23:33:03-03:00
+ultima_atualizacao=2026-08-27T21:14:00-03:00
+conclusao=2026-08-27T21:14:00-03:00
+origem=TODO.ia.md@aff82f3;vinculo=FT-020,FT-027,FT-028
+resultado=Rota local `/atribuicoes` e `/atribuicoes/` integrada ao servidor da GUI; o escopo de dominio e GitHub Pages foi revogado por correcao humana posterior.
+verificacoes_concluidas=`npm test`, `npm run check:test`, inventario de 175 registros, rota local e `npm run build:dist`/`npm run validate:dist` aprovados.
+pendencias=Nenhuma.

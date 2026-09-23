@@ -1,0 +1,8 @@
+FT-023|nome=Adequar atribuicoes sem impressao|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=concluido
+criado_em=2026-08-27T09:21:52-03:00
+ultima_atualizacao=2026-08-27T21:14:00-03:00
+conclusao=2026-08-27T21:14:00-03:00
+origem=solicitacao_humana_explicita_2026-08-27;vinculo=FT-022,FT-021,FT-028
+resultado=Rota local, testes e distribuivel permanecem sem CSS ou gate de impressao, A4 e PDF.
+verificacoes_concluidas=HTML sem `@media print`, `@page` ou A4; testes e gates de distribuicao aprovados.
+pendencias=Nenhuma.

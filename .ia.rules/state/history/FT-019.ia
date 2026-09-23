@@ -1,0 +1,59 @@
+FT-019|nome=Implementar iconografia multiprovedor e paridade das toolbars|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=concluido
+criado_em=2026-08-26T21:37:06-03:00
+ultima_atualizacao=2026-08-26T23:53:43-03:00
+conclusao=2026-08-26T23:53:43-03:00
+conclusao_anterior=2026-08-26T22:48:40-03:00
+reabertura=2026-08-26T23:33:04-03:00
+origem=TODO.ia.md@2d7734c;sha256=21118311a959f09700b02d153b11a41368984f580f2ec09093930ee311b34e17;vinculo=FT-018
+objetivo=Implementar o contrato da FT-018 no registro de icones, GUI principal, projecao offline, build, documentacao e testes, aplicando os icones obrigatorios e corrigindo cabecalho, atualizacao, duas toolbars dos editores e toolbar CSV.
+dependencias=FT-018 concluida;nova autorizacao humana explicita posterior
+aceite=Implementacao e testes comprovam tres provedores isolados, recursos usados apenas uma vez e somente quando referenciados, ausencia de rede no offline, cabecalho inequivoco, atualizacao com radio/switch, duas barras contextuais, CSV iconizado sem input exposto, hints/acessibilidade e conformidade visual com as quatro evidencias.
+estado_atual=Correcao pos-conclusao concluida; portal fixo comum elimina recorte dos hints na GUI e no bundle offline.
+proximo_ponto_executavel=Nenhum; correcao validada e publicada em origin/dev.
+
+etapas=
+1/4 Preparacao tecnica [concluido]
+  1/3 Auditar todos os usos e selecionar icones semanticamente especificos [concluido]
+  2/3 Definir registro qualificado e extracao used-only sem duplicacao [concluido]
+  3/3 Fixar matriz de paridade GUI/offline e testes [concluido]
+2/4 Implementacao [concluido]
+  1/3 Integrar Lucide, Iconify e Font Awesome ao mecanismo comum [concluido]
+  2/3 Corrigir cabecalho, selecao de atualizacao e toolbars dos editores [concluido]
+  3/3 Adequar toolbar CSV offline ao componente visual global [concluido]
+3/4 Validacao [concluido]
+  1/3 Executar testes unitarios, integrados, build e validacao do dist [concluido]
+  2/3 Auditar assets, namespaces, licencas e ausencia de rede/vazamento [concluido]
+  3/3 Confrontar visualmente ambos os editores com evidencia1 a evidencia4 [concluido]
+4/4 Entrega e convergencia [concluido]
+  1/3 Sincronizar README, memoria e artefatos aplicaveis [concluido]
+  2/3 Concluir FT e publicar dev [concluido]
+  3/3 Convergir dev para main somente apos conclusao integral e gates aprovados [concluido]
+
+decisoes=
+- A autorizacao humana explicita desta retomada liberou a implementacao tecnica apos FT-018 concluida.
+- Preservar funcionalidades existentes e substituir apenas representacao, organizacao e infraestrutura necessarias ao contrato concluido.
+- A convergencia para main foi autorizada antecipadamente pelo usuario, mas permanece condicionada a conclusao integral da FT e validacoes.
+- Lucide, Iconify e Font Awesome permanecem dependencias exclusivas de desenvolvimento; o runtime recebe somente o subconjunto SVG gerado e validado.
+- A auditoria npm vigente identifica cinco vulnerabilidades altas na cadeia produtiva preexistente de whatsapp-web.js, sem correcao compativel indicada pelo npm; a FT nao alterou essa arvore e nao aplicou force/major inseguro.
+- Reabertura autorizada pela evidencia anexada: overflow vertical da toolbar recortava o balao de hint e deixava visivel apenas seu triangulo.
+
+verificacoes_concluidas=
+- Commit tecnico 35b8c91 implementou registro qualificado, gerador deterministico, dados used-only, GUI, offline, build, README e testes; publicado em origin/dev.
+- `npm run icons:check`: 41 icones efetivamente usados, com provedores, colecoes, versoes, licencas, origens e consumidores rastreados.
+- O resolvedor aceita somente chave qualificada ou alias legado explicito, rejeita fallback cruzado e remove o alias de nuvem ambiguo `f0ed`.
+- O cabecalho usa `iconify:game-icons:upgrade` para atualizacao e `iconify:streamline-sharp:download-box-1-solid` para download offline.
+- A GUI possui exatamente duas toolbars horizontais contextuais; funcoes distintas recebem iconografia especifica e menus permanecem ancorados ao viewport em barras rolaveis.
+- A atualizacao conserva quatro radios mutuamente exclusivos com aparencia de switch e confirmacao separada, inicialmente desabilitada.
+- O bundle offline omite estado executor/WhatsApp, oculta o input nativo CSV e usa a toolbar global iconizada com hints e rotulos acessiveis.
+- Validacao visual no navegador integrado, viewport 1280x721: duas barras sem quebra, cabecalho inequivoco, modal radio/switch funcional, menu responsivo e toolbar CSV horizontal; confronto com evidencia1 a evidencia4 aprovado.
+- `node --test`: 157/157; testes focados GUI/icone/TODO: 21/21; `node --test test/rcf.test.js`: 114/114.
+- `npm test`, `npm run check`, `npm run build:dist` e `npm run validate:dist`: concluidos; a validacao do dist exigiu cache npm temporario isolado apos EPERM do cache global.
+- Dist validado sem devDependencies, com `src/gui-icon-data.js`, sem `scripts/sync-gui-icons.js`, bundle offline SHA-256 8CA6D88F1C1AC18DA6C2FECD19F9B1AC0525CD764EF41147787A390839D3D622.
+- `npm audit --omit=dev` e `npm audit`: cinco altas em whatsapp-web.js -> puppeteer -> @puppeteer/browsers/extract-zip; `fixAvailable=false` na raiz e nenhuma dependencia produtiva foi alterada pela FT.
+- `npm run agent:rcf`: RCF_DEGRADED com leitura de 86446 bytes; `git diff --check`: aprovado, somente avisos LF/CRLF.
+- Commit tecnico 9e65e0f substituiu pseudoelementos recortados por portal fixo comum e foi publicado em origin/dev.
+- Validacao visual na GUI e no bundle offline confirmou balao completo, legivel, dentro do viewport e independente do overflow das toolbars.
+- Apos a correcao, `node --test`: 157/157; `npm test`, `npm run check`, `npm run build:dist` e `npm run validate:dist`: aprovados.
+
+pendencias=
+- Acompanhar correcao upstream compativel das cinco vulnerabilidades npm sem forcar regressao; nenhuma pendencia da FT-019.

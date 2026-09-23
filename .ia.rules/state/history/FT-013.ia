@@ -1,0 +1,26 @@
+FT-013|nome=Implementar estado transacional autoritativo de campanhas|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=concluido
+criado_em=2026-08-25T17:36:47-03:00
+ultima_atualizacao=2026-08-26T18:30:00-03:00
+conclusao=2026-08-26T18:30:00-03:00
+origem=TODO.ia.md@39b47a4;sha256=318506e15446d9ec0bdea229d9ddfb938fa8ff819c25022efe52c89814501afa;vinculo=FT-012
+objetivo=Implementar e validar o contrato equalizado pela FT-012 no servidor, GUI, sessao, campanha e ciclo de vida, sem perda de estado, concorrencia indevida, comandos duplicados, descendentes orfaos ou regressao de CLI.
+dependencias=FT-012 concluida;nova autorizacao humana explicita posterior;FT-011 concluida ou conciliacao de arquivos sobrepostos validada
+aceite=Implementacao e testes comprovam autoridade do servidor, exclusividade atomica, bloqueio conservador, interrupcao terminal, recuperacao, idempotencia, ausencia de orfaos e operacao segura sem foco quando suportada.
+estado_atual=Etapa 5/5 concluida; servidor e GUI usam estado persistido por sessao, lock global atomico, reconciliacao fail-safe, idempotencia, bloqueio conservador e interrupcao confirmada.
+proximo_ponto_executavel=Nenhum; publicacao externa permanece fora do escopo sem autorizacao especifica.
+
+etapas=
+1/5 Estado e persistencia [concluido]
+2/5 API, exclusividade e interrupcao [concluido]
+3/5 Bloqueio e reconciliacao da GUI [concluido]
+4/5 Ciclo de vida, segundo plano e testes [concluido]
+5/5 Documentacao, artefatos e encerramento [concluido]
+
+verificacoes_concluidas=
+- campaign-state persiste transicoes monotônicas por sessao, adquire active.lock.json atomicamente, reconcilia PID ausente e libera exclusividade somente em terminalidade.
+- GUI restaura autoridade em /api/status, bloqueia e oculta entradas materiais, impede troca de sessao ativa, torna inicio idempotente e oferece interrupcao autoritativa.
+- test/campaign-state.test.js cobre transicoes, exclusividade e reutilizacao da chave idempotente.
+- Suite completa direta: 151/151 testes aprovados; build e validacao do dist concluidos.
+
+pendencias=
+- Nenhuma.
