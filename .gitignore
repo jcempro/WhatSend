@@ -219,3 +219,7 @@ agents-governance-backups/
 /.ia.rules/agents-update.lock.json
 /agents-governance-backups/
 # END agents-governance managed
+
+# Estado canônico local versionado conforme AGENTS.md.
+!/.ia.rules/state/
+!/.ia.rules/state/**
