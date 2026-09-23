@@ -3222,7 +3222,7 @@ To address all issues, run:
 Run `npm audit` for details.
 ```
 
-- [ ] Implementar `${remetente}` conforme RCF, com suporte funcional condicional no modo Node e preview semanticamente representativo
+📌 Implementar `${remetente}` conforme RCF, com suporte funcional condicional no modo Node e preview semanticamente representativo
   - Antes de implementar, DEVE-SE inspecionar o estado real, RCFs, arquitetura, contratos, UI, editor, preview e mecanismos existentes. É PROIBIDO presumir APIs, eventos, componentes, fluxos ou semânticas não comprovados, criar lógica paralela ou divergir da definição normativa já existente.
 
   - ## Semântica e substituição

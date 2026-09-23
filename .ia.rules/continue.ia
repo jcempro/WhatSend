@@ -1,7 +1,81 @@
 # continue.ia
 
-CANONICO=.ia.rules/continue.ia
+CANONICO=.ia.rules/state/continue.ia
 FORMATO=AGENTS-20260710
 MACHINE_ID=JEAN-DESKTOP
 DATA_REF=202607101735
 POLITICA=90IA/10HUMANO;1FT_POR_SOLICITACAO;DEV_BRANCH;COMMIT_PUSH_POR_ETAPA_SE_POSSIVEL
+
+FT-029|nome=Normatizar remetente condicional e preview representativo|tipo=implementacao_normativa|escopo=Negocio|prioridade=alta|status=em andamento
+criado_em=2026-09-23T12:52:52-03:00
+ultima_atualizacao=2026-09-23T12:52:52-03:00
+origem=.ia.rules/state/TODO.ia.md#Implementar-${remetente};vinculo=FT-030
+objetivo=Equalizar e incorporar ao RCF a semantica reservada de `${remetente}`, o campo reativo exclusivo da GUI Node, a insercao pela toolbar comum e a precedencia segura de representacao do preview Node/offline.
+dependencias=RCF RN002-RN005,RN022,RN039,RN045,RN047,RN049;parser e avaliador existentes;estado migrado pela autorizacao humana de 2026-09-23
+autorizacao=solicitacao_humana_explicita_inicial_para_normatizacao
+estado_atual=Etapa 2/3 em andamento; fonte, RCF, arquitetura, contratos, UI, editor, preview, bundle offline e testes foram inspecionados e equalizados.
+proximo_ponto_executavel=Atualizar RCF e documentacao normativa, validar e concluir a FT-029; interromper antes da FT-030.
+
+etapas=
+1/3 Inspecao e equalizacao [concluido]
+  1/4 Validar governanca, recusas, branch e estado canônico [concluido]
+  2/4 Migrar resquicios da governanca anterior sem perda [concluido]
+  3/4 Mapear parser, envio sequencial/alternado e validacao [concluido]
+  4/4 Mapear GUI Node, editor, toolbar, preview e bundle offline [concluido]
+2/3 Normatizacao [em_andamento]
+  1/3 Definir semantica reservada, validacao, formatacao e espacamento [pendente]
+  2/3 Definir reatividade Node, toolbar comum e preview por precedencia [pendente]
+  3/3 Sincronizar README e guia de uso aplicavel [pendente]
+3/3 Validacao e handoff [pendente]
+  1/3 Validar consistencia RCF, arquitetura e criterios de aceite [pendente]
+  2/3 Marcar TODO como normatizada e concluir FT-029 [pendente]
+  3/3 Solicitar autorizacao humana posterior para FT-030 [pendente]
+
+decisoes=
+- `${remetente}` nao esta definido no RCF vigente; a alegacao da TO-DO sera equalizada pela criacao de uma unica definicao reservada em RN003, sem presumir contrato inexistente.
+- A resolucao material deve reutilizar `applyTemplate` e seu mapa `reserved`; o envio sequencial e o alternado devem receber a mesma opcao, sem segundo parser.
+- A reatividade deve derivar de `templateBlocks` no ciclo existente `handleTemplateInputChanged`/`setEditorContent`, ignorando o rodape embedded que normativamente nao participa de variaveis.
+- A acao de insercao deve integrar `COMMON_EDITOR_ACTIONS`, fonte comum da GUI Node e da projecao offline.
+- O campo pertence somente a GUI executora Node e nao deve ser projetado no bundle offline; o preview offline usa exemplo inequivocamente ficticio quando nao houver valor real.
+- A preview Node hoje preserva notacoes sem renderizacao, enquanto a offline avalia a linha CSV selecionada; a norma deve convergir ambas pela precedencia valor real, inferencia deterministica, exemplo seguro e preservacao literal.
+
+restricoes=
+- Nao implementar codigo nesta FT.
+- Nao materializar remetente no arquivo, autosave, pacote ou texto do editor.
+- Nao aceitar numero, simbolo, coluna CSV homonima ou valor invalido como remetente reservado.
+- Nao criar polling, estado paralelo, parser duplicado ou execucao Node para resolver preview localmente.
+
+FT-030|nome=Implementar remetente condicional e preview representativo|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=pendente
+criado_em=2026-09-23T12:52:53-03:00
+ultima_atualizacao=2026-09-23T12:52:53-03:00
+origem=.ia.rules/state/TODO.ia.md#Implementar-${remetente};vinculo=FT-029
+objetivo=Implementar e validar o contrato normatizado pela FT-029 no parser, envio, GUI Node, toolbar comum, previews Node/offline, documentacao e distribuicao.
+dependencias=FT-029 concluida e validada;autorizacao humana explicita posterior ainda ausente
+autorizacao=nao_autorizada_para_codigo
+estado_atual=Aguardando conclusao da FT-029 e nova autorizacao humana explicita.
+proximo_ponto_executavel=Nenhum; nao iniciar codigo antes do gate normativo e da autorizacao posterior.
+
+etapas=
+1/4 Contratos comuns [pendente]
+  1/3 Centralizar deteccao, validacao, normalizacao e formatacao [pendente]
+  2/3 Integrar resolucao reservada aos dois fluxos de envio [pendente]
+  3/3 Integrar preview seguro sem apagar notacao irresoluvel [pendente]
+2/4 GUI e editores [pendente]
+  1/4 Adicionar campo condicional exclusivo da GUI Node [pendente]
+  2/4 Reagir a todas as mutacoes dos modelos abertos [pendente]
+  3/4 Integrar botao pela toolbar comum [pendente]
+  4/4 Manter preview offline representativo sem projetar o campo Node [pendente]
+3/4 Testes e documentacao [pendente]
+  1/3 Cobrir parser, envio, validacao e espacamento [pendente]
+  2/3 Cobrir reatividade, multiplas abas, toolbar e previews [pendente]
+  3/3 Atualizar README, guia e ajuda contextual [pendente]
+4/4 Integracao [pendente]
+  1/3 Executar suite, check, build e validacao dist [pendente]
+  2/3 Auditar diff, paridade e regressao [pendente]
+  3/3 Sincronizar rastreabilidade e aguardar validacao humana [pendente]
+
+restricoes=
+- Preservar CLI, arquivos, CSV, pacotes, anexos, postagens, variantes e expressoes existentes.
+- Substituir `${remetente}` somente na renderizacao material imediatamente anterior ao plano de envio.
+- Bloquear envio da GUI Node quando qualquer modelo aberto exigir remetente e o valor estiver vazio ou invalido.
+- Nao publicar, liberar, fazer push ou iniciar release sem autorizacao especifica.
