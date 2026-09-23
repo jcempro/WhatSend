@@ -1,19 +1,21 @@
 // Autor: JeanCarloEM.com
 // Site do Autor: https://jeancarloem.com
+// Repositorio: https://github.com/jcempro/agents.md
 // Licenca: Mozilla Public License 2.0
 // Site da Licenca: https://www.mozilla.org/MPL/2.0/
 // Resumo da Licenca: uso, copia, modificacao e distribuicao permitidos conforme os termos da MPL-2.0.
-// Disclaimer: fornecido "AS IS", sem garantias de qualquer tipo.
+// Disclaimer: fornecido AS IS, sem garantias de qualquer tipo.
 
 const fs = require("fs");
 const path = require("path");
 
-const ROOT_DIR = path.resolve(__dirname, "..", "..");
+const ROOT_DIR = path.resolve(__dirname, "..", "..", "..", "..");
 const CANONICAL_FILES = [
-  path.join(".agents", "continue.ia"),
+  path.join(".ia.rules", "state", "continue.ia"),
 ];
 const STATUS_FILE = "handoff.md";
 
+/** Executa main no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 function main(argv = process.argv.slice(2)) {
   if (argv.includes("--help")) {
     console.log("Uso: generate-agents-status [--help]");
@@ -30,18 +32,20 @@ function main(argv = process.argv.slice(2)) {
   console.log(`Resumo operacional atualizado: ${STATUS_FILE}`);
 }
 
+/** Executa resolveCanonicalContinueFile no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 function resolveCanonicalContinueFile(rootDir) {
   const found = CANONICAL_FILES
     .map((name) => ({ name, path: path.join(rootDir, name) }))
     .filter((entry) => fs.existsSync(entry.path) && fs.statSync(entry.path).isFile());
 
   if (found.length !== 1) {
-    throw new Error("Deve existir exatamente um arquivo canonico: .agents/continue.ia.");
+    throw new Error("Deve existir exatamente um arquivo canonico: .ia.rules/state/continue.ia.");
   }
 
   return found[0];
 }
 
+/** Executa parseWorkFronts no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 function parseWorkFronts(content) {
   const fronts = [];
   let currentFront = null;
@@ -90,6 +94,7 @@ function parseWorkFronts(content) {
   return fronts;
 }
 
+/** Executa parseFrontLine no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 function parseFrontLine(line) {
   const [id, ...fields] = line.split("|");
   const front = {
@@ -125,6 +130,7 @@ function parseFrontLine(line) {
   return front;
 }
 
+/** Executa renderImplementationsStatus no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 function renderImplementationsStatus(sourceName, fronts) {
   const lines = [
     "<!-- Gerado por npm run agent:handoff. Nao editar manualmente. -->",
@@ -174,6 +180,7 @@ function renderImplementationsStatus(sourceName, fronts) {
   return lines.join("\n");
 }
 
+/** Executa renderStatus no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 function renderStatus(status) {
   const normalized = normalizeStatus(status);
   const color = normalized === "concluído"
@@ -184,15 +191,17 @@ function renderStatus(status) {
   return `<span style="color:${color}">&#9679;</span> ${escapeHtml(normalized)}`;
 }
 
+/** Executa formatSentence no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 function formatSentence(value) {
   const text = String(value || "").trim();
   return /[.!?]$/u.test(text) ? text : `${text}.`;
 }
 
+/** Executa normalizeStatus no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 function normalizeStatus(status) {
   const value = String(status || "pendente").trim().replace(/_/gu, " ");
 
-  if (/^conclu[ií]do$/iu.test(value)) {
+  if (/^conclu[ií]d[oa]$/iu.test(value)) {
     return "concluído";
   }
 
@@ -203,6 +212,7 @@ function normalizeStatus(status) {
   return "pendente";
 }
 
+/** Executa isTechnicalScope no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 function isTechnicalScope(scope) {
   const value = String(scope || "")
     .normalize("NFD")
@@ -211,6 +221,7 @@ function isTechnicalScope(scope) {
   return value === "tecnico";
 }
 
+/** Executa escapeHtml no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 function escapeHtml(value) {
   return String(value || "")
     .replace(/&/gu, "&amp;")
@@ -219,6 +230,7 @@ function escapeHtml(value) {
     .replace(/"/gu, "&quot;");
 }
 
+/** Executa toPosixPath no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 function toPosixPath(value) {
   return String(value || "").split(path.sep).join("/");
 }

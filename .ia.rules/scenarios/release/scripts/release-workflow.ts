@@ -1,19 +1,22 @@
 // Autor: JeanCarloEM.com
 // Site do Autor: https://jeancarloem.com
+// Repositorio: https://github.com/jcempro/agents.md
 // Licenca: Mozilla Public License 2.0
 // Site da Licenca: https://www.mozilla.org/MPL/2.0/
 // Resumo da Licenca: uso, copia, modificacao e distribuicao permitidos conforme os termos da MPL-2.0.
-// Disclaimer: fornecido "AS IS", sem garantias de qualquer tipo.
+// Disclaimer: fornecido AS IS, sem garantias de qualquer tipo.
 
 const childProcess = require("child_process");
 const fs = require("fs");
 const path = require("path");
 
-const ROOT_DIR = path.resolve(__dirname, "..", "..");
+const ROOT_DIR = path.resolve(__dirname, "..", "..", "..", "..");
 const ZERO_SHA = "0000000000000000000000000000000000000000";
 
+/** Representa parâmetro inválido do workflow sem confundir uso e falha de infraestrutura. */
 class UsageError extends Error {}
 
+/** Executa main no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 function main(argv = process.argv.slice(2)) {
   const [command, ...args] = argv;
 
@@ -33,6 +36,7 @@ function main(argv = process.argv.slice(2)) {
   throw new UsageError(`COMANDO_RELEASE_INVALIDO:${command || "(vazio)"}`);
 }
 
+/** Executa detectReleaseTrigger no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 function detectReleaseTrigger(args = []) {
   const before = String(args[0] || "").trim();
   const after = String(args[1] || "").trim() || "HEAD";
@@ -56,6 +60,7 @@ function detectReleaseTrigger(args = []) {
   return 0;
 }
 
+/** Executa finalizeRelease no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 function finalizeRelease(args = []) {
   const version = normalizeReleaseVersion(args[0] || "");
   const releaseFile = String(args.length > 1 ? args[1] : "release").trim();
@@ -85,6 +90,7 @@ function finalizeRelease(args = []) {
   return 0;
 }
 
+/** Executa listRangeCommits no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 function listRangeCommits(before, after) {
   if (!after) {
     return [];
@@ -98,6 +104,7 @@ function listRangeCommits(before, after) {
   return result.stdout.trim().split(/\r?\n/u).filter(Boolean);
 }
 
+/** Executa inspectCommitForRelease no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 function inspectCommitForRelease(commit) {
   const changed = runGit(["diff-tree", "--no-commit-id", "--name-status", "-r", commit], { optional: true }).stdout
     .trim()
@@ -117,7 +124,7 @@ function inspectCommitForRelease(commit) {
 
   const entry = changed[0];
 
-  if (entry.status !== "A" || !isReleaseTriggerPath(entry.path)) {
+  if (!isReleaseTriggerChange(entry.status) || !isReleaseTriggerPath(entry.path)) {
     return null;
   }
 
@@ -129,10 +136,18 @@ function inspectCommitForRelease(commit) {
   };
 }
 
+/** Aceita criação inicial ou substituição controlada do marcador já publicado. */
+function isReleaseTriggerChange(status) {
+  // FIX-BUG: atualização de marcador versionado é M quando uma release anterior foi sincronizada.
+  return status === "A" || status === "M";
+}
+
+/** Executa isReleaseTriggerPath no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 function isReleaseTriggerPath(filePath) {
   return String(filePath || "").trim() === "release";
 }
 
+/** Executa normalizeReleaseVersion no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 function normalizeReleaseVersion(value) {
   const raw = String(value || "").trim();
   const match = raw.match(/^(\d+)\.(\d+)(?:\.(\d+))?(?:-([0-9A-Za-z.-]+))?$/u);
@@ -148,6 +163,7 @@ function normalizeReleaseVersion(value) {
   return `${major}.${minor}.${patch}${suffix}`;
 }
 
+/** Executa safeRelativePath no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 function safeRelativePath(value) {
   const normalized = path.normalize(String(value || ""));
 
@@ -158,6 +174,7 @@ function safeRelativePath(value) {
   return normalized;
 }
 
+/** Executa runGit no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 function runGit(args, options = {}) {
   const result = childProcess.spawnSync("git", ["-C", ROOT_DIR, ...args], {
     encoding: "utf8",
@@ -170,6 +187,7 @@ function runGit(args, options = {}) {
   return result;
 }
 
+/** Executa printJson no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 function printJson(value) {
   console.log(JSON.stringify(value));
 }
@@ -177,8 +195,8 @@ function printJson(value) {
 if (require.main === module) {
   try {
     process.exitCode = main();
-  } catch (err) {
-    console.error(err.message);
+  } catch (error) {
+    console.error(error.message);
     process.exitCode = error instanceof UsageError ? 2 : 1;
   }
 }
@@ -187,6 +205,7 @@ module.exports = {
   detectReleaseTrigger,
   finalizeRelease,
   inspectCommitForRelease,
+  isReleaseTriggerChange,
   isReleaseTriggerPath,
   normalizeReleaseVersion,
 };

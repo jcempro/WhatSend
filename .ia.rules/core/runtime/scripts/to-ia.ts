@@ -1,18 +1,27 @@
 // Autor: JeanCarloEM.com
+// Site do Autor: https://jeancarloem.com
+// Repositorio: https://github.com/jcempro/agents.md
 // Licenca: Mozilla Public License 2.0
+// Site da Licenca: https://www.mozilla.org/MPL/2.0/
+// Resumo da Licenca: uso, copia, modificacao e distribuicao permitidos conforme os termos da MPL-2.0.
+// Disclaimer: fornecido AS IS, sem garantias de qualquer tipo.
+
 // Interface deterministica de preparo de saida para IA.
 
 const crypto = require("crypto");
 const childProcess = require("child_process");
 const fs = require("fs");
 const path = require("path");
+const { loadConfiguration } = require("./configuration");
 
-const ROOT_DIR = path.resolve(__dirname, "..", "..");
-const OUTPUT_DIR = path.join(ROOT_DIR, ".agents", "cache", "outputs");
-const MAX_BYTES = 8192;
-const MAX_LINES = 50;
+const ROOT_DIR = path.resolve(__dirname, "..", "..", "..", "..");
+const CONFIGURATION = loadConfiguration(ROOT_DIR);
+const OUTPUT_DIR = path.join(ROOT_DIR, ".ia.rules", "cache", "outputs");
+const MAX_BYTES = CONFIGURATION.output.maxBytes;
+const MAX_LINES = CONFIGURATION.output.maxLines;
 const LEVEL_ORDER = ["fatal", "error", "warning", "change", "result", "metric", "info", "debug"];
 
+/** Executa normalize no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 function normalize(value) {
   return String(value || "")
     .replace(/\r\n?/gu, "\n")
@@ -20,6 +29,7 @@ function normalize(value) {
     .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/gu, "");
 }
 
+/** Executa levelOf no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 function levelOf(line) {
   if (/\b(fatal|panic)\b/iu.test(line)) return "fatal";
   if (/\b(error|erro|exception|falhou|failure)\b/iu.test(line)) return "error";
@@ -31,10 +41,12 @@ function levelOf(line) {
   return "info";
 }
 
+/** Executa codeOf no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 function codeOf(level) {
   return `TO_IA_${level.toUpperCase()}`;
 }
 
+/** Executa orderRecords no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 function orderRecords(records) {
   return records
     .map((record, index) => ({ ...record, index }))
@@ -42,6 +54,7 @@ function orderRecords(records) {
     .map(({ index, ...record }) => record);
 }
 
+/** Executa deduplicate no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 function deduplicate(lines) {
   const result = [];
   let previous = null;
@@ -60,17 +73,19 @@ function deduplicate(lines) {
   return result;
 }
 
+/** Executa persist no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 function persist(command, content) {
   const sha256 = crypto.createHash("sha256").update(content, "utf8").digest("hex");
   const stamp = new Date().toISOString().replace(/[-:TZ.]/gu, "").slice(0, 14).replace(/^(\d{8})(\d{6})$/u, "$1.$2");
   const safeCommand = String(command || "command").replace(/[^A-Za-z0-9._-]/gu, "-");
-  const relative = path.posix.join(".agents", "cache", "outputs", `${stamp}-${safeCommand}-${sha256.slice(0, 12)}.log`);
+  const relative = path.posix.join(".ia.rules", "cache", "outputs", `${stamp}-${safeCommand}-${sha256.slice(0, 12)}.log`);
   const target = path.join(ROOT_DIR, relative);
   fs.mkdirSync(path.dirname(target), { recursive: true });
   fs.writeFileSync(target, content, "utf8");
   return { path: relative, sha256 };
 }
 
+/** Executa limit no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 function limit(records, envelope) {
   const shown = [];
   let shortened = false;
@@ -99,6 +114,7 @@ function limit(records, envelope) {
   return { shown, shortened };
 }
 
+/** Executa filterOutput no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 function filterOutput({ command = "agent:filter", exit = 0, stderr = "", stdout = "" } = {}) {
   const normalized = normalize(`${stdout}${stderr ? `\n${stderr}` : ""}`);
   const allLines = deduplicate(normalized.split("\n").filter(Boolean));
@@ -137,6 +153,7 @@ function filterOutput({ command = "agent:filter", exit = 0, stderr = "", stdout 
   return `${[envelope, ...final.shown].map((record) => JSON.stringify(record)).join("\n")}\n`;
 }
 
+/** Executa parseArgs no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 function parseArgs(argv) {
   const args = { command: "agent:filter", exit: 0 };
   for (let index = 0; index < argv.length; index += 1) {
@@ -159,6 +176,7 @@ function parseArgs(argv) {
   return args;
 }
 
+/** Executa help no fluxo deste módulo; centraliza contrato reutilizável e preserva validações do chamador. */
 function help() {
   return "Uso: node to-ia.js [--command <nome>] [--exit <codigo>] [--run <comando> [args...]]\n";
 }
