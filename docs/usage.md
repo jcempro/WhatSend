@@ -46,7 +46,7 @@ O editor da GUI trabalha sempre com texto cru. A toolbar por ícones apenas inse
 
 `${remetente}` é reservado à GUI Node e não pode ser fornecido por coluna CSV. Se qualquer aba aberta contiver o marcador, surge um campo obrigatório que aceita somente letras Unicode e espaços; o nome é ajustado para caixa de nome próprio em `pt-BR` e renderizado como `*_Nome:_*` apenas no envio. O campo desaparece quando o último marcador é removido, não integra arquivo, autosave, salvamento local ou pacote e não existe no modo offline. A CLI rejeita o modelo antes de enviar porque não coleta esse dado.
 
-Na prévia, o remetente real válido tem prioridade e usa a mesma formatação do envio. Na ausência dele, Node e offline exibem o exemplo fictício `Remetente Exemplo`; `$diatarde$` é resolvido localmente, valores reais da linha CSV selecionada podem ser usados e notações sem resolução segura permanecem literais. A prévia nunca executa o Node nem altera o texto-fonte para fabricar um resultado.
+Na prévia, o remetente real válido tem prioridade e usa a mesma formatação do envio. Na ausência dele, Node e offline exibem o exemplo inequivocamente fictício `Sicrano`, formado pelas mesmas regras do remetente; `$diatarde$` é resolvido localmente, valores reais da linha CSV selecionada podem ser usados e notações sem resolução segura permanecem literais. A prévia nunca executa o Node nem altera o texto-fonte para fabricar um resultado.
 
 A toolbar oferece nova edição, salvamento local nomeado, recuperação automática, abertura de salvamentos, download `.md` e importação. O estado local conserva o conjunto integral de abas e nunca substitui o arquivo sem ação explícita.
 

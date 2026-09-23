@@ -755,7 +755,7 @@ O catálogo comum da toolbar de composição DEVE oferecer uma ação própria p
 
 O preview Node e o preview offline DEVEM representar prioritariamente o resultado final visível ao destinatário, respeitando nesta ordem: valor real disponível, resultado local determinístico, exemplo fictício inequívoco e preservação literal da notação quando nenhuma substituição segura for possível. [PENDENTE-CODIGO]
 
-Para `${remetente}`, o preview Node DEVE usar o valor válido presente no campo com a mesma normalização, formatação e regra de espaçamento do envio; sem valor real válido, tanto o preview Node quanto o offline DEVEM usar o exemplo fictício `Remetente Exemplo`, sem induzir que houve processamento ou dado real e sem alterar o modelo. [PENDENTE-CODIGO]
+Para `${remetente}`, o preview Node DEVE usar o valor válido presente no campo com a mesma normalização, formatação e regra de espaçamento do envio; sem valor real válido, tanto o preview Node quanto o offline DEVEM usar o exemplo inequivocamente fictício `Sicrano`, devidamente materializado conforme as regras do remetente, sem induzir que houve processamento ou dado real e sem alterar o modelo. [PENDENTE-CODIGO]
 
 O preview DEVE resolver localmente `$diatarde$` conforme a RN003 e variáveis para as quais haja valor real selecionado; outras variáveis ou expressões sem dado seguro DEVEM permanecer literais, nunca desaparecer, assumir valor enganoso, produzir erro decorativo ou provocar execução Node somente para compor a prévia. [PENDENTE-CODIGO]
 
