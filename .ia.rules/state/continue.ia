@@ -6,44 +6,13 @@ MACHINE_ID=JEAN-DESKTOP
 DATA_REF=202607101735
 POLITICA=90IA/10HUMANO;1FT_POR_SOLICITACAO;DEV_BRANCH;COMMIT_PUSH_POR_ETAPA_SE_POSSIVEL
 
-FT-029|nome=Normatizar remetente condicional e preview representativo|tipo=implementacao_normativa|escopo=Negocio|prioridade=alta|status=em andamento
-criado_em=2026-09-23T12:52:52-03:00
-ultima_atualizacao=2026-09-23T13:02:59-03:00
-origem=.ia.rules/state/TODO.ia.md#Implementar-${remetente};vinculo=FT-030
+FT-029|nome=Normatizar remetente condicional e preview representativo|tipo=implementacao_normativa|escopo=Negocio|prioridade=alta|status=concluida|autorizacao=humana|conclusao=2026-09-23T15:59:54-03:00|validacao=pendente_desenvolvedor
 objetivo=Equalizar e incorporar ao RCF a semantica reservada de `${remetente}`, o campo reativo exclusivo da GUI Node, a insercao pela toolbar comum e a precedencia segura de representacao do preview Node/offline.
-dependencias=RCF RN002-RN005,RN022,RN039,RN045,RN047,RN049;parser e avaliador existentes;estado migrado pela autorizacao humana de 2026-09-23
-autorizacao=solicitacao_humana_explicita_inicial_para_normatizacao
-estado_atual=Etapa 3/3 em andamento; RN003 e RN051 incorporam o contrato, README e guia de uso estao sincronizados e 14 sentencas materiais aguardam o commit causal da FT-030.
-proximo_ponto_executavel=Validar consistencia e rastreabilidade normativa, marcar a TODO como normatizada e concluir a FT-029; interromper antes da FT-030.
-
-etapas=
-1/3 Inspecao e equalizacao [concluido]
-  1/4 Validar governanca, recusas, branch e estado canônico [concluido]
-  2/4 Migrar resquicios da governanca anterior sem perda [concluido]
-  3/4 Mapear parser, envio sequencial/alternado e validacao [concluido]
-  4/4 Mapear GUI Node, editor, toolbar, preview e bundle offline [concluido]
-2/3 Normatizacao [concluido]
-  1/3 Definir semantica reservada, validacao, formatacao e espacamento [concluido]
-  2/3 Definir reatividade Node, toolbar comum e preview por precedencia [concluido]
-  3/3 Sincronizar README e guia de uso aplicavel [concluido]
-3/3 Validacao e handoff [em_andamento]
-  1/3 Validar consistencia RCF, arquitetura e criterios de aceite [em_andamento]
-  2/3 Marcar TODO como normatizada e concluir FT-029 [pendente]
-  3/3 Solicitar autorizacao humana posterior para FT-030 [pendente]
-
-decisoes=
-- `${remetente}` nao esta definido no RCF vigente; a alegacao da TO-DO sera equalizada pela criacao de uma unica definicao reservada em RN003, sem presumir contrato inexistente.
-- A resolucao material deve reutilizar `applyTemplate` e seu mapa `reserved`; o envio sequencial e o alternado devem receber a mesma opcao, sem segundo parser.
-- A reatividade deve derivar de `templateBlocks` no ciclo existente `handleTemplateInputChanged`/`setEditorContent`, ignorando o rodape embedded que normativamente nao participa de variaveis.
-- A acao de insercao deve integrar `COMMON_EDITOR_ACTIONS`, fonte comum da GUI Node e da projecao offline.
-- O campo pertence somente a GUI executora Node e nao deve ser projetado no bundle offline; o preview offline usa exemplo inequivocamente ficticio quando nao houver valor real.
-- A preview Node hoje preserva notacoes sem renderizacao, enquanto a offline avalia a linha CSV selecionada; a norma deve convergir ambas pela precedencia valor real, inferencia deterministica, exemplo seguro e preservacao literal.
-
-restricoes=
-- Nao implementar codigo nesta FT.
-- Nao materializar remetente no arquivo, autosave, pacote ou texto do editor.
-- Nao aceitar numero, simbolo, coluna CSV homonima ou valor invalido como remetente reservado.
-- Nao criar polling, estado paralelo, parser duplicado ou execucao Node para resolver preview localmente.
+origem=.ia.rules/state/TODO.ia.md#Implementar-${remetente};vinculo=FT-030
+resultado=RN003 e RN051 normatizam o remetente condicional, a GUI Node, a toolbar comum e os previews Node/offline; o refinamento humano adota Sicrano como exemplo fictício.
+verificacoes=Estado canônico e projeções sincronizados; 14 sentenças da FT-030 pendentes e coerentes; testes focais 18/18; suíte ampla 132/133 com falha preexistente de formatação do publicador de release.
+pendencias=Implementação da FT-030 depende de nova autorização humana explícita; teste oficial segue bloqueado por bridges legados ausentes na governança instalada.
+historico=.ia.rules/state/history/FT-029.ia|sha256=a561a92bb81a25bb1c7f2cbd4562eab5f59ab43d97ea79b3665f5c6bd270ab48
 
 FT-030|nome=Implementar remetente condicional e preview representativo|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=pendente
 criado_em=2026-09-23T12:52:53-03:00

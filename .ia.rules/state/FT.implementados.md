@@ -30,3 +30,4 @@
 - FT-026 — Retirar deployment GitHub Pages; estado: validada; histórico: `history/FT-026.ia`; sha256: `de2befcb88646d020db7141efd4ead4703f3b339293e6b3b954dcdfae9049fcf`.
 - FT-027 — Delimitar atribuicoes no servidor local; estado: validada; histórico: `history/FT-027.ia`; sha256: `17d48f96478d88713ceab957e452d4846203b38549aa6d6be84c4eaa937bdf1e`.
 - FT-028 — Servir atribuicoes localmente; estado: validada; histórico: `history/FT-028.ia`; sha256: `d94675144d37bcb896a5f6aa365c92f3812f5f80e04a184070f6fd40dfb4a826`.
+- FT-029 — Normatizar remetente condicional e preview representativo; estado: pendente-validacao; histórico: `history/FT-029.ia`; sha256: `a561a92bb81a25bb1c7f2cbd4562eab5f59ab43d97ea79b3665f5c6bd270ab48`.

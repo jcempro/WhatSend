@@ -196,6 +196,13 @@
       "path": ".ia.rules/state/history/FT-028.ia",
       "sha256": "d94675144d37bcb896a5f6aa365c92f3812f5f80e04a184070f6fd40dfb4a826",
       "state": "validada"
+    },
+    {
+      "id": "FT-029",
+      "name": "Normatizar remetente condicional e preview representativo",
+      "path": ".ia.rules/state/history/FT-029.ia",
+      "sha256": "a561a92bb81a25bb1c7f2cbd4562eab5f59ab43d97ea79b3665f5c6bd270ab48",
+      "state": "pendente-validacao"
     }
   ]
 }
