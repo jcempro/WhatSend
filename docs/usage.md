@@ -42,7 +42,11 @@ ${$.int(valor)}
 
 Um arquivo pode conter multiplas variacoes separadas por uma linha com `^^^`. Quando todos os blocos atingem o tamanho minimo configurado, a distribuicao entre destinatarios e circular. Na GUI, cada bloco separado por `^^^` aparece como uma aba visual do editor; salvar ou enviar recombina as abas com o mesmo separador, sem alterar a regra do backend.
 
-O editor da GUI trabalha sempre com texto cru. A toolbar por ícones apenas insere ou remove marcadores textuais, como `*`, `_`, `~`, três crases para monoespaçado, `![](arquivo.pdf)`, `$diatarde$`, `$postagem$` e `^^^`; emojis são escolhidos por menu suspenso. Nenhum HTML ou conteúdo rico é persistido no modelo. A prévia renderiza negrito, itálico, tachado e monoespaçado para aproximar o resultado visual sem mudar o texto do editor, sempre limitada à aba ativa e com rolagem proporcional sincronizada.
+O editor da GUI trabalha sempre com texto cru. A toolbar por ícones apenas insere ou remove marcadores textuais, como `*`, `_`, `~`, três crases para monoespaçado, `![](arquivo.pdf)`, `${remetente}`, `$diatarde$`, `$postagem$` e `^^^`; emojis são escolhidos por menu suspenso. Nenhum HTML ou conteúdo rico é persistido no modelo. A prévia renderiza negrito, itálico, tachado e monoespaçado para aproximar o resultado visual sem mudar o texto do editor, sempre limitada à aba ativa e com rolagem proporcional sincronizada.
+
+`${remetente}` é reservado à GUI Node e não pode ser fornecido por coluna CSV. Se qualquer aba aberta contiver o marcador, surge um campo obrigatório que aceita somente letras Unicode e espaços; o nome é ajustado para caixa de nome próprio em `pt-BR` e renderizado como `*_Nome:_*` apenas no envio. O campo desaparece quando o último marcador é removido, não integra arquivo, autosave, salvamento local ou pacote e não existe no modo offline. A CLI rejeita o modelo antes de enviar porque não coleta esse dado.
+
+Na prévia, o remetente real válido tem prioridade e usa a mesma formatação do envio. Na ausência dele, Node e offline exibem o exemplo fictício `Remetente Exemplo`; `$diatarde$` é resolvido localmente, valores reais da linha CSV selecionada podem ser usados e notações sem resolução segura permanecem literais. A prévia nunca executa o Node nem altera o texto-fonte para fabricar um resultado.
 
 A toolbar oferece nova edição, salvamento local nomeado, recuperação automática, abertura de salvamentos, download `.md` e importação. O estado local conserva o conjunto integral de abas e nunca substitui o arquivo sem ação explícita.
 

@@ -63,6 +63,8 @@ Entidades HTML numéricas e nomeadas comuns, como `&#x20;`, `&#32;`, `&nbsp;`, `
 
 Variáveis devem usar o padrão `${nome}`, `${telefone}`, `${conta}` ou qualquer outra coluna existente no CSV.
 
+`${remetente}` é identificador reservado e DEVE obedecer exclusivamente à RN051; coluna CSV homônima NÃO DEVE definir nem sobrescrever seu valor. [PENDENTE-CODIGO]
+
 O nome da variável dentro de `${}` deve ser insensível a maiúsculas e minúsculas.
 
 Dentro de `${...}`, também devem ser aceitas expressões matemáticas simples com colunas do CSV, por exemplo `${(valor+taxa)*2}`.
@@ -732,6 +734,34 @@ O servidor local do WhatSend DEVE disponibilizar a relação de avisos de tercei
 O inventário autoritativo DEVE combinar somente os componentes e recursos efetivamente distribuídos: árvore de dependências de runtime materializada, manifestos de recursos incorporados e o registro used-only de RN049. Dependência de desenvolvimento, pacote não materializado, recurso não referenciado ou crédito facultativo DEVE ser excluído. Cada registro DEVE conservar nome, versão, finalidade, origem HTTPS, autor ou titular, licença, aviso integral e indicação de modificação, em ordem determinística; falta, ambiguidade ou divergência de licença bloqueia o build distribuível. Os mesmos avisos aplicáveis DEVEM acompanhar o ZIP oficial em `THIRD-PARTY-NOTICES.txt`.
 
 O documento local DEVE ter título único, landmarks, tabela ou lista semântica, teclado, foco visível, contraste e layout responsivo nos viewports 320, 768 e 1280 px, sem rolagem horizontal estrutural. Não existe requisito de impressão, A4, PDF ou mídia impressa. A validação DEVE comprovar inventário reprodutível, HTML sem dependência externa, as duas rotas locais, conteúdo integral dos avisos, acessibilidade e responsividade, presença dos avisos no distribuível e ausência de domínio, URL pública, deployment, GitHub Pages ou Jekyll.
+
+### RN051 - Remetente condicional e preview representativo
+
+`${remetente}` DEVE ser reconhecido sem distinção de caixa como identificador reservado, independente das colunas CSV e indisponível para sobrescrita por coluna homônima; a capacidade pertence à GUI executora Node, não cria opção de CLI e não projeta campo, estado ou valor de remetente no bundle offline. [PENDENTE-CODIGO]
+
+Quando qualquer modelo aberto no editor contiver `${remetente}`, desconsiderado o rodapé global `@@embedded`, a GUI Node DEVE exibir imediatamente um único campo de remetente; quando nenhum modelo aberto o contiver, o campo DEVE permanecer oculto, não obrigatório e sem bloquear validação ou envio. [PENDENTE-CODIGO]
+
+A detecção DEVE abranger o estado canônico de todos os blocos abertos e reagir pelo ciclo de mutação já existente a digitação, exclusão, colagem, substituição, importação, carregamento, criação, fechamento e troca de abas ou modelos, sem polling, parser paralelo ou estado duplicado. [PENDENTE-CODIGO]
+
+Enquanto o campo estiver visível, seu valor DEVE ser obrigatório e, após remoção apenas de espaços globais, conter ao menos uma letra Unicode e somente letras Unicode ou espaços U+0020; dígitos, pontuação, símbolos e valor vazio DEVEM impedir a validação e o início da campanha antes de qualquer envio. [PENDENTE-CODIGO]
+
+O valor válido DEVE preservar os espaços internos e normalizar cada sequência de letras para nome próprio em locale `pt-BR`, com a primeira letra em maiúscula e as demais em minúscula, sendo materializado exatamente como `*_Nome:_*`. [PENDENTE-CODIGO]
+
+A substituição DEVE ocorrer somente na renderização material imediatamente anterior ao plano de envio, tanto no fluxo sequencial quanto no intercalado, sem alterar o texto-fonte, arquivo, autosave, salvamento local ou pacote; se o caractere Unicode imediatamente seguinte ao marcador for letra ou número, DEVE existir exatamente um espaço entre a materialização e esse caractere, sem inserção artificial diante de espaço, pontuação, símbolo, quebra de linha ou fim do conteúdo. [PENDENTE-CODIGO]
+
+Uma execução CLI que encontre `${remetente}` DEVE falhar na pré-validação antes de qualquer envio, pois esse modo não coleta o valor reservado; modelos sem o marcador DEVEM preservar integralmente o comportamento anterior da CLI e da GUI. [PENDENTE-CODIGO]
+
+O catálogo comum da toolbar de composição DEVE oferecer uma ação própria para inserir literalmente `${remetente}`, com ícone qualificado semanticamente específico, hint e nome acessível inequívocos, reutilizando as mesmas rotinas de seleção, cursor, foco, rolagem, IME e inserção dos demais marcadores nas superfícies Node e offline. [PENDENTE-CODIGO]
+
+O preview Node e o preview offline DEVEM representar prioritariamente o resultado final visível ao destinatário, respeitando nesta ordem: valor real disponível, resultado local determinístico, exemplo fictício inequívoco e preservação literal da notação quando nenhuma substituição segura for possível. [PENDENTE-CODIGO]
+
+Para `${remetente}`, o preview Node DEVE usar o valor válido presente no campo com a mesma normalização, formatação e regra de espaçamento do envio; sem valor real válido, tanto o preview Node quanto o offline DEVEM usar o exemplo fictício `Remetente Exemplo`, sem induzir que houve processamento ou dado real e sem alterar o modelo. [PENDENTE-CODIGO]
+
+O preview DEVE resolver localmente `$diatarde$` conforme a RN003 e variáveis para as quais haja valor real selecionado; outras variáveis ou expressões sem dado seguro DEVEM permanecer literais, nunca desaparecer, assumir valor enganoso, produzir erro decorativo ou provocar execução Node somente para compor a prévia. [PENDENTE-CODIGO]
+
+Depois das substituições seguras, o preview DEVE aplicar a representação visual de formatação compatível com WhatsApp e limitar-se ao modelo ou aba ativa, sem mudar a semântica de seleção, postagem, anexos, rolagem sincronizada ou processamento efetivo. [PENDENTE-CODIGO]
+
+RCF, README, guia de uso, ajuda contextual, GUI Node e bundle offline DEVEM permanecer sincronizados quanto à notação, ao botão comum, à exclusividade do campo Node e à semântica do preview; a validação DEVE cobrir caixa, colisão CSV, formatos válidos e inválidos, Unicode, espaços, adjacência textual e não textual, fluxos sequencial e intercalado, reatividade entre múltiplas abas, CLI, persistência, toolbar, acessibilidade e previews com valor real, determinístico, fictício e literal. [PENDENTE-CODIGO]
 
 ## Requisitos Não Funcionais
 
