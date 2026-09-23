@@ -86,7 +86,7 @@
       2. valor deterministicamente inferível sem processamento Node → usar o valor inferido;
       3. variável cuja finalidade permita exemplificação inequívoca → PODE usar valor ilustrativo claramente fictício;
       4. valor não resolvível nem exemplificável com segurança → preservar literalmente a notação original.
-    - Exemplo meramente ilustrativo: `${nome}` → `Fulano`.
+    - Exemplo meramente ilustrativo: `${nome}` → `Fulano`, e `${remetente}` → `Sicrano` (devidamente formado conforme regras já definidas).
     - Valores ilustrativos DEVEM ser inequivocamente reconhecíveis como exemplos de preview, NÃO como dados reais nem como resultado de processamento efetivo.
     - O preview:
       - PODE usar valores exemplificativos para variáveis presumíveis quando isso melhorar compreensão;
@@ -94,7 +94,7 @@
       - NÃO DEVE apresentar como resolvido aquilo que somente pode ser conhecido no processamento/envio real;
       - DEVE preservar literalmente a notação quando não houver resolução/exemplificação segura;
       - DEVE aplicar a formatação visual equivalente ao resultado final sempre que ela puder ser determinada sem processamento Node.
-    - Para `${remetente}`, quando houver valor válido disponível na UI, o preview DEVE refletir a mesma normalização e formatação previstas para o envio; quando isso não for possível com segurança, DEVE seguir a precedência acima.
+    - Para `${remetente}`, quando houver valor válido disponível na UI, o preview DEVE refletir a mesma normalização e formatação previstas para o envio; quando isso não for possível com segurança, DEVE seguir a precedência acima, de finferência inequivocamente fictícia.
 
   - ## Sincronização
     - O sistema DEVE manter coerência contínua entre:
