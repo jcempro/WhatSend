@@ -14,15 +14,15 @@ verificacoes=Estado canônico e projeções sincronizados; 14 sentenças da FT-0
 pendencias=Implementação da FT-030 depende de nova autorização humana explícita; teste oficial segue bloqueado por bridges legados ausentes na governança instalada.
 historico=.ia.rules/state/history/FT-029.ia|sha256=a561a92bb81a25bb1c7f2cbd4562eab5f59ab43d97ea79b3665f5c6bd270ab48
 
-FT-030|nome=Implementar remetente condicional e preview representativo|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=em_implementacao
+FT-030|nome=Implementar remetente condicional e preview representativo|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=implementada_validacao_global_bloqueada
 criado_em=2026-09-23T12:52:53-03:00
-ultima_atualizacao=2026-09-23T16:18:32-03:00
+ultima_atualizacao=2026-09-24T10:07:57-03:00
 origem=.ia.rules/state/TODO.ia.md#Implementar-${remetente};vinculo=FT-029
 objetivo=Implementar e validar o contrato normatizado pela FT-029 no parser, envio, GUI Node, toolbar comum, previews Node/offline, documentacao e distribuicao.
 dependencias=FT-029 concluida; autorizacao humana explicita recebida em 2026-09-23
 autorizacao=humana_para_codigo
-estado_atual=Contratos comuns, fluxos de envio, GUI Node, toolbar e previews implementados; testes focais em execucao.
-proximo_ponto_executavel=Concluir validacao, tratar a lacuna da governanca instalada pela rota oficial e sincronizar rastreabilidade.
+estado_atual=Implementacao, testes focais, build, validacao de distribuicao e rastreabilidade concluidos nos commits 916a510 e b895701; validacao global bloqueada por lacunas preexistentes da governanca instalada.
+proximo_ponto_executavel=Restaurar pela rota oficial os bridges exigidos pelo manifesto, a validacao de assets do publicador e o mapeamento de RCF.md:27; depois repetir a validacao global e submeter a validacao humana.
 
 etapas=
 1/4 Contratos comuns [concluido]
@@ -34,14 +34,17 @@ etapas=
   2/4 Reagir a todas as mutacoes dos modelos abertos [concluido]
   3/4 Integrar botao pela toolbar comum [concluido]
   4/4 Manter preview offline representativo sem projetar o campo Node [concluido]
-3/4 Testes e documentacao [em_andamento]
+3/4 Testes e documentacao [concluido]
   1/3 Cobrir parser, envio, validacao e espacamento [concluido]
   2/3 Cobrir reatividade, multiplas abas, toolbar e previews [concluido]
   3/3 Atualizar README, guia e ajuda contextual [concluido]
-4/4 Integracao [pendente]
-  1/3 Executar suite, check, build e validacao dist [pendente]
-  2/3 Auditar diff, paridade e regressao [pendente]
-  3/3 Sincronizar rastreabilidade e aguardar validacao humana [pendente]
+4/4 Integracao [bloqueada_por_governanca]
+  1/3 Executar suite, check, build e validacao dist [bloqueado_parcialmente: produto 29/29 e dist validos; suite oficial interrompida por bridge gerenciado ausente]
+  2/3 Auditar diff, paridade e regressao [concluido: suite direta 169/170; unica falha em validacao de assets da governanca instalada]
+  3/3 Sincronizar rastreabilidade e aguardar validacao humana [parcial: 14 sentencas sincronizadas; validacao global bloqueada por RCF.md:27 preexistente]
+
+evidencias=commit_material:916a5103219e7642295bb38d27b021aa54035c86;commit_rastreabilidade:b895701;testes_focados:29/29;build_dist:ok;validate_dist:ok;diff_check:ok
+bloqueios=GOVERNANCA_INSTALADA_INCOMPLETA:scripts/.agents/autoupdate.ts;ASSETS_RELEASE_INCOMPLETOS ausente nos publicadores gerenciados;RCF_SENTENCA_NAO_MAPEADA:RCF.md:27
 
 restricoes=
 - Preservar CLI, arquivos, CSV, pacotes, anexos, postagens, variantes e expressoes existentes.
