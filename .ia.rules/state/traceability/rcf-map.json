@@ -15,13 +15,13 @@
         "test/rcf.test.js",
         "test/todo-integrated.test.js"
       ],
-      "commit": "",
+      "commit": "916a5103219e7642295bb38d27b021aa54035c86",
       "ft": "FT-030",
       "id": "3fcbc0a4ad5a648473e10b16",
       "line": 66,
       "rcf": "RCF.md",
       "sentenceSha256": "3443f1d6f1ba6cd0e6cab1b3488e955c6c52277eac1bc17d421635879636b203",
-      "state": "pending",
+      "state": "synchronized",
       "syncCommit": ""
     },
     {
@@ -37,13 +37,13 @@
         "test/rcf.test.js",
         "test/todo-integrated.test.js"
       ],
-      "commit": "",
+      "commit": "916a5103219e7642295bb38d27b021aa54035c86",
       "ft": "FT-030",
       "id": "bc4896c7ee7faf50ac1491b4",
       "line": 740,
       "rcf": "RCF.md",
       "sentenceSha256": "2940fbd9ad90211f54ac3005f171add057cf43b49b3e7cc64675d56b9d786cf2",
-      "state": "pending",
+      "state": "synchronized",
       "syncCommit": ""
     },
     {
@@ -59,13 +59,13 @@
         "test/rcf.test.js",
         "test/todo-integrated.test.js"
       ],
-      "commit": "",
+      "commit": "916a5103219e7642295bb38d27b021aa54035c86",
       "ft": "FT-030",
       "id": "a32ca9841241bd306b6efea5",
       "line": 742,
       "rcf": "RCF.md",
       "sentenceSha256": "dbda15451bf5b8b1437d10ce3fa3c37a89067f4a109b086aa9600650f5108a0b",
-      "state": "pending",
+      "state": "synchronized",
       "syncCommit": ""
     },
     {
@@ -81,13 +81,13 @@
         "test/rcf.test.js",
         "test/todo-integrated.test.js"
       ],
-      "commit": "",
+      "commit": "916a5103219e7642295bb38d27b021aa54035c86",
       "ft": "FT-030",
       "id": "2e135671e636cf94139960b7",
       "line": 744,
       "rcf": "RCF.md",
       "sentenceSha256": "13dd7fa87edbf5bbc31b40f519f23d60cfe63b4d7e7bc8fefbd399b4a7adb0ca",
-      "state": "pending",
+      "state": "synchronized",
       "syncCommit": ""
     },
     {
@@ -103,13 +103,13 @@
         "test/rcf.test.js",
         "test/todo-integrated.test.js"
       ],
-      "commit": "",
+      "commit": "916a5103219e7642295bb38d27b021aa54035c86",
       "ft": "FT-030",
       "id": "6f39727bcc4d409d47f588b5",
       "line": 746,
       "rcf": "RCF.md",
       "sentenceSha256": "1c8b485a93950915006a5b7a231c4cacc93304a6068e20eb06e1a777c4ffa6da",
-      "state": "pending",
+      "state": "synchronized",
       "syncCommit": ""
     },
     {
@@ -125,13 +125,13 @@
         "test/rcf.test.js",
         "test/todo-integrated.test.js"
       ],
-      "commit": "",
+      "commit": "916a5103219e7642295bb38d27b021aa54035c86",
       "ft": "FT-030",
       "id": "06e3b8e95888d1e7e73cc132",
       "line": 748,
       "rcf": "RCF.md",
       "sentenceSha256": "90f495fea075517160950cbd131efa316e9678a4c4419afaf9a075b780090b37",
-      "state": "pending",
+      "state": "synchronized",
       "syncCommit": ""
     },
     {
@@ -147,13 +147,13 @@
         "test/rcf.test.js",
         "test/todo-integrated.test.js"
       ],
-      "commit": "",
+      "commit": "916a5103219e7642295bb38d27b021aa54035c86",
       "ft": "FT-030",
       "id": "4576e82cc62ef6d8376e49e3",
       "line": 750,
       "rcf": "RCF.md",
       "sentenceSha256": "e5909586b73ad6fe66481b970d7a8293b44fafa1724dd0b39e361f724a62255f",
-      "state": "pending",
+      "state": "synchronized",
       "syncCommit": ""
     },
     {
@@ -169,13 +169,13 @@
         "test/rcf.test.js",
         "test/todo-integrated.test.js"
       ],
-      "commit": "",
+      "commit": "916a5103219e7642295bb38d27b021aa54035c86",
       "ft": "FT-030",
       "id": "e70bc26a1e2d5ce2fc53d6f7",
       "line": 752,
       "rcf": "RCF.md",
       "sentenceSha256": "4a024268605b040a75cf95983461f7981aac6659422f3472bea7738e04fa21e0",
-      "state": "pending",
+      "state": "synchronized",
       "syncCommit": ""
     },
     {
@@ -191,13 +191,13 @@
         "test/rcf.test.js",
         "test/todo-integrated.test.js"
       ],
-      "commit": "",
+      "commit": "916a5103219e7642295bb38d27b021aa54035c86",
       "ft": "FT-030",
       "id": "61cda48b84c019d3daad10f7",
       "line": 754,
       "rcf": "RCF.md",
       "sentenceSha256": "8cfe36369282fa840bcde7ef4deb8a573932075b9e17bee8d3d1637d8bf58b69",
-      "state": "pending",
+      "state": "synchronized",
       "syncCommit": ""
     },
     {
@@ -213,13 +213,13 @@
         "test/rcf.test.js",
         "test/todo-integrated.test.js"
       ],
-      "commit": "",
+      "commit": "916a5103219e7642295bb38d27b021aa54035c86",
       "ft": "FT-030",
       "id": "76101ea9ff43e5784054d439",
       "line": 756,
       "rcf": "RCF.md",
       "sentenceSha256": "a82be2735218a90e9dc3eee84fc8846947bc9e5505eed797ea01f05c73c3906b",
-      "state": "pending",
+      "state": "synchronized",
       "syncCommit": ""
     },
     {
@@ -235,13 +235,13 @@
         "test/rcf.test.js",
         "test/todo-integrated.test.js"
       ],
-      "commit": "",
+      "commit": "916a5103219e7642295bb38d27b021aa54035c86",
       "ft": "FT-030",
       "id": "38978b1f7885233b20c0e8e0",
       "line": 758,
       "rcf": "RCF.md",
       "sentenceSha256": "d335f1c9cce2d3fd2ea8f11705cd3533af1c692c995353c716e6b536713bcfa9",
-      "state": "pending",
+      "state": "synchronized",
       "syncCommit": ""
     },
     {
@@ -257,13 +257,13 @@
         "test/rcf.test.js",
         "test/todo-integrated.test.js"
       ],
-      "commit": "",
+      "commit": "916a5103219e7642295bb38d27b021aa54035c86",
       "ft": "FT-030",
       "id": "e1f3dd3945496c5f2a437c0d",
       "line": 760,
       "rcf": "RCF.md",
       "sentenceSha256": "e76679f7f8d784b58f9efa8c10ca57d7510123f399cbe6a75797e320d2e628e4",
-      "state": "pending",
+      "state": "synchronized",
       "syncCommit": ""
     },
     {
@@ -279,13 +279,13 @@
         "test/rcf.test.js",
         "test/todo-integrated.test.js"
       ],
-      "commit": "",
+      "commit": "916a5103219e7642295bb38d27b021aa54035c86",
       "ft": "FT-030",
       "id": "e9b73d45ea34821c6ea74a51",
       "line": 762,
       "rcf": "RCF.md",
       "sentenceSha256": "1744df380f77964b44e88688080aba31c5980196d7f3f58df077b5561e6491ec",
-      "state": "pending",
+      "state": "synchronized",
       "syncCommit": ""
     },
     {
@@ -301,13 +301,13 @@
         "test/rcf.test.js",
         "test/todo-integrated.test.js"
       ],
-      "commit": "",
+      "commit": "916a5103219e7642295bb38d27b021aa54035c86",
       "ft": "FT-030",
       "id": "8c187a6df8d776b0add6e1c8",
       "line": 764,
       "rcf": "RCF.md",
       "sentenceSha256": "f37d7453309c3f1c6c84cac78bf8ed74d5d8c654c09a5b3a6188561063cf11b1",
-      "state": "pending",
+      "state": "synchronized",
       "syncCommit": ""
     }
   ]
