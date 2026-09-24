@@ -14,15 +14,15 @@ verificacoes=Estado canônico e projeções sincronizados; 14 sentenças da FT-0
 pendencias=Implementação da FT-030 depende de nova autorização humana explícita; teste oficial segue bloqueado por bridges legados ausentes na governança instalada.
 historico=.ia.rules/state/history/FT-029.ia|sha256=a561a92bb81a25bb1c7f2cbd4562eab5f59ab43d97ea79b3665f5c6bd270ab48
 
-FT-030|nome=Implementar remetente condicional e preview representativo|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=implementada_validacao_global_bloqueada
+FT-030|nome=Implementar remetente condicional e preview representativo|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=implementada_aguarda_validacao_humana
 criado_em=2026-09-23T12:52:53-03:00
-ultima_atualizacao=2026-09-24T10:07:57-03:00
+ultima_atualizacao=2026-09-24T13:27:01-03:00
 origem=.ia.rules/state/TODO.ia.md#Implementar-${remetente};vinculo=FT-029
 objetivo=Implementar e validar o contrato normatizado pela FT-029 no parser, envio, GUI Node, toolbar comum, previews Node/offline, documentacao e distribuicao.
 dependencias=FT-029 concluida; autorizacao humana explicita recebida em 2026-09-23
 autorizacao=humana_para_codigo
-estado_atual=Implementacao, testes focais, build, validacao de distribuicao e rastreabilidade concluidos nos commits 916a510 e b895701; validacao global bloqueada por lacunas preexistentes da governanca instalada.
-proximo_ponto_executavel=Restaurar pela rota oficial os bridges exigidos pelo manifesto, a validacao de assets do publicador e o mapeamento de RCF.md:27; depois repetir a validacao global e submeter a validacao humana.
+estado_atual=Implementacao, testes focais, build, validacao de distribuicao, rastreabilidade e validacao global concluidos; aguarda validacao humana.
+proximo_ponto_executavel=Submeter a FT-030 para validacao humana.
 
 etapas=
 1/4 Contratos comuns [concluido]
@@ -38,13 +38,13 @@ etapas=
   1/3 Cobrir parser, envio, validacao e espacamento [concluido]
   2/3 Cobrir reatividade, multiplas abas, toolbar e previews [concluido]
   3/3 Atualizar README, guia e ajuda contextual [concluido]
-4/4 Integracao [bloqueada_por_governanca]
-  1/3 Executar suite, check, build e validacao dist [bloqueado_parcialmente: produto 29/29 e dist validos; suite oficial interrompida por bridge gerenciado ausente]
-  2/3 Auditar diff, paridade e regressao [concluido: suite direta 169/170; unica falha em validacao de assets da governanca instalada]
-  3/3 Sincronizar rastreabilidade e aguardar validacao humana [parcial: 14 sentencas sincronizadas; validacao global bloqueada por RCF.md:27 preexistente]
+4/4 Integracao [concluida_aguarda_validacao_humana]
+  1/3 Executar suite, check, build e validacao dist [concluido: npm test, npm run check, npm run build:dist e npm run validate:dist aprovados]
+  2/3 Auditar diff, paridade e regressao [concluido: testes focais 29/29 e suite global aprovada]
+  3/3 Sincronizar rastreabilidade e aguardar validacao humana [concluido: 14 sentencas sincronizadas; validacao humana pendente]
 
-evidencias=commit_material:916a5103219e7642295bb38d27b021aa54035c86;commit_rastreabilidade:b895701;testes_focados:29/29;build_dist:ok;validate_dist:ok;diff_check:ok
-bloqueios=GOVERNANCA_INSTALADA_INCOMPLETA:scripts/.agents/autoupdate.ts;ASSETS_RELEASE_INCOMPLETOS ausente nos publicadores gerenciados;RCF_SENTENCA_NAO_MAPEADA:RCF.md:27
+evidencias=commit_material:916a5103219e7642295bb38d27b021aa54035c86;commit_rastreabilidade:b895701;commit_reparo_governanca:8b902d6;testes_focados:29/29;npm_test:ok;check:ok;build_dist:ok;validate_dist:ok;diff_check:ok
+bloqueios=validacao_humana_pendente
 
 restricoes=
 - Preservar CLI, arquivos, CSV, pacotes, anexos, postagens, variantes e expressoes existentes.

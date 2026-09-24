@@ -64,7 +64,7 @@ TO-DOs integralmente concluídas DEVEM ser removidas, mantendo o arquivo limpo.
 
 Este marcador encerra a seção de governança e inicia exclusivamente as TO-DOs operacionais. Todo item de topo abaixo dele está sujeito integralmente ao RCF acima.
 
-⏳ Implementar `${remetente}` conforme RCF, com suporte funcional condicional no modo Node e preview semanticamente representativo
+✅ Implementar `${remetente}` conforme RCF, com suporte funcional condicional no modo Node e preview semanticamente representativo
   - Antes de implementar, DEVE-SE inspecionar o estado real, RCFs, arquitetura, contratos, UI, editor, preview e mecanismos existentes. É PROIBIDO presumir APIs, eventos, componentes, fluxos ou semânticas não comprovados, criar lógica paralela ou divergir da definição normativa já existente.
 
   - ## Semântica e substituição
