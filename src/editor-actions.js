@@ -7,6 +7,7 @@
 
 const COMMON_EDITOR_ACTIONS = Object.freeze([
   { group: "variaveis", icon: "lucide:variable", id: "insertVariableExpressionButton", insert: "${campo}", label: "Inserir variável", hint: "Inserir marcador ${campo}." },
+  { group: "variaveis", icon: "lucide:signature", id: "insertSenderButton", insert: "${remetente}", label: "Inserir remetente", hint: "Inserir o remetente reservado da GUI Node." },
   { group: "variaveis", icon: "lucide:message-circle-more", id: "insertLastConversationButton", insert: "${ultimaconversa}", label: "Inserir última conversa", hint: "Inserir a constante imutável ultimaconversa." },
   { group: "decisao", icon: "lucide:message-circle-check", id: "insertInConversationButton", insert: "${$.emconversa()}", label: "Inserir em conversa", hint: "Testar a janela de conversa recente." },
   { group: "decisao", icon: "lucide:git-fork", id: "insertIfFunctionButton", insert: "${$.if(condicao, 'sim', 'nao')}", label: "Inserir função condicional", hint: "Inserir $.if com avaliação preguiçosa." },

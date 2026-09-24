@@ -29,6 +29,7 @@ function buildOfflineBundle(outputDir) {
   const csvSource = readInlineSource("src/csv-contract.js");
   const packageSource = readInlineSource("src/whatsend-package.js");
   const advisorySource = readInlineSource("src/template-advisory.js");
+  const templateContractSource = readInlineSource("src/template-contract.js");
   const expressionSource = wrapCommonJsSource(readInlineSource("src/expression.js"), "WhatSendExpression");
   const tabulatorSource = readInlineSource("node_modules/tabulator-tables/dist/js/tabulator.min.js");
   const tabulatorCss = fs.readFileSync(path.join(ROOT_DIR, "node_modules/tabulator-tables/dist/css/tabulator.min.css"), "utf8");
@@ -36,7 +37,7 @@ function buildOfflineBundle(outputDir) {
   const favicon = toDataUri("src/brand/html-favicon/favicon.svg", "image/svg+xml");
   const parityManifest = buildParityManifest();
   const canonicalEditor = buildCanonicalEditorProjection();
-  const html = renderOfflineHtml({ advisorySource, canonicalEditor, csvSource, expressionSource, favicon, packageSource, parityManifest, tabulatorCss, tabulatorLicense, tabulatorSource });
+  const html = renderOfflineHtml({ advisorySource, canonicalEditor, csvSource, expressionSource, favicon, packageSource, parityManifest, tabulatorCss, tabulatorLicense, tabulatorSource, templateContractSource });
   validateOfflineBundle(html);
   fs.mkdirSync(outputDir, { recursive: true });
   const outputPath = path.join(outputDir, OFFLINE_BUNDLE_NAME);
@@ -63,6 +64,7 @@ function buildParityManifest() {
     "src/csv-contract.js",
     "src/whatsend-package.js",
     "src/template-advisory.js",
+    "src/template-contract.js",
     "src/brand/html-favicon/favicon.svg",
   ];
   return Object.fromEntries(sources.map((relativePath) => {
@@ -90,7 +92,8 @@ function buildCanonicalEditorProjection() {
     css: css[1],
     panel: panel[0]
       .replace('id="templateBaseDir"', 'id="templateBaseDir" disabled value="Indisponível sem backend local" title="Recurso dependente do backend local."')
-      .replace('id="templateModelsButton"', 'id="templateModelsButton" disabled title="Modelos do repositório exigem o backend local."'),
+      .replace('id="templateModelsButton"', 'id="templateModelsButton" disabled title="Modelos do repositório exigem o backend local."')
+      .replace(/\s*<!-- node-only:sender:start -->[\s\S]*?<!-- node-only:sender:end -->/u, ""),
     sprite: sprite[1],
   };
 }
@@ -136,6 +139,7 @@ function renderOfflineHtml(parts) {
 <script>${parts.csvSource}</script>
 <script>${parts.packageSource}</script>
 <script>${parts.advisorySource}</script>
+<script>${parts.templateContractSource}</script>
 <script>${parts.expressionSource}</script>
 <script>
 (function(){"use strict";
@@ -148,8 +152,8 @@ function setStatus(element,message,type){element.textContent=message||"";var bas
 function readFile(file){return new Promise(function(resolve,reject){var reader=new FileReader();reader.onerror=function(){reject(new Error("Não foi possível ler o arquivo."));};reader.onload=function(){resolve(String(reader.result||""));};reader.readAsText(file);});}
 function download(name,content,type){var blob=new Blob([content],{type:type||"application/octet-stream"});var url=URL.createObjectURL(blob);var link=document.createElement("a");link.href=url;link.download=name;document.body.append(link);link.click();link.remove();setTimeout(function(){URL.revokeObjectURL(url);},0);}
 function previewHtml(value){var source=String(value||"").replace(/!\\[([^\\]]*)\\]\\([^)]+\\)/gu,"📎 Anexo: $1");var html=source.replace(/&/gu,"&amp;").replace(/</gu,"&lt;").replace(/>/gu,"&gt;");var fence=String.fromCharCode(96).repeat(3);html=html.split(fence).map(function(part,index){return index%2?"<code>"+part+"</code>":part;}).join("");html=html.replace(/\\*([^*\\n]+)\\*/gu,"<strong>$1</strong>").replace(/_([^_\\n]+)_/gu,"<em>$1</em>").replace(/~([^~\\n]+)~/gu,"<s>$1</s>").replace(/\\n/gu,"<br>");return html;}
-function renderExpressions(source,data){var output="";var index=0;while(index<source.length){if(source[index]!=="$"||source[index+1]!=="{"){output+=source[index++]||"";continue;}var start=index;index+=2;var depth=1;var expression="";var quote="";while(index<source.length&&depth>0){var character=source[index];if(quote){expression+=character;if(character==="\\\\"){expression+=source[++index]||"";}else if(character===quote){quote="";}index+=1;continue;}if(character==="'"||character==='"'){quote=character;expression+=character;index+=1;continue;}if(character==="{"){depth+=1;}else if(character==="}"){depth-=1;if(depth===0){index+=1;break;}}if(depth>0)expression+=character;index+=1;}if(depth!==0){output+=source.slice(start);break;}try{var evaluated=WhatSendExpression.evaluateExpression(expression,data,{conversation:{capturedAt:"",lastMessageAt:""},identifierMode:"field",reserved:{ultimaconversa:""}}).value;output+=evaluated==null?"":String(evaluated);}catch(error){output+="[Erro: "+error.message+"]";}}return output;}
-function renderPreview(){var selected=table.getSelectedData();var row=selected[0]||table.getData()[0]||{};var byName={};Object.keys(row).forEach(function(key){byName[WhatSendCsv.normalizeHeader(key)]=String(row[key]==null?"":row[key]);});var text=renderExpressions(templateText.value,byName);var hour=new Date().getHours();text=text.replace(/\\$diatarde\\$/giu,hour<12?"bom dia":hour<18?"boa tarde":"boa noite");preview.innerHTML=previewHtml(text||"A prévia aparecerá aqui. Selecione uma linha do CSV para conferir as substituições.");}
+function renderExpressions(source,data){var output="";var index=0;while(index<source.length){if(source[index]!=="$"||source[index+1]!=="{"){output+=source[index++]||"";continue;}var start=index;index+=2;var depth=1;var expression="";var quote="";while(index<source.length&&depth>0){var character=source[index];if(quote){expression+=character;if(character==="\\\\"){expression+=source[++index]||"";}else if(character===quote){quote="";}index+=1;continue;}if(character==="'"||character==='"'){quote=character;expression+=character;index+=1;continue;}if(character==="{"){depth+=1;}else if(character==="}"){depth-=1;if(depth===0){index+=1;break;}}if(depth>0)expression+=character;index+=1;}if(depth!==0){output+=source.slice(start);break;}var marker=source.slice(start,index);if(WhatSendTemplateContract.isSenderExpression(expression)){var sender=WhatSendTemplateContract.renderSender(WhatSendTemplateContract.SENDER_PREVIEW_EXAMPLE);output+=WhatSendTemplateContract.appendSenderSpacing(sender,source.slice(index));continue;}try{var evaluated=WhatSendExpression.evaluateExpression(expression,data,{conversation:{capturedAt:"",lastMessageAt:""},identifierMode:"field",reserved:{}}).value;if(String(expression).trim().toLocaleLowerCase("pt-BR")==="nome")evaluated=WhatSendTemplateContract.formatNameForMessage(evaluated);output+=evaluated==null?marker:String(evaluated);}catch(error){output+=marker;}}return output;}
+function renderPreview(){var selected=table.getSelectedData();var row=selected[0]||table.getData()[0]||{};var byName={};Object.keys(row).forEach(function(key){byName[WhatSendCsv.normalizeHeader(key)]=String(row[key]==null?"":row[key]);});var text=renderExpressions(templateText.value,byName);var hour=new Date().getHours();text=text.replace(/\\$diatarde\\$/giu,hour<12?"bom dia":"boa tarde");preview.innerHTML=previewHtml(text||"A prévia aparecerá aqui. Selecione uma linha do CSV para conferir as substituições.");}
 function renderModelTabs(){var source=templateText.value;var starts=[0];var pattern=/^\\s*\\^\\^\\^\\s*$/gmu;var match;while((match=pattern.exec(source)))starts.push(match.index+match[0].length);modelTabs.innerHTML="";starts.forEach(function(start,index){var button=document.createElement("button");button.type="button";button.className="wa-tab";button.textContent="M"+(index+1);button.setAttribute("aria-label","Modelo "+(index+1));button.addEventListener("click",function(){var end=index+1<starts.length?starts[index+1]:source.length;templateText.focus();templateText.setSelectionRange(start,end);});modelTabs.append(button);});var create=document.createElement("button");create.id="newTemplateTabButton";create.type="button";create.className="wa-tab wa-tab-create";create.setAttribute("aria-label","Novo modelo");create.textContent="+";create.addEventListener("click",function(){templateText.value+=(templateText.value.trim()?"\\n^^^\\n":"");renderAdvisories();templateText.focus();});modelTabs.append(create);}
 function renderAdvisories(){var issues=WhatSendAdvisory.analyzeTemplate(templateText.value);templateTextHidden.value=templateText.value;templateHighlight.textContent=templateText.value+"\\n";document.getElementById("templateSaveState").textContent="Salvo localmente";renderPreview();renderModelTabs();advisories.innerHTML="";templateText.classList.toggle("editor-alert",issues.length>0);if(!issues.length){advisories.textContent="Nenhuma ocorrência ativa.";}issues.forEach(function(issue){var button=document.createElement("button");button.type="button";button.className="issue "+issue.severity;button.textContent=(issue.severity==="error"?"Erro":"Aviso")+" — linha "+issue.line+", coluna "+issue.column+": "+issue.message;button.addEventListener("click",function(){templateText.focus();templateText.setSelectionRange(issue.index,issue.index+issue.length);});advisories.append(button);});saveState();}
 function validateGrid(){table.getRows().forEach(function(row){row.getCells().forEach(function(cell){cell.getElement().classList.remove("invalid-cell");});});var validation=WhatSendCsv.validateRecords(headers,table.getData());if(!validation.ok){validation.issues.forEach(function(issue){if(issue.row<2||!issue.column)return;var row=table.getRows()[issue.row-2];var cell=row&&row.getCell(issue.column);if(cell)cell.getElement().classList.add("invalid-cell");});setStatus(csvStatus,validation.issues.map(function(issue){return "Linha "+issue.row+(issue.column?", coluna "+issue.column:"")+": "+issue.message;}).join(" "),"error");return false;}setStatus(csvStatus,"Estrutura válida. Linhas: "+table.getData().length+".","ok");return true;}
@@ -217,6 +221,7 @@ function validateOfflineBundle(html) {
     "WhatSendPackage",
     "WhatSendAdvisory",
     "WhatSendExpression",
+    "WhatSendTemplateContract",
     "Em desenvolvimento: este software pode conter erros.",
     "Content-Security-Policy",
     "connect-src 'none'",

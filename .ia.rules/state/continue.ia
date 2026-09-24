@@ -14,30 +14,30 @@ verificacoes=Estado canônico e projeções sincronizados; 14 sentenças da FT-0
 pendencias=Implementação da FT-030 depende de nova autorização humana explícita; teste oficial segue bloqueado por bridges legados ausentes na governança instalada.
 historico=.ia.rules/state/history/FT-029.ia|sha256=a561a92bb81a25bb1c7f2cbd4562eab5f59ab43d97ea79b3665f5c6bd270ab48
 
-FT-030|nome=Implementar remetente condicional e preview representativo|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=pendente
+FT-030|nome=Implementar remetente condicional e preview representativo|tipo=implementacao_codigo|escopo=Tecnico|prioridade=alta|status=em_implementacao
 criado_em=2026-09-23T12:52:53-03:00
-ultima_atualizacao=2026-09-23T12:52:53-03:00
+ultima_atualizacao=2026-09-23T16:18:32-03:00
 origem=.ia.rules/state/TODO.ia.md#Implementar-${remetente};vinculo=FT-029
 objetivo=Implementar e validar o contrato normatizado pela FT-029 no parser, envio, GUI Node, toolbar comum, previews Node/offline, documentacao e distribuicao.
-dependencias=FT-029 concluida e validada;autorizacao humana explicita posterior ainda ausente
-autorizacao=nao_autorizada_para_codigo
-estado_atual=Aguardando conclusao da FT-029 e nova autorizacao humana explicita.
-proximo_ponto_executavel=Nenhum; nao iniciar codigo antes do gate normativo e da autorizacao posterior.
+dependencias=FT-029 concluida; autorizacao humana explicita recebida em 2026-09-23
+autorizacao=humana_para_codigo
+estado_atual=Contratos comuns, fluxos de envio, GUI Node, toolbar e previews implementados; testes focais em execucao.
+proximo_ponto_executavel=Concluir validacao, tratar a lacuna da governanca instalada pela rota oficial e sincronizar rastreabilidade.
 
 etapas=
-1/4 Contratos comuns [pendente]
-  1/3 Centralizar deteccao, validacao, normalizacao e formatacao [pendente]
-  2/3 Integrar resolucao reservada aos dois fluxos de envio [pendente]
-  3/3 Integrar preview seguro sem apagar notacao irresoluvel [pendente]
-2/4 GUI e editores [pendente]
-  1/4 Adicionar campo condicional exclusivo da GUI Node [pendente]
-  2/4 Reagir a todas as mutacoes dos modelos abertos [pendente]
-  3/4 Integrar botao pela toolbar comum [pendente]
-  4/4 Manter preview offline representativo sem projetar o campo Node [pendente]
-3/4 Testes e documentacao [pendente]
-  1/3 Cobrir parser, envio, validacao e espacamento [pendente]
-  2/3 Cobrir reatividade, multiplas abas, toolbar e previews [pendente]
-  3/3 Atualizar README, guia e ajuda contextual [pendente]
+1/4 Contratos comuns [concluido]
+  1/3 Centralizar deteccao, validacao, normalizacao e formatacao [concluido]
+  2/3 Integrar resolucao reservada aos dois fluxos de envio [concluido]
+  3/3 Integrar preview seguro sem apagar notacao irresoluvel [concluido]
+2/4 GUI e editores [concluido]
+  1/4 Adicionar campo condicional exclusivo da GUI Node [concluido]
+  2/4 Reagir a todas as mutacoes dos modelos abertos [concluido]
+  3/4 Integrar botao pela toolbar comum [concluido]
+  4/4 Manter preview offline representativo sem projetar o campo Node [concluido]
+3/4 Testes e documentacao [em_andamento]
+  1/3 Cobrir parser, envio, validacao e espacamento [concluido]
+  2/3 Cobrir reatividade, multiplas abas, toolbar e previews [concluido]
+  3/3 Atualizar README, guia e ajuda contextual [concluido]
 4/4 Integracao [pendente]
   1/3 Executar suite, check, build e validacao dist [pendente]
   2/3 Auditar diff, paridade e regressao [pendente]

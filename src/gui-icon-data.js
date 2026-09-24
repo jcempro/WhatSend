@@ -443,6 +443,29 @@ const GUI_ICON_DEFINITIONS = Object.freeze({
     "version": "1.34.0",
     "viewBox": "0 0 24 24"
   },
+  "lucide:signature": {
+    "body": "<path d=\"m21 17-2.156-1.868A.5.5 0 0 0 18 15.5v.5a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1c0-2.545-3.991-3.97-8.5-4a1 1 0 0 0 0 5c4.153 0 4.745-11.295 5.708-13.5a2.5 2.5 0 1 1 3.31 3.284\"/><path d=\"M3 21h18\"/>",
+    "collection": "",
+    "consumers": [
+      "editor:sender"
+    ],
+    "license": "ISC",
+    "licenseUrl": "https://github.com/lucide-icons/lucide/blob/main/LICENSE",
+    "name": "signature",
+    "package": "lucide",
+    "provider": "lucide",
+    "sourceUrl": "https://lucide.dev",
+    "style": "outline",
+    "symbolAttributes": {
+      "fill": "none",
+      "stroke": "currentColor",
+      "stroke-linecap": "round",
+      "stroke-linejoin": "round",
+      "stroke-width": "2"
+    },
+    "version": "1.34.0",
+    "viewBox": "0 0 24 24"
+  },
   "lucide:message-circle-more": {
     "body": "<path d=\"M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719\"/><path d=\"M8 12h.01\"/><path d=\"M12 12h.01\"/><path d=\"M16 12h.01\"/>",
     "collection": "",

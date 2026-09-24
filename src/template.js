@@ -19,6 +19,12 @@ const {
   normalizeFieldName,
 } = require("./utils");
 const { MAX_EMBEDDED_ATTACHMENT_BYTES, getMediaCapability } = require("./media-capabilities");
+const {
+  SENDER_PREVIEW_EXAMPLE,
+  appendSenderSpacing,
+  isSenderExpression,
+  validateSender,
+} = require("./template-contract");
 
 const HTML_NAMED_ENTITIES = new Map([
   ["amp", "&"],
@@ -74,10 +80,19 @@ const NON_PRINTABLE_EXCESS_PATTERN = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u0
 function applyTemplate(template, data, options = {}) {
   const missingVariables = new Set();
   const dataMap = buildCaseInsensitiveDataMap(data);
+  const reservedMap = buildCaseInsensitiveDataMap(options.reserved || {});
+  const senderRecord = reservedMap.get("remetente");
+  const senderValidation = validateSender(senderRecord ? senderRecord.value : "");
+  const evaluationReserved = {
+    ...Object.fromEntries(Object.entries(options.reserved || {}).filter(
+      ([key]) => normalizeFieldName(key) !== "remetente",
+    )),
+    ...(senderValidation.valid ? { remetente: senderValidation.rendered } : {}),
+  };
   const normalizedTemplate = parseEmbeddedTemplate(template).content;
 
   const rendered = replaceDayPeriodMarkers(
-    replaceTemplateExpressions(normalizedTemplate, (expression) => {
+    replaceTemplateExpressions(normalizedTemplate, (expression, context) => {
       const key = normalizeNestedTemplateExpression(String(expression).trim());
       let ast;
 
@@ -85,12 +100,18 @@ function applyTemplate(template, data, options = {}) {
         ast = parseExpression(key);
       } catch (err) {
         notifyMissingTemplateVariable(key, missingVariables, options);
-        return "";
+        return options.preserveUnresolved ? context.marker : "";
       }
 
       if (isSimpleIdentifierExpression(ast)) {
         const normalizedKey = normalizeFieldName(key.replace(/^\$/, ""));
-        const reservedMap = buildCaseInsensitiveDataMap(options.reserved || {});
+        if (isSenderExpression(normalizedKey)) {
+          if (!senderValidation.valid) {
+            notifyMissingTemplateVariable(normalizedKey, missingVariables, options);
+            return options.preserveUnresolved ? context.marker : "";
+          }
+          return appendSenderSpacing(senderValidation.rendered, context.followingText);
+        }
         const reserved = reservedMap.get(normalizedKey);
         if (reserved) {
           return decodeHtmlEntities(reserved.value ?? "");
@@ -99,7 +120,7 @@ function applyTemplate(template, data, options = {}) {
 
         if (!record) {
           notifyMissingTemplateVariable(key, missingVariables, options);
-          return "";
+          return options.preserveUnresolved ? context.marker : "";
         }
 
         const value = decodeHtmlEntities(record.value ?? "");
@@ -107,19 +128,24 @@ function applyTemplate(template, data, options = {}) {
       }
 
       try {
+        let missingExpressionField = false;
         const result = evaluateExpression(ast, data, {
           conversation: options.conversation,
           identifierMode: "field",
-          onMissingField: (field) =>
-            notifyMissingTemplateVariable(field, missingVariables, options),
+          onMissingField: (field) => {
+            missingExpressionField = true;
+            notifyMissingTemplateVariable(field, missingVariables, options);
+          },
           recentConversationMinutes: options.recentConversationMinutes,
-          reserved: options.reserved,
+          reserved: evaluationReserved,
         });
 
-        return expressionResultToString(result.value);
+        return options.preserveUnresolved && missingExpressionField
+          ? context.marker
+          : expressionResultToString(result.value);
       } catch (err) {
         notifyMissingTemplateVariable(key, missingVariables, options);
-        return "";
+        return options.preserveUnresolved ? context.marker : "";
       }
     }),
     options.now || new Date(),
@@ -157,7 +183,10 @@ function replaceTemplateExpressions(template, callback) {
 
         if (depth === 0) {
           index += 1;
-          result += callback(expression);
+          result += callback(expression, {
+            followingText: template.slice(index),
+            marker: template.slice(start, index),
+          });
           break;
         }
       }
@@ -173,6 +202,23 @@ function replaceTemplateExpressions(template, callback) {
   }
 
   return result;
+}
+
+/** Renderiza somente valores seguros, preservando literalmente toda notação irresolúvel. */
+function renderTemplatePreview(template, data = {}, options = {}) {
+  const senderValidation = validateSender(options.sender);
+  return applyTemplate(template, data, {
+    ...options,
+    preserveUnresolved: true,
+    reserved: {
+      ...Object.fromEntries(Object.entries(options.reserved || {}).filter(
+        ([key]) => normalizeFieldName(key) !== "remetente",
+      )),
+      remetente: senderValidation.valid
+        ? senderValidation.normalized
+        : SENDER_PREVIEW_EXAMPLE,
+    },
+  });
 }
 
 function inspectTemplateSyntax(template) {
@@ -661,6 +707,7 @@ module.exports = {
   normalizeMediaSource,
   normalizeMessagePosting,
   parseTemplateParts,
+  renderTemplatePreview,
   parseEmbeddedTemplate,
   POSTING_SPLIT_MARKER,
   splitMessagePostings,

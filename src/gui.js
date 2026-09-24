@@ -48,9 +48,11 @@ const {
   isEmbeddedMediaReference,
   parseEmbeddedTemplate,
   parseTemplateParts,
+  renderTemplatePreview,
   splitMessagePostings,
   splitTemplateVariants,
 } = require("./template");
+const { containsSenderMarker, validateSender } = require("./template-contract");
 const {
   createSession,
   listPersistedSessions,
@@ -1185,6 +1187,8 @@ async function runGuiCampaign(payload, context) {
     idempotencyKey: String(payload.operationKey || ""),
     onProgress: (event) => pushGuiLog(state, event),
     resetSent: Boolean(payload.resetSent),
+    sender: String(payload.sender || ""),
+    gui: true,
   };
 
   pushGuiLog(state, {
@@ -1194,6 +1198,8 @@ async function runGuiCampaign(payload, context) {
 
   const validation = validateRuntimeFiles(executionPaths, {
     checkBrowser: false,
+    gui: true,
+    sender: options.sender,
   });
 
   pushGuiLog(state, {
@@ -1322,6 +1328,11 @@ function validateGuiPayload(payload = {}, basePaths = PATHS) {
     (templateFile && String(templateFile.content || "").trim()) ||
     readOptionalFile(basePaths.template);
 
+  if (containsSenderMarker(parseEmbeddedTemplate(templateCandidate).content)) {
+    const sender = validateSender(payload.sender);
+    if (!sender.valid) errors.push(sender.error);
+  }
+
   const syntaxIssues = inspectTemplateSyntax(templateCandidate);
   const editorialIssues = analyzeTemplate(templateCandidate);
 
@@ -1442,7 +1453,10 @@ function buildGuiTemplatePreview(payload = {}, basePaths = PATHS) {
     const document = parseEmbeddedTemplate(normalized);
     const variantSources = editorBlocks.length ? editorBlocks : splitTemplateVariants(document.content);
     const variants = variantSources.map((variant, variantIndex) => {
-      const postings = splitMessagePostings(variant).map((posting, postingIndex) => {
+      const previewVariant = renderTemplatePreview(variant, payload.previewData || {}, {
+        sender: payload.sender,
+      });
+      const postings = splitMessagePostings(previewVariant).map((posting, postingIndex) => {
         const plan = buildSendPlan(parseTemplateParts(posting), document.attachments).map((part) =>
           describePreviewPart(part, document.attachments),
         );
@@ -1955,6 +1969,7 @@ function renderGuiHtml() {
     "csv-contract.js",
     "whatsend-package.js",
     "template-advisory.js",
+    "template-contract.js",
   ].map((name) => readOptionalFile(path.join(__dirname, name)))
     .join("\n")
     .replace(/<\/script/giu, "<\\/script");
@@ -2840,6 +2855,19 @@ function renderGuiHtml() {
       display: block;
     }
 
+    .sender-field {
+      margin-top: 14px;
+      max-width: 560px;
+    }
+
+    .sender-field[hidden] {
+      display: none;
+    }
+
+    .sender-field input {
+      width: 100%;
+    }
+
     .syntax-demo {
       border: 1px solid var(--line);
       border-radius: 8px;
@@ -3509,6 +3537,13 @@ function renderGuiHtml() {
               <div id="templatePreview" class="wa-preview" aria-live="polite"></div>
             </div>
           </div>
+          <!-- node-only:sender:start -->
+          <div id="senderFieldBox" class="sender-field" data-node-only hidden>
+            <label for="senderInput">Remetente</label>
+            <input id="senderInput" type="text" autocomplete="off" aria-describedby="senderFieldMessage" placeholder="Nome da pessoa ou empresa">
+            <div id="senderFieldMessage" class="field-message" aria-live="polite"></div>
+          </div>
+          <!-- node-only:sender:end -->
           <textarea id="templateText" class="visually-hidden-field" tabindex="-1" aria-hidden="true"></textarea>
           <div id="templateAdvisories" class="template-advisories" aria-live="polite"></div>
           <div class="hint">\${campo} aceita colunas/expressões. Use a toolbar para inserir apenas marcação textual do WhatsApp. Anexos em <code>![](arquivo.pdf)</code>, <code>$postagem$</code> e separadores <code>^^^</code> permanecem texto puro. ${renderHelpLink("fontawesome:solid:circle-info", DOCS_USAGE_GITHUB_URL, GUI_HINTS.docs)}</div>
@@ -3525,6 +3560,8 @@ function renderGuiHtml() {
               <div><code>mono exemplo</code></div>
               <div><code>\${nome}</code> / <code>\${(valor+taxa)*2}</code></div>
               <div>Variáveis e cálculos do CSV</div>
+              <div><code>\${remetente}</code></div>
+              <div>Remetente reservado da GUI Node</div>
               <div><code>$diatarde$</code></div>
               <div>bom dia / boa tarde</div>
               <div><code>![](arquivo.pdf)</code></div>
@@ -3702,6 +3739,9 @@ function renderGuiHtml() {
     const emojiMenu = document.getElementById("emojiMenu");
     const insertAttachmentButton = document.getElementById("insertAttachmentButton");
     const insertPostingButton = document.getElementById("insertPostingButton");
+    const senderFieldBox = document.getElementById("senderFieldBox");
+    const senderInput = document.getElementById("senderInput");
+    const senderFieldMessage = document.getElementById("senderFieldMessage");
     const settingsOverlay = document.getElementById("settingsOverlay");
     const settingsGrid = document.getElementById("settingsGrid");
     const settingsCancel = document.getElementById("settingsCancel");
@@ -4146,6 +4186,26 @@ function renderGuiHtml() {
     function syncTemplateHidden() {
       saveActiveTemplateBlock();
       templateTextHidden.value = joinEditorBlocks();
+      updateSenderFieldState();
+    }
+
+    /** Sincroniza presença, obrigatoriedade e validade com todos os blocos abertos. */
+    function updateSenderFieldState() {
+      const required = WhatSendTemplateContract.containsSenderMarkerInBlocks(templateBlocks);
+      senderFieldBox.hidden = !required;
+      senderInput.required = required;
+      if (!required) {
+        senderInput.setCustomValidity("");
+        senderFieldMessage.textContent = "";
+        senderFieldMessage.className = "field-message";
+        return;
+      }
+      const validation = WhatSendTemplateContract.validateSender(senderInput.value);
+      senderInput.setCustomValidity(validation.valid ? "" : validation.error);
+      senderFieldMessage.textContent = validation.valid
+        ? "Será enviado como " + validation.rendered
+        : validation.error;
+      senderFieldMessage.className = "field-message " + (validation.valid ? "ok" : "error");
     }
 
     function highlightTemplateText(text) {
@@ -4711,6 +4771,7 @@ function renderGuiHtml() {
       }
       const result = await postJson("/api/template/preview", {
         editorBlocks: [activeText],
+        sender: senderInput.value,
         templateBaseDir: templateBaseDirInput.value,
         templateText: activeText,
       });
@@ -5102,6 +5163,11 @@ function renderGuiHtml() {
         errors.push("A base de clientes precisa ser .csv.");
       }
 
+      if (!senderFieldBox.hidden) {
+        const sender = WhatSendTemplateContract.validateSender(payload.sender);
+        if (!sender.valid) errors.push(sender.error);
+      }
+
       return errors;
     }
 
@@ -5263,6 +5329,7 @@ function renderGuiHtml() {
         forceResend: document.getElementById("forceResend").checked,
         operationKey: "gui-" + createStableId(),
         resetSent: document.getElementById("resetSent").checked,
+        sender: senderFieldBox.hidden ? "" : senderInput.value,
         templateBaseDir: templateBaseDirInput.value,
         templateFile: useTemplateFile ? templateFile : null,
         templateText: useTemplateFile ? "" : templateTextHidden.value,
@@ -5720,6 +5787,11 @@ function renderGuiHtml() {
     });
 
     templateEditorInput.addEventListener("input", handleTemplateInputChanged);
+    senderInput.addEventListener("input", () => {
+      updateSenderFieldState();
+      scheduleTemplatePreview();
+      invalidateCompletionForMaterialChange();
+    });
     templateEditorInput.addEventListener("paste", () => {
       window.setTimeout(handleTemplateInputChanged, 0);
     });

@@ -13,6 +13,7 @@ const {
   MAX_DELAY_MS,
   MIN_DELAY_MS,
 } = require("./config");
+const { formatNameForMessage } = require("./template-contract");
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -32,28 +33,6 @@ function sanitizePhone(phone, countryCode = DEFAULT_COUNTRY_CODE) {
   }
 
   return cleaned;
-}
-
-function formatNameForMessage(name) {
-  return String(name || "")
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map(capitalizeNamePart)
-    .join(" ");
-}
-
-function capitalizeNamePart(part) {
-  return part
-    .split("-")
-    .map((piece) => {
-      const lower = piece.toLocaleLowerCase("pt-BR");
-      return lower.replace(/^\p{L}/u, (letter) =>
-        letter.toLocaleUpperCase("pt-BR"),
-      );
-    })
-    .join("-");
 }
 
 function normalizeFieldName(field) {

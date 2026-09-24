@@ -720,9 +720,9 @@ test("publicador de release acompanha workflow oficial e valida assets", () => {
     "utf8",
   );
 
-  assert.match(releasePublisher, /"--event", "push"/);
+  assert.match(releasePublisher, /"--event",\s*"push"/);
   assert.match(releasePublisher, /ASSETS_RELEASE_INCOMPLETOS/);
-  assert.match(releasePublisherResume, /"--event", "push"/);
+  assert.match(releasePublisherResume, /"--event",\s*"push"/);
   assert.match(releasePublisherResume, /ASSETS_RELEASE_INCOMPLETOS/);
 });
 

@@ -27,6 +27,7 @@ module.exports = {
   ...require("./sessions"),
   ...require("./status"),
   ...require("./template"),
+  ...require("./template-contract"),
   ...require("./tracking"),
   ...require("./update-check"),
   ...require("./utils"),

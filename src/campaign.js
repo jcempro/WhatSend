@@ -24,6 +24,7 @@ const {
 } = require("./config");
 const { loadClientes, loadTemplate } = require("./data");
 const { applyTemplate, parseEmbeddedTemplate, splitTemplateVariants } = require("./template");
+const { containsSenderMarker, validateSender } = require("./template-contract");
 const {
   createRenderedSendCursor,
   sendNextRenderedItem,
@@ -59,6 +60,15 @@ function validateRuntimeFiles(paths = PATHS, options = {}) {
 
     if (template.content.trim().length === 0) {
       issues.push("Template inválido: texto.md está vazio.");
+    }
+
+    if (containsSenderMarker(template.content)) {
+      const sender = validateSender(options.sender);
+      if (!sender.valid) {
+        issues.push(options.gui
+          ? sender.error
+          : "O modelo usa ${remetente}, disponível somente pela GUI Node.");
+      }
     }
 
     issues.push(...validateTemplateMediaReferences(template, paths));
@@ -178,6 +188,14 @@ async function processCampaignExecution(client, paths = PATHS, options = {}) {
   const forceResend = Boolean(options.forceResend);
   const sentRecords = loadSentRecords(paths.sent);
   const templateDocument = parseEmbeddedTemplate(loadTemplate(paths.template));
+  const senderRequired = containsSenderMarker(templateDocument.content);
+  const senderValidation = validateSender(options.sender);
+  if (senderRequired && !senderValidation.valid) {
+    throw new Error(options.gui
+      ? senderValidation.error
+      : "O modelo usa ${remetente}, disponível somente pela GUI Node.");
+  }
+  const sender = senderValidation.valid ? senderValidation.normalized : "";
   const originalTemplateVariants = splitTemplateVariants(templateDocument.content);
   const templateVariants = createCampaignTemplateVariants(originalTemplateVariants, options);
   const messageContexts = templateVariants.map((variant) =>
@@ -207,7 +225,7 @@ async function processCampaignExecution(client, paths = PATHS, options = {}) {
   if (interleavingEnabled) {
     return processInterleavedRecipients({
       client, clientes, forceResend, messageContexts, options, paths,
-      sentRecords, status, templateDocument, templateVariants,
+      sender, sentRecords, status, templateDocument, templateVariants,
     });
   }
 
@@ -329,6 +347,7 @@ async function processCampaignExecution(client, paths = PATHS, options = {}) {
         onMissingVariable: (field) => missingVariables.add(field),
         recentConversationMinutes: options.recentConversationMinutes ?? RECENT_CONVERSATION_MINUTES,
         reserved: {
+          remetente: sender,
           ultimaconversa: conversation.lastMessageAt || "",
         },
       });
@@ -469,7 +488,7 @@ function createCampaignTemplateVariants(templateVariants, options = {}) {
 async function processInterleavedRecipients(context) {
   const {
     client, clientes, forceResend, messageContexts, options, paths,
-    sentRecords, status, templateDocument, templateVariants,
+    sender, sentRecords, status, templateDocument, templateVariants,
   } = context;
   const recipients = [];
   for (let index = 0; index < clientes.length; index += 1) {
@@ -495,7 +514,10 @@ async function processInterleavedRecipients(context) {
         conversation,
         onMissingVariable: (field) => missingVariables.add(field),
         recentConversationMinutes: options.recentConversationMinutes ?? RECENT_CONVERSATION_MINUTES,
-        reserved: { ultimaconversa: conversation.lastMessageAt || "" },
+        reserved: {
+          remetente: sender,
+          ultimaconversa: conversation.lastMessageAt || "",
+        },
       });
       for (const field of missingVariables) {
         appendLog(paths.warnings, [telefone, "VARIAVEL_AUSENTE", field, new Date().toISOString()]);

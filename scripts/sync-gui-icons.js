@@ -37,6 +37,7 @@ const SELECTIONS = Object.freeze([
   lucide("package-check", "PackageCheck", ["editor:save-package"]),
   lucide("package-open", "PackageOpen", ["editor:open-package"]),
   lucide("variable", "Variable", ["editor:variable"]),
+  lucide("signature", "Signature", ["editor:sender"]),
   lucide("message-circle-more", "MessageCircleMore", ["editor:last-conversation"]),
   lucide("message-circle-check", "MessageCircleCheck", ["editor:in-conversation"]),
   lucide("git-fork", "GitFork", ["editor:if-function"]),
